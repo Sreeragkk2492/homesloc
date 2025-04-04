@@ -16,4 +16,5 @@ class ApiConstant {
 
   //search
   static String HOTEL_SEARCH_URL="/api/v1/search/hotels";
+  static String HOTEL_SEARCH_ROOM_DETAILS_URL="/api/v1/search/rooms";
 }
