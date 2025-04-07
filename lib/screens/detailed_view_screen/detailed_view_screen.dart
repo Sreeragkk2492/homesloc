@@ -19,6 +19,9 @@ import 'package:homesloc/core/widgets/builder/detailed_view_builder/first_detail
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/second_detailed_view_builder.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
+import 'package:homesloc/screens/detailed_view_screen/hotel_policies_row/hotel_policies_row.dart';
+import 'package:homesloc/screens/detailed_view_screen/room_policies_row/room_policies_row.dart';
+import 'package:homesloc/screens/detailed_view_screen/full_property_detailed_view_screen.dart';
 
 class DetailedViewScreen extends StatelessWidget {
   final dynamic hotel;
@@ -38,6 +41,15 @@ class DetailedViewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // If the hotel is a full property, use the FullPropertyDetailedViewScreen
+    if (hotel != null && hotel.isFullProperty == true) {
+      return FullPropertyDetailedViewScreen(
+        hotel: hotel,
+        startDate: startDate,
+        endDate: endDate,
+      );
+    }
+
     final roomDetailsController = Get.put(SearchHotelRoomDetailsController());
 
     // Fetch room details if roomId and dates are provided
@@ -392,7 +404,10 @@ class DetailedViewScreen extends StatelessWidget {
               SizedBox(
                 height: 15.h,
               ),
-              BookNow(),
+              BookNow(
+                hotel: hotel,
+                selectedRoom: roomDetailsController.roomDetails.value,
+              ),
               Padding(
                 padding: EdgeInsets.only(top: 18.h, left: 10.w, bottom: 10.h),
                 child: Text(
@@ -416,37 +431,43 @@ class DetailedViewScreen extends StatelessWidget {
                         color: blue,
                         borderRadius: BorderRadius.circular(3.sp),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                           "7",
-                            style: TextStyle(
+                      child: Obx(() {
+                        final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "${hotelDetails?.starRating ?? 0}",
+                              style: TextStyle(
                                 fontFamily: 'Poppins',
                                 color: white,
-                                fontSize: 11.sp),
-                          ),
-                          SizedBox(
-                            width: 2.w,
-                          ),
-                          Icon(
-                            Icons.star,
-                            color: yellow,
-                            size: 14.sp,
-                          )
-                        ],
-                      ),
+                                fontSize: 11.sp
+                              ),
+                            ),
+                            SizedBox(width: 2.w),
+                            Icon(
+                              Icons.star,
+                              color: yellow,
+                              size: 14.sp,
+                            )
+                          ],
+                        );
+                      }),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(right: 128.w),
-                      child: Text(
-                        "835 Reviews",
-                        style: TextStyle(
+                    Obx(() {
+                      final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                      return Padding(
+                        padding: EdgeInsets.only(right: 128.w),
+                        child: Text(
+                          "${hotelDetails?.totalRooms ?? 0} Reviews",
+                          style: TextStyle(
                             fontFamily: 'Poppins',
                             color: const Color.fromARGB(255, 190, 190, 190),
-                            fontSize: 11.sp),
-                      ),
-                    ),
+                            fontSize: 11.sp
+                          ),
+                        ),
+                      );
+                    }),
                     Container(
                       width: 80.w,
                       height: 20.h,
@@ -463,16 +484,27 @@ class DetailedViewScreen extends StatelessWidget {
                             height: 11.h,
                             color: blue,
                           ),
-                          SizedBox(
-                            width: 5.w,
-                          ),
-                          Text(
-                            'Excellent',
-                            style: TextStyle(
+                          SizedBox(width: 5.w),
+                          Obx(() {
+                            final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                            final rating = hotelDetails?.starRating ?? 0;
+                            String ratingText = 'Poor';
+                            if (rating >= 4) {
+                              ratingText = 'Excellent';
+                            } else if (rating >= 3) {
+                              ratingText = 'Good';
+                            } else if (rating >= 2) {
+                              ratingText = 'Average';
+                            }
+                            return Text(
+                              ratingText,
+                              style: TextStyle(
                                 color: black,
                                 fontFamily: 'Poppins',
-                                fontSize: 10.sp),
-                          ),
+                                fontSize: 10.sp
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -490,14 +522,14 @@ class DetailedViewScreen extends StatelessWidget {
                 child: SecondDetailedViewBuilder(),
               ),
               HomeDivider(),
-              NameView(
-                  name: 'Amenities',
-                  color: blue,
-                  secondName: 'View All',
-                  secondColor: blue),
+              // NameView(
+              //     name: 'Amenities',
+              //     color: blue,
+              //     secondName: 'View All',
+              //     secondColor: blue),
               AmenitieRow(),
               HomeDivider(),
-              Padding(
+              Padding( 
                 padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
                 child: Text(
                   'Transportations',
@@ -514,7 +546,7 @@ class DetailedViewScreen extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
                 child: Text(
-                  'About Issacs Residency',
+                  'About ${roomDetailsController.roomDetails.value?.hotelDetails?.name ?? "Hotel"}', 
                   style: TextStyle(
                       fontFamily: 'Poppins',
                       color: blue,
@@ -531,25 +563,28 @@ class DetailedViewScreen extends StatelessWidget {
                   // color: blue,
                   borderRadius: BorderRadius.circular(5.sp),
                   image: DecorationImage(
-                      image: AssetImage('assets/images/image (33).png'),
-                      fit: BoxFit.cover),
+                      image:  NetworkImage(hotel?.coverImageUrl ?? 'assets/images/image (33).png'),
+                      fit: BoxFit.fill ),
                 ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10.w),
                 child: Column(
                   children: [
-                   //  Text(
-                   //
-                   // // "Set in Munnar "
-                   //
-                   //    style: TextStyle(
-                   //        fontFamily: 'Poppins', color: black, fontSize: 13.sp),
-                   //  ),
-                    SizedBox(
+                    Obx(() {
+                      final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                      return Text(
+                        hotelDetails?.description ?? "No description available",
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          color: black,
+                          fontSize: 13.sp,
+                        ),
+                      );
+                    }),
+                    SizedBox( 
                       height: 8.h,
                     ),
-
                   ],
                 ),
               ),
@@ -559,55 +594,10 @@ class DetailedViewScreen extends StatelessWidget {
                   color: blue,
                   secondName: 'View All',
                   secondColor: blue),
-              Padding(
-                padding: EdgeInsets.only(left: 10.w, right: 10.w, top: 5.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '1. Check in & Check out:',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: black,
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 5.h,
-                    ),
-                    Text(
-                      'Check In Is Available From [12:00pm] And We\nRequest check out by [11:00am] to Allow\nSmooth transition for incoming guests.',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: black,
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Text(
-                      '2.Cancellations & Refunds:',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: black,
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 5.h,
-                    ),
-                    Text(
-                      'Cancellations made [4 days] in advance are\nEligible for a full refund. For cancellations closer',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: black,
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-              ),
+             
+              const HotelPoliciesRow(),
+            //  HomeDivider(),
+             // const RoomPoliciesRow(),
               SizedBox(height: 30.h),
             ],
           ),

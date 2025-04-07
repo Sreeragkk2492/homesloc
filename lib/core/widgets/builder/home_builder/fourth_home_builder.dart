@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/controller/home/home_screen_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../screens/detailed_view_screen/detailed_view_screen.dart';
 
@@ -28,7 +30,11 @@ class FourthHomeBuilder extends StatelessWidget {
               final hotel = bestHotels?[index];
               return GestureDetector(
                 onTap: (){
-                  Get.to(()=>DetailedViewScreen(hotel: hotel,));
+                  Get.to(()=>DetailedViewScreen(
+                    hotel: hotel,
+                    startDate: DateFormat('yyyy-MM-dd').format(Get.find<CalendarController>().checkInDate.value!),
+                    endDate: DateFormat('yyyy-MM-dd').format(Get.find<CalendarController>().checkOutDate.value!),
+                  ));
                 },
                 child: Container(
                   margin: EdgeInsets.only(top: 5.h, bottom: 5.h),

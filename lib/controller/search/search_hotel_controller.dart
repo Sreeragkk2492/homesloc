@@ -34,8 +34,8 @@ class SearchHotelController extends GetxController {
         // starRating: 0,
         // page: 1,
         // pageSize: 10,
-        sortBy: 'created_at',
-        sortOrder: 'desc',
+        // sortBy: 'created_at',
+        // sortOrder: 'desc',
       );
 
       if (result != null) {

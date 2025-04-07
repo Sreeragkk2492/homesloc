@@ -8,12 +8,16 @@ class NameView extends StatelessWidget {
   final String secondName;
   final Color color;
   final Color secondColor;
-  const NameView(
-      {super.key,
-      required this.name,
-      required this.color,
-      required this.secondName,
-      required this.secondColor});
+  final VoidCallback? onTap;
+
+  const NameView({
+    super.key,
+    required this.name,
+    required this.color,
+    required this.secondName,
+    required this.secondColor,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,22 +34,22 @@ class NameView extends StatelessWidget {
                 fontSize: 17.sp,
                 fontWeight: FontWeight.bold),
           ),
-          // SizedBox(
-          //   width: 30.w,
-          // ),
-          Container(
-            width: 58.w,
-            height: 22.h,
-            decoration: BoxDecoration(
-                color: gwhite, borderRadius: BorderRadius.circular(4.sp)),
-            child: Center(
-              child: Text(
-                secondName,
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: secondColor,
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w600),
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              width: 58.w,
+              height: 22.h,
+              decoration: BoxDecoration(
+                  color: gwhite, borderRadius: BorderRadius.circular(4.sp)),
+              child: Center(
+                child: Text(
+                  secondName,
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: secondColor,
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           ),

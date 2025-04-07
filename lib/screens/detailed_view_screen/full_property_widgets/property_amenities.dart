@@ -1,22 +1,20 @@
-// ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
-import 'package:homesloc/controller/search/search_hotel_room_details_controller.dart';
+import 'package:homesloc/controller/search/search_hotel_full_properties_controller.dart';
 
-class AmenitieRow extends StatefulWidget {
-  const AmenitieRow({super.key});
+class PropertyAmenities extends StatefulWidget {
+  const PropertyAmenities({Key? key}) : super(key: key);
 
   @override
-  State<AmenitieRow> createState() => _AmenitieRowState();
+  State<PropertyAmenities> createState() => _PropertyAmenitiesState();
 }
 
-class _AmenitieRowState extends State<AmenitieRow> {
+class _PropertyAmenitiesState extends State<PropertyAmenities> {
   bool isExpanded = false;
-  final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+  final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
 
   void toggleExpanded() {
     setState(() {
@@ -27,13 +25,10 @@ class _AmenitieRowState extends State<AmenitieRow> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final roomDetails = roomDetailsController.roomDetails.value;
-      final amenities = roomDetails?.amenities ?? roomDetails?.hotelDetails?.amenities;
+      final amenities = fullPropertyController.getAmenities();
       
-      if (amenities == null || amenities.isEmpty) {
-        return const Center(
-          child: Text('No amenities available'),
-        );
+      if (amenities.isEmpty) {
+        return const SizedBox.shrink();
       }
 
       final displayedAmenities = isExpanded ? amenities : amenities.take(4).toList();
@@ -70,7 +65,7 @@ class _AmenitieRowState extends State<AmenitieRow> {
                       ),
                       SizedBox(width: 5.w),
                       Text(
-                        amenity.name ?? '',
+                        amenity,
                         style: TextStyle(
                           color: black,
                           fontFamily: 'Poppins',
@@ -83,8 +78,9 @@ class _AmenitieRowState extends State<AmenitieRow> {
               }).toList(),
             ),
           ),
+          SizedBox(height: 10.h),
         ],
       );
     });
   }
-}
+} 
