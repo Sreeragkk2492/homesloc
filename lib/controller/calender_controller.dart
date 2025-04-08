@@ -100,4 +100,10 @@ class CalendarController extends GetxController {
   String getGuestRoomInfo() {
     return "${guestCount.value} guest${guestCount.value > 1 ? 's' : ''}, ${roomCount.value} room${roomCount.value > 1 ? 's' : ''}";
   }
+
+  // Format date for API (YYYY-MM-DD)
+  String formatDateForApi(DateTime? date) {
+    if (date == null) return '';
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
 }
