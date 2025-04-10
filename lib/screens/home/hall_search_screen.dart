@@ -10,6 +10,7 @@ import 'package:homesloc/core/widgets/builder/home_builder/fourth_home_builder.d
 import 'package:homesloc/core/widgets/logo.dart/logo.dart';
 import 'package:homesloc/core/widgets/search_form/search_form.dart';
 import 'package:homesloc/models/search/search_hall_model.dart';
+import 'package:homesloc/screens/detailed_view_screen/detail_view_hall_screen.dart';
 import 'package:homesloc/screens/home/widget/calendar_bottom_sheet.dart';
 import 'package:homesloc/screens/home/widget/guest_dialog.dart';
 import 'package:homesloc/screens/home/widget/search_button.dart';
@@ -27,7 +28,7 @@ class HallSearchScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: blue,
+        backgroundColor: blue,
             automaticallyImplyLeading: false,
             pinned: false,
             floating: true,
@@ -362,165 +363,177 @@ class HallSearchScreen extends StatelessWidget {
       return SizedBox.shrink();  // Return empty widget if data is null
     }
     
-    return Container(
-      margin: EdgeInsets.only(top: 5.h, bottom: 5.h, left: 10.w, right: 10.w),
-      width: 339.w,
-      height: 138.h,
-      decoration: BoxDecoration(
-        border: Border.all(color: border),
-        borderRadius: BorderRadius.circular(15.sp),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            margin: EdgeInsets.only(left: 5.w, top: 2.h),
-            width: 144.w,
-            height: 128.h,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(13.sp),
-              image: DecorationImage(
-                image: NetworkImage(parentHall.coverImage ?? 'https://via.placeholder.com/150'),
-                fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        // Navigate to the DetailViewHallScreen with the hall and event details
+        Get.to(() => DetailViewHallScreen(
+          hall: parentHall,
+          selectedEvent: hallType,
+          eventId: hallType.id,
+          startDate: hallSearchController.checkInDate.value,
+          endDate: hallSearchController.checkOutDate.value,
+        ));
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 5.h, bottom: 5.h, left: 10.w, right: 10.w),
+        width: 339.w,
+        height: 138.h,
+        decoration: BoxDecoration(
+          border: Border.all(color: border),
+          borderRadius: BorderRadius.circular(15.sp),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.only(left: 5.w, top: 2.h),
+              width: 144.w,
+              height: 128.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(13.sp),
+                image: DecorationImage(
+                  image: NetworkImage(parentHall.coverImage ?? 'https://via.placeholder.com/150'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 5.w, top: 11.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  hallType.eventName ?? "Hall Type",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14.sp,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  _formatLocation(parentHall.locationInfo ?? LocationInfo()),
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: fontColor,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 11.sp,
-                  ),
-                ),
-                SizedBox(height: 3.h),
-                Row(
-                  children: [
-                    Text(
-                      "₹${hallType.price ?? '0'}",
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
-                      ),
+            Padding(
+              padding: EdgeInsets.only(left: 5.w, top: 11.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    hallType.eventName ?? "Hall Type",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.sp,
                     ),
-                    if (hallType.offerPrice != null && hallType.offerPrice!.isNotEmpty) ...[
-                      SizedBox(width: 5.w),
+                  ),
+                  SizedBox(height: 3.h),
+                  Text(
+                    _formatLocation(parentHall.locationInfo ?? LocationInfo()),
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: fontColor,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 11.sp,
+                    ),
+                  ),
+                  SizedBox(height: 3.h),
+                  Row(
+                    children: [
                       Text(
-                        "₹${hallType.offerPrice}",
+                        "₹${hallType.price ?? '0'}",
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          color: black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                      if (hallType.offerPrice != null && hallType.offerPrice!.isNotEmpty) ...[
+                        SizedBox(width: 5.w),
+                        Text(
+                          "₹${hallType.offerPrice}",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: fontColor,
+                            fontSize: 9.sp,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                        SizedBox(width: 5.w),
+                        Text(
+                          "${_calculateDiscountPercentage(hallType.price ?? '0', hallType.offerPrice ?? '0')}% OFF",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: green,
+                            fontSize: 11.sp,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  SizedBox(height: 3.h),
+                  Row(
+                    children: [
+                      Text(
+                        "Amenities : ",
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: fontColor,
-                          fontSize: 9.sp,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                      SizedBox(width: 5.w),
-                      Text(
-                        "${_calculateDiscountPercentage(hallType.price ?? '0', hallType.offerPrice ?? '0')}% OFF",
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: green,
                           fontSize: 11.sp,
                         ),
+                      ),
+                      if (hallType.amenities != null && hallType.amenities!.isNotEmpty)
+                        _buildAmenities(hallType.amenities!)
+                      else
+                        Text(
+                          "N/A",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: fontColor,
+                            fontSize: 11.sp,
+                          ),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 3.h),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            "Venue Type: ",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontSize: 10.sp,
+                            ),
+                          ),
+                          Text(
+                            "${hallType.venueType ?? 'N/A'}",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: black,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 2.h),
+                      Row(
+                        children: [
+                          Text(
+                            "Space Type: ",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontSize: 10.sp,
+                            ),
+                          ),
+                          Text(
+                            "${hallType.spaceType ?? 'N/A'}",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: black,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  ],
-                ),
-                SizedBox(height: 3.h),
-                Row(
-                  children: [
-                    Text(
-                      "Amenities : ",
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: fontColor,
-                        fontSize: 11.sp,
-                      ),
-                    ),
-                    if (hallType.amenities != null && hallType.amenities!.isNotEmpty)
-                      _buildAmenities(hallType.amenities!)
-                    else
-                      Text(
-                        "N/A",
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: fontColor,
-                          fontSize: 11.sp,
-                        ),
-                      ),
-                  ],
-                ),
-                SizedBox(height: 3.h),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          "Venue Type: ",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: fontColor,
-                            fontSize: 10.sp,
-                          ),
-                        ),
-                        Text(
-                          "${hallType.venueType ?? 'N/A'}",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: black,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 2.h),
-                    Row(
-                      children: [
-                        Text(
-                          "Space Type: ",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: fontColor,
-                            fontSize: 10.sp,
-                          ),
-                        ),
-                        Text(
-                          "${hallType.spaceType ?? 'N/A'}",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: black,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

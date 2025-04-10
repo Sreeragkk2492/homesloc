@@ -14,7 +14,8 @@ class ApiConstant {
   static String HOTEL_SEARCH_FULL_PROPERTY_URL =
       "/api/v1/search/full-properties";
   static String HALL_SEARCH_URL = "/api/v1/search/Banquet-Hall";
+  static String SEARCH_FRESH_UP_URL = "/api/v1/search";
 
   // Hall API endpoints
-  static const String HALL_DETAIL_URL = '/api/halls';
+  static const String EVENT_DETAIL_URL = '/api/v1/search/events/';
 }

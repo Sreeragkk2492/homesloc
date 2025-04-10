@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/apis/search/search_hall_api.dart';
+import 'package:homesloc/apis/search/search_hall_event_details_api.dart';
 import 'package:homesloc/models/search/search_hall_model.dart';
+import 'package:homesloc/models/search/search_hall_event_details_model.dart';
 
 class HallSearchController extends GetxController {
   final SearchHallApi _searchHallApi = SearchHallApi();
+  final SearchHallEventDetailsApi _searchHallEventDetailsApi = SearchHallEventDetailsApi();
 
   // Observable variables
   final RxList<Hall> halls = <Hall>[].obs;
@@ -15,6 +18,11 @@ class HallSearchController extends GetxController {
   final RxInt totalCount = 0.obs;
   final RxBool hasNextPage = false.obs;
   final RxBool hasPreviousPage = false.obs;
+  
+  // Event details observable
+  final Rx<HallEventDetailsModel?> selectedEventDetails = Rx<HallEventDetailsModel?>(null);
+  final RxBool isLoadingEventDetails = false.obs;
+  final RxString eventDetailsErrorMessage = ''.obs;
 
   // Search parameters
   final RxString location = ''.obs;
@@ -23,6 +31,37 @@ class HallSearchController extends GetxController {
   final RxInt guests = 0.obs;
   final RxString sortBy = ''.obs;
   final RxString sortOrder = ''.obs;
+
+  // Fetch event details
+  Future<void> fetchEventDetails({
+    required String eventId,
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      isLoadingEventDetails.value = true;
+      eventDetailsErrorMessage.value = '';
+      
+      final eventDetails = await _searchHallEventDetailsApi.getHallEventDetails(
+        eventId: eventId,
+        startDate: startDate,
+        endDate: endDate,
+      );
+      
+      selectedEventDetails.value = eventDetails;
+    } catch (e) {
+      eventDetailsErrorMessage.value = e.toString();
+      print('Error fetching event details: $e');
+    } finally {
+      isLoadingEventDetails.value = false;
+    }
+  }
+
+  // Clear selected event details
+  void clearSelectedEventDetails() {
+    selectedEventDetails.value = null;
+    eventDetailsErrorMessage.value = '';
+  }
 
   // Search halls with current parameters
   Future<void> searchHalls({bool refresh = false}) async {
