@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:homesloc/apis/search/fresh_up_room_details_api.dart';
 import 'package:homesloc/apis/search/search_freshup_api.dart';
+import 'package:homesloc/models/search/fresh_up_room_details_model.dart';
 import 'package:homesloc/models/search/search_fresh_up_model.dart';
 
 class SearchFreshUpController extends GetxController {
   final SearchFreshUpApi _searchFreshUpApi = SearchFreshUpApi();
+  final FreshUpRoomDetailsApi _freshUpRoomDetailsApi = FreshUpRoomDetailsApi();
 
   // Observable variables
-  final RxList<Service> services = <Service>[].obs;
+  final RxList<Accommodation> accommodations = <Accommodation>[].obs;
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
   final RxInt currentPage = 1.obs;
@@ -15,6 +18,11 @@ class SearchFreshUpController extends GetxController {
   final RxInt totalCount = 0.obs;
   final RxBool hasNextPage = false.obs;
   final RxBool hasPreviousPage = false.obs;
+
+  // Room details observable variables
+  final Rx<FreshUpRoomDetailsModel?> roomDetails = Rx<FreshUpRoomDetailsModel?>(null);
+  final RxBool isLoadingRoomDetails = false.obs;
+  final RxString roomDetailsErrorMessage = ''.obs;
 
   // Search parameters
   final RxString checkInDate = ''.obs;
@@ -43,15 +51,16 @@ class SearchFreshUpController extends GetxController {
         page: currentPage.value,
         sortBy: sortBy.value,
         sortOrder: sortOrder.value,
+        isHotel: true,
       );
 
       // Update the observable variables
       if (refresh) {
-        services.clear();
+        accommodations.clear();
       }
 
-      if (result.services != null) {
-        services.addAll(result.services!);
+      if (result.accommodations != null) {
+        accommodations.addAll(result.accommodations!);
       }
 
       totalPages.value = result.totalPages ?? 1;
@@ -63,6 +72,34 @@ class SearchFreshUpController extends GetxController {
       print('Error searching fresh up services: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  // Fetch fresh up room details
+  Future<void> fetchFreshUpRoomDetails({
+    required String freshUpId,
+    required String priceMethod,
+    required String date,
+  }) async {
+    try {
+      // Show loading indicator
+      isLoadingRoomDetails.value = true;
+      roomDetailsErrorMessage.value = '';
+
+      // Call the API
+      final FreshUpRoomDetailsModel result = await _freshUpRoomDetailsApi.fetchFreshUpRoomDetails(
+        freshUpId: freshUpId,
+        priceMethod: priceMethod,
+        date: date,
+      );
+
+      // Update the observable variable 
+      roomDetails.value = result; 
+    } catch (e) {
+      roomDetailsErrorMessage.value = e.toString();
+      print('Error fetching fresh up room details: $e');
+    } finally {
+      isLoadingRoomDetails.value = false;
     }
   }
 
@@ -111,6 +148,13 @@ class SearchFreshUpController extends GetxController {
     sortBy.value = '';
     sortOrder.value = '';
     currentPage.value = 1;
-    services.clear();
+    accommodations.clear();
+  }
+
+  // Reset room details
+  void resetRoomDetails() {
+    roomDetails.value = null;
+    isLoadingRoomDetails.value = false;
+    roomDetailsErrorMessage.value = '';
   }
 }

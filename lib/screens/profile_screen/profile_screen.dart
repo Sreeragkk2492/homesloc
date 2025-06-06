@@ -20,7 +20,7 @@ class ProfileScreen extends StatelessWidget {
         //    ),
         //  ),
         title: Text(
-          'Hi, kk',
+          'Hi, Admin',
           style: TextStyle(fontSize: 18.sp, color: white),
         ),
         actions: [

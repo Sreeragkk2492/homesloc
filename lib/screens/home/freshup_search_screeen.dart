@@ -9,6 +9,7 @@ import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/logo.dart/logo.dart';
 import 'package:homesloc/core/widgets/search_form/search_form.dart';
 import 'package:homesloc/models/search/search_fresh_up_model.dart';
+import 'package:homesloc/screens/detailed_view_screen/detail_view_fresh_up_screen.dart';
 import 'package:homesloc/screens/home/widget/calendar_bottom_sheet.dart';
 import 'package:homesloc/screens/home/widget/guest_dialog.dart';
 import 'package:homesloc/screens/home/widget/search_button.dart';
@@ -26,7 +27,7 @@ class FreshUpSearchScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-        backgroundColor: blue,
+            backgroundColor: blue,
             automaticallyImplyLeading: false,
             pinned: false,
             floating: true,
@@ -270,7 +271,7 @@ class FreshUpSearchScreen extends StatelessWidget {
                   ),
                 ),
               );
-            } else if (freshUpController.services.isEmpty) {
+            } else if (freshUpController.accommodations.isEmpty) {
               return SliverFillRemaining(
                 child: Center(
                   child: Column(
@@ -311,7 +312,7 @@ class FreshUpSearchScreen extends StatelessWidget {
                       return Container(
                         margin: EdgeInsets.only(top: 10.h, bottom: 10.h, left: 16.w, right: 16.w),
                         child: Text(
-                          "Fresh Up ${freshUpController.services.length} Properties Found",
+                          "Fresh Up Hotels ${freshUpController.accommodations.length} Found",
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             color: blue,
@@ -321,12 +322,12 @@ class FreshUpSearchScreen extends StatelessWidget {
                         ),
                       );
                     } else {
-                      // Return service card for other items
-                      final service = freshUpController.services[index - 1];
-                      return _buildServiceCard(service);
+                      // Return accommodation card for other items
+                      final accommodation = freshUpController.accommodations[index - 1];
+                      return _buildAccommodationCard(accommodation);
                     }
                   },
-                  childCount: freshUpController.services.length + 1, // Add 1 for the heading
+                  childCount: freshUpController.accommodations.length + 1, // Add 1 for the heading
                 ),
               );
             }
@@ -336,147 +337,213 @@ class FreshUpSearchScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildServiceCard(Service service) {
-    return Container(
-      margin: EdgeInsets.only(top: 5.h, bottom: 5.h, left: 10.w, right: 10.w),
-      width: 339.w,
-      height: 138.h,
-      decoration: BoxDecoration(
-        border: Border.all(color: border),
-        borderRadius: BorderRadius.circular(15.sp),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            margin: EdgeInsets.only(left: 5.w, top: 2.h),
-            width: 144.w,
-            height: 128.h,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(13.sp),
-              image: DecorationImage(
-                image: NetworkImage(service.coverImageUrl ?? 'https://via.placeholder.com/150'),
-                fit: BoxFit.cover,
+  Widget _buildAccommodationCard(Accommodation accommodation) {
+    // Get the first room image if available, otherwise use cover image
+    String? imageUrl = accommodation.roomImages != null && accommodation.roomImages!.isNotEmpty
+        ? accommodation.roomImages!.first
+        : accommodation.coverImageUrl;
+    
+    return GestureDetector(
+      onTap: () {
+        // Only proceed if dates are selected
+        if (calendarController.checkInDate.value != null) {
+          // Navigate to detail view with required parameters
+          Get.to(() => DetailViewFreshUpScreen(
+            freshUpId: accommodation.id ?? '', 
+            priceMethod: accommodation.priceMethod ?? '', // Default price method
+            date: calendarController.formatDateForApi(calendarController.checkInDate.value),
+          ));
+        } else {
+          // Show a snackbar if date is not selected
+          Get.snackbar(
+            'Date Selection Required',
+            'Please select a check-in date to view details',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red.withOpacity(0.8),
+            colorText: Colors.white,
+          );
+        }
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 5.h, bottom: 5.h, left: 10.w, right: 10.w),
+        width: 339.w,
+        height: 138.h,
+        decoration: BoxDecoration(
+          border: Border.all(color: border),
+          borderRadius: BorderRadius.circular(15.sp),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.only(left: 5.w, top: 2.h),
+              width: 144.w,
+              height: 128.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(13.sp),
+                image: DecorationImage(
+                  image: NetworkImage(imageUrl ?? 'https://via.placeholder.com/150'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 5.w, top: 11.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  service.name ?? "Service",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14.sp,
+            Padding(
+              padding: EdgeInsets.only(left: 5.w, top: 11.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    accommodation.name ?? "Fresh Up",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.sp,
+                    ), 
                   ),
-                ),
-                SizedBox(height: 3.h),
-                Text(
-                  service.location ?? "Location",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: fontColor,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 11.sp,
+                  SizedBox(height: 3.h),
+                  Text(
+                    accommodation.freshupName ?? "Type",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: fontColor,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 11.sp,
+                    ),
                   ),
-                ),
-                SizedBox(height: 3.h),
-                Row(
-                  children: [
-                    Text(
-                      "₹${service.price ?? '0'}",
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 3.h),
-                Row(
-                  children: [
-                    Text(
-                      "Amenities : ",
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: fontColor,
-                        fontSize: 11.sp,
-                      ),
-                    ),
-                    if (service.amenities != null && service.amenities!.isNotEmpty)
-                      _buildAmenities(service.amenities!)
-                    else
+                  SizedBox(height: 3.h),
+                  Row(
+                    children: [
                       Text(
-                        "N/A",
+                        "₹${accommodation.price ?? '0'}",
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          color: black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+                      if (accommodation.offerPrice != null && accommodation.offerPrice!.isNotEmpty) ...[
+                        SizedBox(width: 5.w),
+                        Text(
+                          "₹${accommodation.offerPrice}",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: fontColor,
+                            fontSize: 9.sp,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                        SizedBox(width: 5.w),
+                        Text(
+                          "${_calculateDiscountPercentage(accommodation.price ?? '0', accommodation.offerPrice ?? '0')}% OFF",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: green,
+                            fontSize: 11.sp,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  SizedBox(height: 3.h),
+                  Row(
+                    children: [
+                      Text(
+                        "Amenities : ",
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: fontColor,
                           fontSize: 11.sp,
                         ),
                       ),
-                  ],
-                ),
-                SizedBox(height: 3.h),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
+                      if (accommodation.amenities != null && accommodation.amenities!.isNotEmpty)
+                        _buildAmenities(accommodation.amenities!)
+                      else
                         Text(
-                          "Service Type: ",
+                          "N/A",
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             color: fontColor,
-                            fontSize: 10.sp,
+                            fontSize: 11.sp,
                           ),
                         ),
-                        Text(
-                          "${service.serviceType ?? 'N/A'}",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: black,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
+                    ],
+                  ),
+                  SizedBox(height: 3.h),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            "Capacity: ",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontSize: 10.sp,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 2.h),
-                    Row(
-                      children: [
-                        Text(
-                          "Availability: ",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: fontColor,
-                            fontSize: 10.sp,
+                          Text(
+                            "${accommodation.maxPerson ?? 'N/A'} persons",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: black,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        Text(
-                          "${service.availability ?? 'N/A'}",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: black,
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
+                        ],
+                      ),
+                      SizedBox(height: 2.h),
+                      Row(
+                        children: [
+                          Text(
+                            "Room Size: ",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontSize: 10.sp,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                          Text(
+                            "${accommodation.roomSize ?? 'N/A'}",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: black,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  String _formatLocation(Accommodation accommodation) {
+    // Since the model doesn't have a direct location field, we'll use a placeholder
+    return "Location";
+  }
+
+  int _calculateDiscountPercentage(String price, String offerPrice) {
+    try {
+      final double originalPrice = double.parse(price);
+      final double discountedPrice = double.parse(offerPrice);
+      if (originalPrice > 0) {
+        return ((originalPrice - discountedPrice) / originalPrice * 100).round();
+      }
+    } catch (e) {
+      print('Error calculating discount: $e');
+    }
+    return 0;
   }
 
   Widget _buildAmenities(List<Amenity> amenities) {

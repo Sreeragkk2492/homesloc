@@ -13,6 +13,7 @@ class SearchFreshUpApi {
     int pageSize = 10,
     String? sortBy,
     String? sortOrder,
+    bool isHotel = true,
   }) async {
     try {
       // Build the URI with query parameters
@@ -25,6 +26,7 @@ class SearchFreshUpApi {
         'page_size': pageSize.toString(),
         if (sortBy != null) 'sort_by': sortBy,
         if (sortOrder != null) 'sort_order': sortOrder,
+        'is_hotel': isHotel.toString(),
       });
 
       // Make the API request
