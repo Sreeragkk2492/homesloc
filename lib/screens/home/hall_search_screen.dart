@@ -28,7 +28,7 @@ class HallSearchScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-        backgroundColor: blue,
+            backgroundColor: blue,
             automaticallyImplyLeading: false,
             pinned: false,
             floating: true,
@@ -104,7 +104,8 @@ class HallSearchScreen extends StatelessWidget {
                                         context: context,
                                         backgroundColor: Colors.transparent,
                                         isScrollControlled: true,
-                                        builder: (context) => const CalendarBottomSheet(),
+                                        builder: (context) =>
+                                            const CalendarBottomSheet(),
                                       );
                                     },
                                     child: Obx(() => Row(
@@ -239,9 +240,10 @@ class HallSearchScreen extends StatelessWidget {
                                         calendarController.formatDateForApi(
                                             calendarController
                                                 .checkOutDate.value));
-                                    
+
                                     // Perform the search
-                                    hallSearchController.searchHalls(refresh: true);
+                                    hallSearchController.searchHalls(
+                                        refresh: true);
                                   } else {
                                     // Show a snackbar if dates are not selected
                                     Get.snackbar(
@@ -307,11 +309,12 @@ class HallSearchScreen extends StatelessWidget {
             } else {
               // Extract all hall types from all halls
               List<HallTypeWithParent> allHallTypes = [];
-              
+
               for (var hall in hallSearchController.halls) {
                 if (hall.hallType != null) {
                   for (var hallType in hall.hallType!) {
-                    if (hallType != null) {  // Add null check for hallType
+                    if (hallType != null) {
+                      // Add null check for hallType
                       allHallTypes.add(HallTypeWithParent(
                         hallType: hallType,
                         parentHall: hall,
@@ -320,14 +323,15 @@ class HallSearchScreen extends StatelessWidget {
                   }
                 }
               }
-              
+
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     if (index == 0) {
                       // Return the heading for the first item
                       return Container(
-                        margin: EdgeInsets.only(top: 10.h, bottom: 10.h, left: 16.w, right: 16.w),
+                        margin: EdgeInsets.only(
+                            top: 10.h, bottom: 10.h, left: 16.w, right: 16.w),
                         child: Text(
                           "Banquet Hall ${allHallTypes.length} Properties Found",
                           style: TextStyle(
@@ -357,22 +361,22 @@ class HallSearchScreen extends StatelessWidget {
   Widget _buildHallTypeCard(HallTypeWithParent hallTypeWithParent) {
     final hallType = hallTypeWithParent.hallType;
     final parentHall = hallTypeWithParent.parentHall;
-    
+
     // Add null checks for required values
     if (hallType == null || parentHall == null) {
-      return SizedBox.shrink();  // Return empty widget if data is null
+      return SizedBox.shrink(); // Return empty widget if data is null
     }
-    
+
     return GestureDetector(
       onTap: () {
         // Navigate to the DetailViewHallScreen with the hall and event details
         Get.to(() => DetailViewHallScreen(
-          hall: parentHall,
-          selectedEvent: hallType,
-          eventId: hallType.id,
-          startDate: hallSearchController.checkInDate.value,
-          endDate: hallSearchController.checkOutDate.value,
-        ));
+              hall: parentHall,
+              selectedEvent: hallType,
+              eventId: hallType.id,
+              startDate: hallSearchController.checkInDate.value,
+              endDate: hallSearchController.checkOutDate.value,
+            ));
       },
       child: Container(
         margin: EdgeInsets.only(top: 5.h, bottom: 5.h, left: 10.w, right: 10.w),
@@ -392,7 +396,8 @@ class HallSearchScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(13.sp),
                 image: DecorationImage(
-                  image: NetworkImage(parentHall.coverImage ?? 'https://via.placeholder.com/150'),
+                  image: NetworkImage(parentHall.coverImage ??
+                      'https://via.placeholder.com/150'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -403,7 +408,9 @@ class HallSearchScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    hallType.eventName ?? "Hall Type",
+                    (hallType.eventName ?? "Hall Type").length > 20
+                        ? "${(hallType.eventName ?? "Hall Type").substring(0, 20)}..."
+                        : hallType.eventName ?? "Hall Type",
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       color: black,
@@ -433,7 +440,8 @@ class HallSearchScreen extends StatelessWidget {
                           fontSize: 14.sp,
                         ),
                       ),
-                      if (hallType.offerPrice != null && hallType.offerPrice!.isNotEmpty) ...[
+                      if (hallType.offerPrice != null &&
+                          hallType.offerPrice!.isNotEmpty) ...[
                         SizedBox(width: 5.w),
                         Text(
                           "₹${hallType.offerPrice}",
@@ -467,7 +475,8 @@ class HallSearchScreen extends StatelessWidget {
                           fontSize: 11.sp,
                         ),
                       ),
-                      if (hallType.amenities != null && hallType.amenities!.isNotEmpty)
+                      if (hallType.amenities != null &&
+                          hallType.amenities!.isNotEmpty)
                         _buildAmenities(hallType.amenities!)
                       else
                         Text(
@@ -556,7 +565,8 @@ class HallSearchScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Show first amenity
-          _buildAmenityChip(_truncateAmenityName(amenities[0].name ?? "Amenity")),
+          _buildAmenityChip(
+              _truncateAmenityName(amenities[0].name ?? "Amenity")),
           SizedBox(width: 4.w),
           // Show count of remaining amenities
           if (amenities.length > 1) ...[
@@ -634,7 +644,8 @@ class HallSearchScreen extends StatelessWidget {
       final double originalPrice = double.parse(price);
       final double discountedPrice = double.parse(offerPrice);
       if (originalPrice > 0) {
-        return ((originalPrice - discountedPrice) / originalPrice * 100).round();
+        return ((originalPrice - discountedPrice) / originalPrice * 100)
+            .round();
       }
     } catch (e) {
       print('Error calculating discount: $e');
@@ -644,15 +655,15 @@ class HallSearchScreen extends StatelessWidget {
 
   String _formatLocation(LocationInfo location) {
     final parts = <String>[];
-    
+
     if (location.city != null && location.city!.isNotEmpty) {
       parts.add(location.city!);
     }
-    
+
     if (location.state != null && location.state!.isNotEmpty) {
       parts.add(location.state!);
     }
-    
+
     return parts.join(', ');
   }
 }
@@ -661,7 +672,7 @@ class HallSearchScreen extends StatelessWidget {
 class HallTypeWithParent {
   final HallType hallType;
   final Hall parentHall;
-  
+
   HallTypeWithParent({
     required this.hallType,
     required this.parentHall,

@@ -261,7 +261,34 @@ class HotelSearchScreen extends StatelessWidget {
             } else if (searchHotelController.errorMessage.value.isNotEmpty) {
               return SliverFillRemaining(
                 child: Center(
-                    child: Text(searchHotelController.errorMessage.value)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.search_off,
+                        size: 64.sp,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(height: 16.h),
+                      Text(
+                        'No hotels found',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        'Try adjusting your search criteria',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               );
             } else if (searchHotelController.searchResult.value?.hotels !=
                     null &&
@@ -337,7 +364,7 @@ class HotelSearchScreen extends StatelessWidget {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          hotel.name ?? "Hotel Name",
+                                          (hotel.name ?? "Hotel Name").length>20 ? "${(hotel.name ?? "Hotel Name").substring(0, 20)}..." : hotel.name ?? "Hotel Name",
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             color: black,

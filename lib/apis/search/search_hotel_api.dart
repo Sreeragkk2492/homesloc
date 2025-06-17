@@ -23,19 +23,19 @@ import 'package:homesloc/models/search/search_hotel_model.dart';
     try {
       // Build query parameters
       Map<String, String> queryParams = {
-        if (name != null) 'name': name,
-        if (location != null) 'location': location,
-        if (checkIn != null) 'check_in': checkIn,
-        if (checkOut != null) 'check_out': checkOut,
-        if (guestCount != null) 'guest_count': guestCount.toString(),
-        if (minPrice != null) 'min_price': minPrice.toString(),
-        if (maxPrice != null) 'max_price': maxPrice.toString(),
-        if (starRating != null) 'star_rating': starRating.toString(),
-         'is_active': 'true',
-        // 'page': page.toString(),
-        // 'page_size': pageSize.toString(),
-        // 'sort_by': sortBy,
-        // 'sort_order': sortOrder,
+        if (name != null && name.isNotEmpty) 'name': name,
+        if (location != null && location.isNotEmpty) 'location': location,
+        if (checkIn != null && checkIn.isNotEmpty) 'check_in': checkIn,
+        if (checkOut != null && checkOut.isNotEmpty) 'check_out': checkOut,
+        if (guestCount != null && guestCount > 0) 'guest_count': guestCount.toString(),
+        if (minPrice != null && minPrice > 0) 'min_price': minPrice.toString(),
+        if (maxPrice != null && maxPrice > 0) 'max_price': maxPrice.toString(),
+        if (starRating != null && starRating > 0) 'star_rating': starRating.toString(),
+        'is_active': isActive.toString(),
+        'page': page.toString(),
+        'page_size': pageSize.toString(),
+        'sort_by': sortBy,
+        'sort_order': sortOrder,
       };
 
       // Construct URL with query parameters
@@ -79,8 +79,17 @@ import 'package:homesloc/models/search/search_hotel_model.dart';
       }
 
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        return SearchHotelModel.fromJson(jsonData);
+        try {
+          final jsonData = json.decode(response.body);
+          if (jsonData == null) {
+            print('❌ API Error: Response body is null');
+            return null;
+          }
+          return SearchHotelModel.fromJson(jsonData);
+        } catch (e) {
+          print('❌ Error parsing JSON: $e');
+          return null;
+        }
       } else {
         print('❌ API Error: ${response.statusCode} - ${response.body}');
         throw Exception('Failed to search hotels: ${response.statusCode}');
