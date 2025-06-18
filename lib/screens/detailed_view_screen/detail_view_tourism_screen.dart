@@ -14,9 +14,10 @@ class TourismDetailViewScreen extends StatelessWidget {
       required this.startDate,
       required this.endDate});
 
+  final screenController = Get.put(TouristSearchController());
+
   @override
   Widget build(BuildContext context) {
-    final screenController = Get.put(TouristSearchController());
     // Fetch fresh up details when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       screenController.resetTourismDetails();
@@ -89,9 +90,7 @@ class TourismDetailViewScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage(
-                          tourismDetails!.galleryImages.isNotEmpty == true
-                              ? tourismDetails.galleryImages!.first
-                              : 'assets/images/image (33).png'),
+                          tourismDetails!.agencyDetails.coverImageUrl ?? ''),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -114,7 +113,7 @@ class TourismDetailViewScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 5.h),
                       Text(
-                        tourismDetails!.packageType ?? "Tourism Package", 
+                        tourismDetails!.packageType ?? "Tourism Package",
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: fontColor,
@@ -123,44 +122,42 @@ class TourismDetailViewScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 8.h),
                       Row(
-                            children: [
-                              Text(
-                                "₹${tourismDetails!.priceWithoutFlight ?? '0'}", 
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  color: black,
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (tourismDetails!.offerPrice != null) ...[
-                                SizedBox(width: 5.w),
-                                Text(
-                                  "₹${tourismDetails!.offerPrice}",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: fontColor,
-                                    fontSize: 14.sp,
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
-                                ),
-                                 
-                              ],
-
-                            ],
+                        children: [
+                          Text(
+                            "₹${tourismDetails!.priceWithoutFlight ?? '0'}",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: black,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                           SizedBox(height: 5.h),
+                          if (tourismDetails!.offerPrice != null) ...[
+                            SizedBox(width: 5.w),
+                            Text(
+                              "₹${tourismDetails!.offerPrice}",
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: fontColor,
+                                fontSize: 14.sp,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      SizedBox(height: 5.h),
                       Text(
-                        tourismDetails!.startLocation ?? "", 
+                        'Start Location: ${tourismDetails!.startLocation}',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: fontColor,
                           fontSize: 14.sp,
                         ),
                       ),
-                       SizedBox(height: 5.h),
+                      SizedBox(height: 5.h),
                       Text(
-                        tourismDetails!.destination ?? "",  
+                        "Ph: ${tourismDetails!.agencyDetails.phoneNumber}",
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: fontColor,
@@ -173,155 +170,44 @@ class TourismDetailViewScreen extends StatelessWidget {
 
                 // Small Images Row
                 Container(
-                  height: 98.h,
-                  padding: EdgeInsets.symmetric(horizontal: 15.w),
-                  child:ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: tourismDetails!.galleryImages.length,
-          itemBuilder: (context, index) {
-             if (tourismDetails!.galleryImages.isEmpty) { 
-          return Center(
-            child: Text(
-              'No images available',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                color: fontColor,
-                fontSize: 12.sp,
-              ),
-            ),
-          );
-        }
-            return GestureDetector(
-              onTap: () {
-                // You can add image preview functionality here
-              },
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 5.w),
-                height: 98.h,
-                width: 120.w,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10.sp),
-                  image: DecorationImage(
-                    image: NetworkImage(tourismDetails!.galleryImages[index]),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            );
-          },
-        ) 
-                ),
-
-                SizedBox(height: 20.h),
-
-                // Property Highlights Section
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.w),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Property highlights',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: blue,
-                          fontSize: 17.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 8.w, vertical: 4.h),
-                        decoration: BoxDecoration(
-                          color: gwhite,
-                          borderRadius: BorderRadius.circular(4.sp),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.location_on_outlined,
-                              size: 12.sp,
-                              color: blue,
-                            ),
-                            SizedBox(width: 4.w),
-                            Text(
-                              'Location',
+                    height: 98.h,
+                    padding: EdgeInsets.symmetric(horizontal: 15.w),
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: tourismDetails!.galleryImages.length,
+                      itemBuilder: (context, index) {
+                        if (tourismDetails!.galleryImages.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No images available',
                               style: TextStyle(
                                 fontFamily: 'Poppins',
-                                color: blue,
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w600,
+                                color: fontColor,
+                                fontSize: 12.sp,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 15.h),
-
-                // Location Details
-                _buildHighlightItem(
-                  'assets/images/Frame (8).png',
-                  "1233, parakkad, Kerala, India",
-                ),
-
-                SizedBox(height: 10.h),
-
-                // Check-in Time
-                _buildHighlightItem(
-                  'assets/images/Frame (9).png',
-                  "Check-in time not available",
-                ),
-
-                SizedBox(height: 10.h),
-
-                // Route Information
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.w),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: 3.h, right: 10.w),
-                        child: Image(
-                          image: AssetImage('assets/images/Frame (10).png'),
-                          width: 15.w,
-                          height: 15.h,
-                          color: blue,
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Route to new banquet hall',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.bold,
+                          );
+                        }
+                        return GestureDetector(
+                          onTap: () {
+                            // You can add image preview functionality here
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 5.w),
+                            height: 98.h,
+                            width: 120.w,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.sp),
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                    tourismDetails!.galleryImages[index]),
+                                fit: BoxFit.cover,
                               ),
                             ),
-                            SizedBox(height: 5.h),
-                            Text(
-                              'Starting Point: parakkad Bus Stand\n1. Head southeast on Munnar-Udumalpet Road (NH85). 2. Take the Mattupetty Road exit. 3. Follow the scenic Mattupetty Road. After 12km you reach destination.',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                          ),
+                        );
+                      },
+                    )),
 
                 SizedBox(height: 20.h),
 
@@ -378,212 +264,180 @@ class TourismDetailViewScreen extends StatelessWidget {
 
                 // Book Now Section
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: 15.w),
-                  padding: EdgeInsets.all(20.w),
+                  padding: EdgeInsets.all(12.r),
+                  margin: EdgeInsets.symmetric(horizontal: 10.w),
                   decoration: BoxDecoration(
                     color: blue,
-                    borderRadius: BorderRadius.circular(12.sp),
+                    borderRadius: BorderRadius.circular(23.sp),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Book Your Event Now",
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: white,
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        "Your dream event is just a click away! Book now for a seamless and unforgettable experience.",
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: white,
-                          fontSize: 14.sp,
-                        ),
-                      ),
                       SizedBox(height: 15.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                      Text(
+                        'Book Your Package Now',
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 190, 190, 190),
+                            fontFamily: 'Poppins',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Your refreshing stay is just a click away! Book\nnow for a comfortable and relaxing experience.',
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 190, 190, 190),
+                            fontFamily: 'Poppins',
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w100),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 6.h),
+                        child: Divider(
+                          color: const Color.fromARGB(255, 190, 190, 190),
+                        ),
+                      ),
+                      // If a custom price is provided, use it
+                      if (tourismDetails!.priceWithoutFlight != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "₹22.00",
+                                    "₹${tourismDetails!.priceWithoutFlight}",
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      color: white,
-                                      fontSize: 20.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                        color: white,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.sp),
                                   ),
-                                  SizedBox(width: 8.w),
                                   Text(
-                                    "₹22.00",
+                                    "+ ₹${(double.parse(tourismDetails!.priceWithoutFlight ?? '0') * 0.18).round()} taxes & fees",
                                     style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      color: Colors.white70,
-                                      fontSize: 14.sp,
-                                      decoration: TextDecoration.lineThrough,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8.w),
-                                  Text(
-                                    "0% OFF",
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      color: yellow,
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                        color: const Color.fromARGB(
+                                            255, 190, 190, 190),
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w500,
+                                        decorationColor: white,
+                                        fontSize: 10.sp),
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 5.h),
-                              Text(
-                                "+ 24 taxes & fees",
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  color: Colors.white70,
-                                  fontSize: 12.sp,
+                            ),
+                            SizedBox(width: 8.w),
+                            Container(
+                              width: 110.w,
+                              height: 40.h,
+                              decoration: BoxDecoration(
+                                color: yellow,
+                                borderRadius: BorderRadius.circular(28.sp),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "BOOK NOW",
+                                  style: TextStyle(
+                                      color: black,
+                                      fontSize: 14.sp,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      // Otherwise, use the room details if available
+                      if (tourismDetails!.priceWithoutFlight == null)
+                        Obx(() {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "₹${tourismDetails?.offerPrice ?? tourismDetails?.priceWithoutFlight ?? '0'}",
+                                          style: TextStyle(
+                                              color: white,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18.sp),
+                                        ),
+                                        if (tourismDetails?.offerPrice !=
+                                                null &&
+                                            tourismDetails
+                                                    ?.priceWithoutFlight !=
+                                                null)
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 4.w),
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "₹${tourismDetails?.priceWithoutFlight}",
+                                                  style: TextStyle(
+                                                      color: const Color
+                                                          .fromARGB(
+                                                          255, 190, 190, 190),
+                                                      fontFamily: 'Poppins',
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      decoration: TextDecoration
+                                                          .lineThrough,
+                                                      decorationColor: white,
+                                                      fontSize: 10.sp),
+                                                ),
+                                                SizedBox(width: 4.w),
+                                                Text(
+                                                  "${tourismDetails?.offerPrice}% OFF",
+                                                  style: TextStyle(
+                                                      color: green,
+                                                      fontFamily: 'Poppins',
+                                                      fontSize: 10.sp),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    Text(
+                                      "+ ₹${(double.parse((tourismDetails?.offerPrice ?? tourismDetails?.priceWithoutFlight ?? '0').toString()) * 0.18).round()} taxes & fees",
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 190, 190, 190),
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w500,
+                                          decorationColor: white,
+                                          fontSize: 10.sp),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Container(
+                                width: 110.w,
+                                height: 40.h,
+                                decoration: BoxDecoration(
+                                  color: yellow,
+                                  borderRadius: BorderRadius.circular(28.sp),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "BOOK NOW",
+                                    style: TextStyle(
+                                        color: black,
+                                        fontSize: 14.sp,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w500),
+                                  ),
                                 ),
                               ),
                             ],
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20.w, vertical: 12.h),
-                            decoration: BoxDecoration(
-                              color: yellow,
-                              borderRadius: BorderRadius.circular(25.sp),
-                            ),
-                            child: Text(
-                              "BOOK NOW",
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 25.h),
-
-                // Rating & Reviews Section
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Rating & Reviews',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: blue,
-                          fontSize: 17.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 15.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              color: blue,
-                              borderRadius: BorderRadius.circular(4.sp),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '4.5',
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: white,
-                                    fontSize: 11.sp,
-                                  ),
-                                ),
-                                SizedBox(width: 3.w),
-                                Icon(
-                                  Icons.star,
-                                  color: yellow,
-                                  size: 12.sp,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            "10 Reviews",
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: Colors.grey,
-                              fontSize: 11.sp,
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              color: gwhite,
-                              borderRadius: BorderRadius.circular(15.sp),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.thumb_up,
-                                  size: 10.sp,
-                                  color: blue,
-                                ),
-                                SizedBox(width: 5.w),
-                                Text(
-                                  'Excellent',
-                                  style: TextStyle(
-                                    color: black,
-                                    fontFamily: 'Poppins',
-                                    fontSize: 10.sp,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 15.h),
-
-                      // Rating Categories
-                      _buildRatingCategory("Staff", 8.9),
-                      _buildRatingCategory("Facilities", 7.9),
-                      _buildRatingCategory("Cleanliness", 8.9),
-                      _buildRatingCategory("Location", 6.9),
-                      _buildRatingCategory("Dealings", 7.3),
-                      _buildRatingCategory("Food", 8.0),
-                      _buildRatingCategory("Value Of Money", 8.9),
-                      _buildRatingCategory("Comfort", 7.3),
-
-                      SizedBox(height: 20.h),
-
-                      // Reviews
-                      _buildReview("Dasamoolam Damu",
-                          "The room, cleanliness, and staff experience at this hotel were just fantastic."),
-                      SizedBox(height: 15.h),
-                      _buildReview("Dasamoolam Damu",
-                          "The room, cleanliness, and staff experience at this hotel were just fantastic."),
+                          );
+                        }),
                     ],
                   ),
                 ),
@@ -619,11 +473,46 @@ class TourismDetailViewScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 15.h),
-                      Row(
+                      Column(
                         children: [
-                          _buildAmenityItem("Private Beach"),
-                          SizedBox(width: 20.w),
-                          _buildAmenityItem("Free cancellation"),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                left: 10.w, right: 10.w, top: 10.h),
+                            child: Wrap(
+                              spacing: 10.w,
+                              runSpacing: 10.h,
+                              children:
+                                  tourismDetails!.amenities.map((amenity) {
+                                return Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12.w, vertical: 6.h),
+                                  decoration: BoxDecoration(
+                                    color: gwhite,
+                                    borderRadius: BorderRadius.circular(4.sp),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        _getAmenityIcon(amenity.name ?? ''),
+                                        color: black,
+                                        size: 11.sp,
+                                      ),
+                                      SizedBox(width: 5.w),
+                                      Text(
+                                        amenity.name ?? '',
+                                        style: TextStyle(
+                                          color: black,
+                                          fontFamily: 'Poppins',
+                                          fontSize: 10.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -632,14 +521,14 @@ class TourismDetailViewScreen extends StatelessWidget {
 
                 SizedBox(height: 25.h),
 
-                // Transportation Section
+                // Itinerary Section
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.w),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Transportations',
+                        'Itinerary',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: blue,
@@ -648,27 +537,27 @@ class TourismDetailViewScreen extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 15.h),
-                      Row(
-                        children: [
-                          _buildTransportItem(Icons.flight, "Airport - 9.3 km"),
-                          SizedBox(width: 30.w),
-                          _buildTransportItem(
-                              Icons.train, "Metro Station - 3.1 km"),
-                        ],
-                      ),
-                      SizedBox(height: 15.h),
-                      Row(
-                        children: [
-                          _buildTransportItem(Icons.train, "Train - 5.3 km"),
-                          SizedBox(width: 30.w),
-                          _buildTransportItem(
-                              Icons.directions_bus, "Bus - 6.2 km"),
-                        ],
-                      ),
+                      tourismDetails!.itinerary.isEmpty
+                          ? Text(
+                              'No itinerary available',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: fontColor,
+                                fontSize: 13.sp,
+                              ),
+                            )
+                          : ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: tourismDetails!.itinerary.length,
+                              itemBuilder: (context, index) {
+                                final item = tourismDetails!.itinerary[index];
+                                return _buildItineraryCard(item, index);
+                              },
+                            ),
                     ],
                   ),
                 ),
-
                 SizedBox(height: 25.h),
 
                 // About Section
@@ -678,7 +567,7 @@ class TourismDetailViewScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'About new banquet hall',
+                        'About ${tourismDetails!.agencyDetails.name}',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: blue,
@@ -693,14 +582,16 @@ class TourismDetailViewScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8.sp),
                           image: DecorationImage(
-                            image: AssetImage('assets/images/image (33).png'),
+                            image: NetworkImage(
+                                tourismDetails!.agencyDetails.coverImageUrl ??
+                                    ''),
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
                       SizedBox(height: 15.h),
                       Text(
-                        "No description available",
+                        tourismDetails!.agencyDetails.description ?? '',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: black,
@@ -723,7 +614,7 @@ class TourismDetailViewScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Our Hall Policies',
+                            'Our Policies',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               color: blue,
@@ -742,22 +633,46 @@ class TourismDetailViewScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 15.h),
-                      _buildPolicyItem(Icons.access_time, "Check-in/Check-out",
-                          "Check-in: 04:00:00\nCheck-out: 05:00:00"),
                       _buildPolicyItem(
-                          Icons.credit_card,
-                          "Acceptable Identity Proof",
-                          "Passport, Aadhar, Voter ID, Driving License"),
+                        Icons.access_time,
+                        "Cancellation Policy",
+                        tourismDetails!.agencyDetails.policies
+                                    .cancellationPolicy !=
+                                null
+                            ? "Free cancellation up to ${tourismDetails!.agencyDetails.policies.cancellationDays} days before check-in"
+                            : "No cancellation policy available",
+                      ),
                       _buildPolicyItem(
-                          Icons.cancel, "Cancellation Policy", "freeBefore:-2"),
-                      _buildPolicyItem(Icons.local_parking, "Parking Capacity",
-                          "22 vehicles"),
-                      _buildPolicyItem(Icons.celebration, "Decoration Policy",
-                          "Decoration Not Allowed"),
-                      _buildPolicyItem(Icons.local_parking, "Valet Parking",
-                          "Not Available"),
+                        Icons.credit_card,
+                        "Payment Policy",
+                        tourismDetails!.agencyDetails.policies.paymentPolicy ??
+                            "Not specified",
+                      ),
                       _buildPolicyItem(
-                          Icons.attach_money, "Extra Charges", "₹22"),
+                        Icons.badge,
+                        "Acceptable Identity Proof",
+                        (tourismDetails!.agencyDetails.policies
+                                        .acceptableIdentityProof !=
+                                    null &&
+                                tourismDetails!.agencyDetails.policies
+                                    .acceptableIdentityProof.isNotEmpty)
+                            ? tourismDetails!
+                                .agencyDetails.policies.acceptableIdentityProof
+                                .join(", ")
+                            : "Not specified",
+                      ),
+                      if (tourismDetails!
+                                  .agencyDetails.policies.tripTermsConditions !=
+                              null &&
+                          tourismDetails!.agencyDetails.policies
+                              .tripTermsConditions.isNotEmpty)
+                        _buildPolicyItem(
+                          Icons.info_outline,
+                          "Terms & Conditions",
+                          tourismDetails!
+                              .agencyDetails.policies.tripTermsConditions
+                              .join("\n"),
+                        ),
                     ],
                   ),
                 ),
@@ -910,26 +825,120 @@ class TourismDetailViewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAmenityItem(String amenity) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          Icons.check_circle,
-          size: 16.sp,
-          color: blue,
-        ),
-        SizedBox(width: 5.w),
-        Text(
-          amenity,
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            color: black,
-            fontSize: 12.sp,
-          ),
-        ),
-      ],
-    );
+  IconData _getAmenityIcon(String amenityName) {
+    // Map amenity names to appropriate icons
+    final amenityIcons = {
+      'Wi-Fi': Icons.wifi,
+      'Parking': Icons.local_parking,
+      'Air Conditioning': Icons.ac_unit,
+      'Swimming Pool': Icons.pool,
+      'Restaurant': Icons.restaurant,
+      'Bar': Icons.local_bar,
+      'Gym': Icons.fitness_center,
+      'Spa': Icons.spa,
+      'Conference Room': Icons.meeting_room,
+      'Elevator': Icons.elevator,
+      'Security': Icons.security,
+      'Power Backup': Icons.power,
+      'Sound System': Icons.speaker,
+      'Lighting': Icons.lightbulb,
+      'Decoration': Icons.celebration,
+      'Catering': Icons.fastfood,
+      'Photography': Icons.camera_alt,
+      'Videography': Icons.videocam,
+      'Makeup Room': Icons.face,
+      'Changing Room': Icons.checkroom,
+      'Stage': Icons.theater_comedy,
+      'Dance Floor': Icons.music_note,
+      'Projector': Icons.movie,
+      'Screen': Icons.screen_share,
+      'Microphone': Icons.mic,
+      'Chairs': Icons.chair,
+      'Tables': Icons.table_bar,
+      'Crockery': Icons.restaurant_menu,
+      'Cutlery': Icons.restaurant,
+      'Linens': Icons.bed,
+      'Generator': Icons.power,
+      'Fire Extinguisher': Icons.local_fire_department,
+      'First Aid Kit': Icons.medical_services,
+      'Wheelchair Access': Icons.accessible,
+      'Child Care': Icons.child_care,
+      'Valet Parking': Icons.directions_car,
+      'Guest Rooms': Icons.hotel,
+      'Shuttle Service': Icons.directions_bus,
+      'Outdoor Space': Icons.park,
+      'Indoor Space': Icons.home,
+      'Garden': Icons.yard,
+      'Lake View': Icons.water,
+      'Mountain View': Icons.landscape,
+      'City View': Icons.location_city,
+      'Beach Access': Icons.beach_access,
+      'Pool': Icons.pool,
+      'Jacuzzi': Icons.hot_tub,
+      'Sauna': Icons.spa,
+      'Tennis Court': Icons.sports_tennis,
+      'Golf Course': Icons.sports_golf,
+      'Basketball Court': Icons.sports_basketball,
+      'Volleyball Court': Icons.sports_volleyball,
+      'Badminton Court': Icons.sports,
+      'Table Tennis': Icons.sports,
+      'Chess': Icons.casino,
+      'Library': Icons.library_books,
+      'Business Center': Icons.business,
+      'Laundry': Icons.local_laundry_service,
+      'Dry Cleaning': Icons.cleaning_services,
+      'Room Service': Icons.room_service,
+      'Housekeeping': Icons.cleaning_services,
+      'Concierge': Icons.support_agent,
+      'Currency Exchange': Icons.currency_exchange,
+      'ATM': Icons.atm,
+      'Gift Shop': Icons.card_giftcard,
+      'Tour Desk': Icons.tour,
+      'Car Rental': Icons.directions_car,
+      'Airport Transfer': Icons.flight,
+      'Babysitting': Icons.child_care,
+      'Pet Friendly': Icons.pets,
+      'Smoking Area': Icons.smoking_rooms,
+      'Non-Smoking': Icons.smoke_free,
+      'Vegetarian Food': Icons.eco,
+      'Vegan Food': Icons.eco,
+      'Gluten-Free Food': Icons.no_meals,
+      'Halal Food': Icons.restaurant,
+      'Kosher Food': Icons.restaurant,
+      'Jain Food': Icons.restaurant,
+      'South Indian Food': Icons.restaurant,
+      'North Indian Food': Icons.restaurant,
+      'Chinese Food': Icons.restaurant,
+      'Italian Food': Icons.restaurant,
+      'Mexican Food': Icons.restaurant,
+      'Thai Food': Icons.restaurant,
+      'Japanese Food': Icons.restaurant,
+      'Korean Food': Icons.restaurant,
+      'Mediterranean Food': Icons.restaurant,
+      'American Food': Icons.restaurant,
+      'Continental Food': Icons.restaurant,
+      'Fusion Food': Icons.restaurant,
+      'Street Food': Icons.restaurant,
+      'Fast Food': Icons.fastfood,
+      'Fine Dining': Icons.restaurant,
+      'Buffet': Icons.restaurant,
+      'A La Carte': Icons.restaurant,
+      'Bar Service': Icons.local_bar,
+      'Wine Cellar': Icons.wine_bar,
+      'Cocktail Bar': Icons.local_bar,
+      'Beer Garden': Icons.local_bar,
+      'Rooftop Bar': Icons.roofing,
+      'Pool Bar': Icons.pool,
+      'Sports Bar': Icons.sports,
+      'Lounge': Icons.living,
+      'Nightclub': Icons.nightlife,
+      'Live Music': Icons.music_note,
+      'DJ': Icons.headphones,
+      'Karaoke': Icons.mic,
+    };
+
+    // Return the icon for the amenity or a default icon if not found
+    return amenityIcons[amenityName] ?? Icons.check_circle;
   }
 
   Widget _buildTransportItem(IconData icon, String text) {
@@ -999,6 +1008,104 @@ class TourismDetailViewScreen extends StatelessWidget {
                     fontSize: 11.sp,
                   ),
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildItineraryCard(dynamic item, int index) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: gwhite,
+        borderRadius: BorderRadius.circular(10.sp),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Day Circle
+          Container(
+            width: 36.w,
+            height: 36.w,
+            decoration: BoxDecoration(
+              color: blue,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                'Day ${item.day}',
+                style: TextStyle(
+                  color: white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11.sp,
+                  fontFamily: 'Poppins',
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          SizedBox(width: 14.w),
+          // Itinerary Details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.description ?? '',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: black,
+                    fontSize: 12.sp,
+                  ),
+                ),
+                if (item.location != null &&
+                    item.location.toString().isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: 6.h),
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_on, size: 13.sp, color: blue),
+                        SizedBox(width: 4.w),
+                        Text(
+                          item.location,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: fontColor,
+                            fontSize: 11.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // if (item.meal_plan != null && item.meal_plan.toString().isNotEmpty)
+                //   Padding(
+                //     padding: EdgeInsets.only(top: 6.h),
+                //     child: Row(
+                //       children: [
+                //         Icon(Icons.restaurant, size: 13.sp, color: blue),
+                //         SizedBox(width: 4.w),
+                //         Text(
+                //           item.meal_plan,
+                //           style: TextStyle(
+                //             fontFamily: 'Poppins',
+                //             color: fontColor,
+                //             fontSize: 11.sp,
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
               ],
             ),
           ),

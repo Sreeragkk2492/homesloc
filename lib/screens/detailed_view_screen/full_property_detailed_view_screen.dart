@@ -154,7 +154,7 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
               const PropertyLocation(),
               
               // Property Route Section
-              const PropertyRoute(),
+            //  const PropertyRoute(),
               
               HomeDivider(),
               NameView(

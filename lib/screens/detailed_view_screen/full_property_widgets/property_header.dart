@@ -60,15 +60,15 @@ class PropertyHeader extends StatelessWidget {
                 fontSize: 12.sp,
               ),
             ),
-            SizedBox(height: 10.h),
-            Text(
-              propertyDetails.hotelDetails?.description ?? "",
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                color: black,
-                fontSize: 14.sp,
-              ),
-            ),
+            // SizedBox(height: 10.h),
+            // Text(
+            //   propertyDetails.hotelDetails?.description ?? "",
+            //   style: TextStyle(
+            //     fontFamily: 'Poppins',
+            //     color: black,
+            //     fontSize: 14.sp,
+            //   ),
+            // ),
           ],
         ),
       );

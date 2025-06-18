@@ -198,27 +198,52 @@ class DetailedViewScreen extends StatelessWidget {
                                 fontSize: 12.sp,
                               ),
                             ),
-                            SizedBox(height: 10.h),
-                            Text(
-                              roomDetailsController.roomDetails.value?.description ?? "",
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 14.sp,
-                              ),
-                            ),
+                            
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 98.h,
-                // color: yellow,
-                child: FirstDetailedViewBuilder(hotel: hotel,),
-              ),
+             Container(
+                    height: 98.h,
+                    padding: EdgeInsets.symmetric(horizontal: 15.w),
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: roomDetailsController.roomDetails.value?.images?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        if (roomDetailsController.roomDetails.value?.images?.isEmpty ?? true) {
+                          return Center(
+                            child: Text(
+                              'No images available',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: fontColor,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          );
+                        }
+                        return GestureDetector(
+                          onTap: () {
+                            // You can add image preview functionality here
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 5.w),
+                            height: 98.h,
+                            width: 120.w,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.sp), 
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                   roomDetailsController.roomDetails.value?.images?[index] ?? ''),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    )),
               Padding(
                 padding: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 10.h, top: 10.h),
                 child: Row(
@@ -340,51 +365,43 @@ class DetailedViewScreen extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 10.w),
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 82.h, right: 10.w),
-                          child: Image(
-                            image: AssetImage('assets/images/Frame (10).png'),
-                            width: 15.w,
-                            height: 15.h,
-                            color: blue,
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Route to ${roomDetailsController.roomDetails.value?.hotelDetails?.name ?? "Hotel"}',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              'Starting Point: ${roomDetailsController.roomDetails.value?.hotelDetails?.city ?? "City"} Bus Stand',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              '1. Head southeast on Munnar-Udumalpet\nRoad (NH85).  2. Take the Mattupetty Road\nexit. 3. Follow the scenic Mattupetty Road.\nAfter 12km you reach destination.',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     Padding(
+                    //       padding: EdgeInsets.only(bottom: 82.h, right: 10.w),
+                    //       child: Image(
+                    //         image: AssetImage('assets/images/Frame (10).png'),
+                    //         width: 15.w,
+                    //         height: 15.h,
+                    //         color: blue,
+                    //       ),
+                    //     ),
+                    //     // Column(
+                    //     //   crossAxisAlignment: CrossAxisAlignment.start,
+                    //     //   children: [
+                    //     //     Text( 
+                    //     //       'Route to ${roomDetailsController.roomDetails.value?.hotelDetails?.name ?? "Hotel"}',
+                    //     //       style: TextStyle(
+                    //     //         fontFamily: 'Poppins',
+                    //     //         color: black,
+                    //     //         fontSize: 13.sp,
+                    //     //         fontWeight: FontWeight.bold,
+                    //     //       ),
+                    //     //     ),
+                    //     //     // Text(
+                    //     //     //   'Starting Point: ${roomDetailsController.roomDetails.value?.hotelDetails?.city ?? "City"} Bus Stand',
+                    //     //     //   style: TextStyle(
+                    //     //     //     fontFamily: 'Poppins',
+                    //     //     //     color: black,
+                    //     //     //     fontSize: 13.sp, 
+                    //     //     //     fontWeight: FontWeight.w500,
+                    //     //     //   ),
+                    //     //     // ),
+                           
+                    //     //   ],
+                    //     // ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),

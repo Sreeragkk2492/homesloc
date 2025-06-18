@@ -374,7 +374,7 @@ class HotelSearchScreen extends StatelessWidget {
                                         ),
                                         SizedBox(height: 3.h),
                                         Text(
-                                          hotel.locationInfo?.city ?? "City",
+                                          (hotel.locationInfo?.city ?? "City").length>20 ? "${(hotel.locationInfo?.city ?? "City").substring(0, 20)}..." : hotel.locationInfo?.city ?? "City",
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             color: fontColor,
