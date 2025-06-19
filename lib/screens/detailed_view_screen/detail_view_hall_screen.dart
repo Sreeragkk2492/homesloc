@@ -23,6 +23,7 @@ import 'package:homesloc/core/widgets/builder/detailed_view_builder/second_detai
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
 import 'package:homesloc/screens/detailed_view_screen/hotel_policies_row/hotel_policies_row.dart';
+import 'package:lottie/lottie.dart';
 
 class DetailViewHallScreen extends StatelessWidget {
   final dynamic hall;
@@ -95,7 +96,15 @@ class DetailViewHallScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (eventId != null && hallSearchController.isLoadingEventDetails.value) {
-          return const Center(child: CircularProgressIndicator());
+          return  Center(child:  Container(
+                        width: 50.w,
+                        height: 50.h,
+                        child: Lottie.asset(
+                          'assets/images/loading.json',
+                          // controller: _checkmarkController,
+                          repeat: true,
+                        ),
+                      ),);
         }
 
         if (eventId != null && hallSearchController.eventDetailsErrorMessage.value.isNotEmpty) {
@@ -161,7 +170,7 @@ class DetailViewHallScreen extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 10.h),
+                          
                             Text(
                               hallSearchController.selectedEventDetails.value?.hallDetails?.description ?? "",
                               style: TextStyle(
@@ -181,6 +190,7 @@ class DetailViewHallScreen extends StatelessWidget {
                 height: 98.h,
                 child: HallFirstDetailedViewBuilder(hall: hall),
               ),
+                SizedBox(height: 10.h), 
               Padding(
                 padding: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 10.h, top: 10.h),
                 child: Row(
@@ -278,7 +288,7 @@ class DetailViewHallScreen extends StatelessWidget {
                     ),
                     Expanded(
                       child: Text(
-                        hallSearchController.selectedEventDetails.value?.hallDetails?.checkInTime ?? "Check-in time not available",
+                       "Ph:",
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: black,
@@ -291,59 +301,59 @@ class DetailViewHallScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 10.h),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 82.h, right: 10.w),
-                          child: Image(
-                            image: AssetImage('assets/images/Frame (10).png'),
-                            width: 15.w,
-                            height: 15.h,
-                            color: blue,
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Route to ${hallSearchController.selectedEventDetails.value?.hallDetails?.name ?? "Hall"}',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              'Starting Point: ${hallSearchController.selectedEventDetails.value?.hallDetails?.city ?? "City"} Bus Stand',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              '1. Head southeast on Munnar-Udumalpet\nRoad (NH85).  2. Take the Mattupetty Road\nexit. 3. Follow the scenic Mattupetty Road.\nAfter 12km you reach destination.',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+             // SizedBox(height: 10.h), 
+              // Padding(
+              //   padding: EdgeInsets.symmetric(horizontal: 10.w),
+              //   child: Column(
+              //     children: [
+              //       Row(
+              //         children: [
+              //           Padding(
+              //             padding: EdgeInsets.only(bottom: 82.h, right: 10.w),
+              //             child: Image(
+              //               image: AssetImage('assets/images/Frame (10).png'),
+              //               width: 15.w,
+              //               height: 15.h,
+              //               color: blue,
+              //             ),
+              //           ),
+              //           Column(
+              //             crossAxisAlignment: CrossAxisAlignment.start,
+              //             children: [
+              //               Text(
+              //                 'Route to ${hallSearchController.selectedEventDetails.value?.hallDetails?.name ?? "Hall"}',
+              //                 style: TextStyle(
+              //                   fontFamily: 'Poppins',
+              //                   color: black,
+              //                   fontSize: 13.sp,
+              //                   fontWeight: FontWeight.bold,
+              //                 ),
+              //               ),
+              //               Text(
+              //                 'Starting Point: ${hallSearchController.selectedEventDetails.value?.hallDetails?.city ?? "City"} Bus Stand',
+              //                 style: TextStyle(
+              //                   fontFamily: 'Poppins',
+              //                   color: black,
+              //                   fontSize: 13.sp,
+              //                   fontWeight: FontWeight.w500,
+              //                 ),
+              //               ),
+              //               Text(
+              //                 '1. Head southeast on Munnar-Udumalpet\nRoad (NH85).  2. Take the Mattupetty Road\nexit. 3. Follow the scenic Mattupetty Road.\nAfter 12km you reach destination.',
+              //                 style: TextStyle(
+              //                   fontFamily: 'Poppins',
+              //                   color: black,
+              //                   fontSize: 13.sp,
+              //                   fontWeight: FontWeight.w500,
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         ],
+              //       ),
+              //     ],
+              //   ),
+              // ),
               HomeDivider(),
               NameView(
                 name: "Property highlights",

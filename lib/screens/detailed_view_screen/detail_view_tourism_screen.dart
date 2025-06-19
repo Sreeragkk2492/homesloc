@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/search/tourist_search_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
+import 'package:lottie/lottie.dart';
 
 class TourismDetailViewScreen extends StatelessWidget {
   final String packageId;
@@ -72,7 +73,15 @@ class TourismDetailViewScreen extends StatelessWidget {
         ),
         body: Obx(() {
           if (screenController.isLoadingTourismDetails.value) {
-            return const Center(child: CircularProgressIndicator());
+            return  Center(child:  Container(
+                        width: 50.w,
+                        height: 50.h,
+                        child: Lottie.asset(
+                          'assets/images/loading.json',
+                          // controller: _checkmarkController,
+                          repeat: true,
+                        ),
+                      ),);
           }
           if (screenController.tourismDetailsErrorMessage.value.isNotEmpty) {
             return Center(

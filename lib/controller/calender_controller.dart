@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:scrollable_clean_calendar/controllers/clean_calendar_controller.dart';
 
 class CalendarController extends GetxController {
   // Observable variables for dates
@@ -10,28 +9,14 @@ class CalendarController extends GetxController {
   var guestCount = 2.obs;
   var roomCount = 1.obs;
 
-  // Calendar controller
-  late CleanCalendarController calendarController;
-
   @override
   void onInit() {
     super.onInit();
-    initCalendarController();
   }
 
   String formatDateShort(DateTime? date) {
     if (date == null) return "Select";
     return "${date.day}/${date.month}/${date.year.toString().substring(2)}";
-  }
-
-  void initCalendarController() {
-    calendarController = CleanCalendarController(
-      minDate: DateTime.now(),
-      maxDate: DateTime.now().add(const Duration(days: 365)),
-      weekdayStart: DateTime.monday,
-      onRangeSelected: updateSelectedDateRange,
-      onDayTapped: handleDayTapped,
-    );
   }
 
   // Handle single day tap
@@ -52,17 +37,6 @@ class CalendarController extends GetxController {
       checkInDate.value = date;
       checkOutDate.value = null;
       totalDays.value = 0;
-    }
-  }
-
-  // Handle range selection callback
-  void updateSelectedDateRange(DateTime? start, DateTime? end) {
-    if (start != null) {
-      checkInDate.value = start;
-    }
-    if (end != null) {
-      checkOutDate.value = end;
-      calculateTotalDays();
     }
   }
 

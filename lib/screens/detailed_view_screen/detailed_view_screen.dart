@@ -22,6 +22,7 @@ import 'package:homesloc/core/widgets/name_view/name_view.dart';
 import 'package:homesloc/screens/detailed_view_screen/hotel_policies_row/hotel_policies_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/room_policies_row/room_policies_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/full_property_detailed_view_screen.dart';
+import 'package:lottie/lottie.dart';
 
 class DetailedViewScreen extends StatelessWidget {
   final dynamic hotel;
@@ -102,10 +103,19 @@ class DetailedViewScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (roomId != null && roomDetailsController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return  Center(child:  Container(
+                        width: 50.w,
+                        height: 50.h,
+                        child: Lottie.asset(
+                          'assets/images/loading.json',
+                          // controller: _checkmarkController,
+                          repeat: true,
+                        ),
+                      ),);
         }
 
-        if (roomId != null && roomDetailsController.errorMessage.value.isNotEmpty) {
+        if (roomId != null &&
+            roomDetailsController.errorMessage.value.isNotEmpty) {
           return Center(child: Text(roomDetailsController.errorMessage.value));
         }
 
@@ -120,13 +130,15 @@ class DetailedViewScreen extends StatelessWidget {
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(hotel?.coverImageUrl ?? 'assets/images/image (33).png'),
+                    image: NetworkImage(
+                        hotel?.coverImageUrl ?? 'assets/images/image (33).png'),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
               // Room Details Section (if room is selected)
-              if (roomId != null && roomDetailsController.roomDetails.value != null)
+              if (roomId != null &&
+                  roomDetailsController.roomDetails.value != null)
                 Container(
                   // margin: EdgeInsets.only(top: 10.h, left: 10.w, right: 10.w),
                   // decoration: BoxDecoration(
@@ -142,13 +154,13 @@ class DetailedViewScreen extends StatelessWidget {
                       //   width: double.infinity,
                       //   decoration: BoxDecoration(
                       //     borderRadius: BorderRadius.only(
-                      //       topLeft: Radius.circular(15.sp), 
+                      //       topLeft: Radius.circular(15.sp),
                       //       topRight: Radius.circular(15.sp),
                       //     ),
                       //     image: DecorationImage(
                       //       image: NetworkImage(
-                      //         roomDetailsController.roomDetails.value?.roomImages.first ?? 
-                      //         hotel?.coverImageUrl ?? 
+                      //         roomDetailsController.roomDetails.value?.roomImages.first ??
+                      //         hotel?.coverImageUrl ??
                       //         'assets/images/image (33).png'
                       //       ),
                       //       fit: BoxFit.cover,
@@ -162,7 +174,9 @@ class DetailedViewScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              roomDetailsController.roomDetails.value?.roomName ?? "Room",
+                              roomDetailsController
+                                      .roomDetails.value?.roomName ??
+                                  "Room",
                               style: TextStyle(
                                 fontFamily: 'Poppins',
                                 color: black,
@@ -172,7 +186,9 @@ class DetailedViewScreen extends StatelessWidget {
                             ),
                             SizedBox(height: 5.h),
                             Text(
-                              roomDetailsController.roomDetails.value?.roomType ?? "Room Type",
+                              roomDetailsController
+                                      .roomDetails.value?.roomType ??
+                                  "Room Type",
                               style: TextStyle(
                                 fontFamily: 'Poppins',
                                 color: fontColor,
@@ -198,54 +214,59 @@ class DetailedViewScreen extends StatelessWidget {
                                 fontSize: 12.sp,
                               ),
                             ),
-                            
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-             Container(
-                    height: 98.h,
-                    padding: EdgeInsets.symmetric(horizontal: 15.w),
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: roomDetailsController.roomDetails.value?.images?.length ?? 0,
-                      itemBuilder: (context, index) {
-                        if (roomDetailsController.roomDetails.value?.images?.isEmpty ?? true) {
-                          return Center(
-                            child: Text(
-                              'No images available',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: fontColor,
-                                fontSize: 12.sp,
-                              ),
-                            ),
-                          );
-                        }
-                        return GestureDetector(
-                          onTap: () {
-                            // You can add image preview functionality here
-                          },
-                          child: Container(
-                            margin: EdgeInsets.symmetric(horizontal: 5.w),
-                            height: 98.h,
-                            width: 120.w,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.sp), 
-                              image: DecorationImage(
-                                image: NetworkImage(
-                                   roomDetailsController.roomDetails.value?.images?[index] ?? ''),
-                                fit: BoxFit.cover,
-                              ),
+              Container(
+                  height: 98.h,
+                  padding: EdgeInsets.symmetric(horizontal: 15.w),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: roomDetailsController
+                            .roomDetails.value?.images?.length ??
+                        0,
+                    itemBuilder: (context, index) {
+                      if (roomDetailsController
+                              .roomDetails.value?.images?.isEmpty ??
+                          true) {
+                        return Center(
+                          child: Text(
+                            'No images available',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontSize: 12.sp,
                             ),
                           ),
                         );
-                      },
-                    )),
+                      }
+                      return GestureDetector(
+                        onTap: () {
+                          // You can add image preview functionality here
+                        },
+                        child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: 5.w),
+                          height: 98.h,
+                          width: 120.w,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.sp),
+                            image: DecorationImage(
+                              image: NetworkImage(roomDetailsController
+                                      .roomDetails.value?.images?[index] ??
+                                  ''),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )),
               Padding(
-                padding: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 10.h, top: 10.h),
+                padding: EdgeInsets.only(
+                    left: 10.w, right: 10.w, bottom: 10.h, top: 10.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -302,17 +323,23 @@ class DetailedViewScreen extends StatelessWidget {
                     ),
                     Expanded(
                       child: Obx(() {
-                        final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                        final hotelDetails = roomDetailsController
+                            .roomDetails.value?.hotelDetails;
                         final address = [
                           hotelDetails?.address,
                           hotelDetails?.postcode,
                           hotelDetails?.city,
                           hotelDetails?.state,
                           hotelDetails?.country,
-                        ].where((element) => element != null && element.isNotEmpty).join(", ");
-                        
+                        ]
+                            .where((element) =>
+                                element != null && element.isNotEmpty)
+                            .join(", ");
+
                         return Text(
-                          address.isNotEmpty ? address : "Address not available",
+                          address.isNotEmpty
+                              ? address
+                              : "Address not available",
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             color: black,
@@ -344,9 +371,11 @@ class DetailedViewScreen extends StatelessWidget {
                     ),
                     Expanded(
                       child: Obx(() {
-                        final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                        final hotelDetails = roomDetailsController
+                            .roomDetails.value?.hotelDetails;
                         return Text(
-                          hotelDetails?.phoneNumber ?? "Contact number not available",
+                          hotelDetails?.phoneNumber ??
+                              "Contact number not available",
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             color: black,
@@ -379,7 +408,7 @@ class DetailedViewScreen extends StatelessWidget {
                     //     // Column(
                     //     //   crossAxisAlignment: CrossAxisAlignment.start,
                     //     //   children: [
-                    //     //     Text( 
+                    //     //     Text(
                     //     //       'Route to ${roomDetailsController.roomDetails.value?.hotelDetails?.name ?? "Hotel"}',
                     //     //       style: TextStyle(
                     //     //         fontFamily: 'Poppins',
@@ -393,11 +422,11 @@ class DetailedViewScreen extends StatelessWidget {
                     //     //     //   style: TextStyle(
                     //     //     //     fontFamily: 'Poppins',
                     //     //     //     color: black,
-                    //     //     //     fontSize: 13.sp, 
+                    //     //     //     fontSize: 13.sp,
                     //     //     //     fontWeight: FontWeight.w500,
                     //     //     //   ),
                     //     //     // ),
-                           
+
                     //     //   ],
                     //     // ),
                     //   ],
@@ -449,17 +478,17 @@ class DetailedViewScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(3.sp),
                       ),
                       child: Obx(() {
-                        final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                        final hotelDetails = roomDetailsController
+                            .roomDetails.value?.hotelDetails;
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               "${hotelDetails?.starRating ?? 0}",
                               style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: white,
-                                fontSize: 11.sp
-                              ),
+                                  fontFamily: 'Poppins',
+                                  color: white,
+                                  fontSize: 11.sp),
                             ),
                             SizedBox(width: 2.w),
                             Icon(
@@ -472,16 +501,16 @@ class DetailedViewScreen extends StatelessWidget {
                       }),
                     ),
                     Obx(() {
-                      final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                      final hotelDetails =
+                          roomDetailsController.roomDetails.value?.hotelDetails;
                       return Padding(
                         padding: EdgeInsets.only(right: 128.w),
                         child: Text(
                           "${hotelDetails?.totalRooms ?? 0} Reviews",
                           style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: const Color.fromARGB(255, 190, 190, 190),
-                            fontSize: 11.sp
-                          ),
+                              fontFamily: 'Poppins',
+                              color: const Color.fromARGB(255, 190, 190, 190),
+                              fontSize: 11.sp),
                         ),
                       );
                     }),
@@ -503,7 +532,8 @@ class DetailedViewScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 5.w),
                           Obx(() {
-                            final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                            final hotelDetails = roomDetailsController
+                                .roomDetails.value?.hotelDetails;
                             final rating = hotelDetails?.starRating ?? 0;
                             String ratingText = 'Poor';
                             if (rating >= 4) {
@@ -516,10 +546,9 @@ class DetailedViewScreen extends StatelessWidget {
                             return Text(
                               ratingText,
                               style: TextStyle(
-                                color: black,
-                                fontFamily: 'Poppins',
-                                fontSize: 10.sp
-                              ),
+                                  color: black,
+                                  fontFamily: 'Poppins',
+                                  fontSize: 10.sp),
                             );
                           }),
                         ],
@@ -546,7 +575,7 @@ class DetailedViewScreen extends StatelessWidget {
               //     secondColor: blue),
               AmenitieRow(),
               HomeDivider(),
-              Padding( 
+              Padding(
                 padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
                 child: Text(
                   'Transportations',
@@ -563,7 +592,7 @@ class DetailedViewScreen extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
                 child: Text(
-                  'About ${roomDetailsController.roomDetails.value?.hotelDetails?.name ?? "Hotel"}', 
+                  'About ${roomDetailsController.roomDetails.value?.hotelDetails?.name ?? "Hotel"}',
                   style: TextStyle(
                       fontFamily: 'Poppins',
                       color: blue,
@@ -580,8 +609,9 @@ class DetailedViewScreen extends StatelessWidget {
                   // color: blue,
                   borderRadius: BorderRadius.circular(5.sp),
                   image: DecorationImage(
-                      image:  NetworkImage(hotel?.coverImageUrl ?? 'assets/images/image (33).png'),
-                      fit: BoxFit.fill ),
+                      image: NetworkImage(hotel?.coverImageUrl ??
+                          'assets/images/image (33).png'),
+                      fit: BoxFit.fill),
                 ),
               ),
               Padding(
@@ -589,7 +619,8 @@ class DetailedViewScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     Obx(() {
-                      final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                      final hotelDetails =
+                          roomDetailsController.roomDetails.value?.hotelDetails;
                       return Text(
                         hotelDetails?.description ?? "No description available",
                         style: TextStyle(
@@ -599,7 +630,7 @@ class DetailedViewScreen extends StatelessWidget {
                         ),
                       );
                     }),
-                    SizedBox( 
+                    SizedBox(
                       height: 8.h,
                     ),
                   ],
@@ -611,10 +642,10 @@ class DetailedViewScreen extends StatelessWidget {
                   color: blue,
                   secondName: 'View All',
                   secondColor: blue),
-             
+
               const HotelPoliciesRow(),
-            //  HomeDivider(),
-             // const RoomPoliciesRow(),
+              //  HomeDivider(),
+              // const RoomPoliciesRow(),
               SizedBox(height: 30.h),
             ],
           ),

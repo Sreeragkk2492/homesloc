@@ -14,6 +14,7 @@ import 'package:homesloc/screens/detailed_view_screen/detail_view_hall_screen.da
 import 'package:homesloc/screens/home/widget/calendar_bottom_sheet.dart';
 import 'package:homesloc/screens/home/widget/guest_dialog.dart';
 import 'package:homesloc/screens/home/widget/search_button.dart';
+import 'package:lottie/lottie.dart';
 
 class HallSearchScreen extends StatelessWidget {
   HallSearchScreen({super.key});
@@ -269,9 +270,15 @@ class HallSearchScreen extends StatelessWidget {
             if (hallSearchController.isLoading.value) {
               return SliverFillRemaining(
                 child: Center(
-                  child: CircularProgressIndicator(
-                    color: blue,
-                  ),
+                  child:  Container(
+                        width: 50.w,
+                        height: 50.h,
+                        child: Lottie.asset(
+                          'assets/images/loading.json',
+                          // controller: _checkmarkController,
+                          repeat: true,
+                        ),
+                      ),
                 ),
               );
             } else if (hallSearchController.halls.isEmpty) {
@@ -280,28 +287,37 @@ class HallSearchScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.search_off,
-                        size: 64.sp,
-                        color: Colors.grey,
-                      ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        'No halls found',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        'Try adjusting your search criteria',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: Colors.grey,
-                        ),
-                      ),
+                       Container(
+                            width: 150.w,
+                            height: 150.h,
+                            child: Lottie.asset(
+                              'assets/images/search_animation.json', 
+                             // controller: _checkmarkController,
+                              repeat:true, 
+                            ),
+                          ),
+                      // Icon(
+                      //   Icons.search_off,
+                      //   size: 64.sp,
+                      //   color: Colors.grey,
+                      // ),
+                      // SizedBox(height: 16.h),
+                      // Text(
+                      //   'No halls found',
+                      //   style: TextStyle(
+                      //     fontSize: 18.sp,
+                      //     fontWeight: FontWeight.bold,
+                      //     color: Colors.grey,
+                      //   ),
+                      // ),
+                      // SizedBox(height: 8.h),
+                      // Text(
+                      //   'Try adjusting your search criteria',
+                      //   style: TextStyle(
+                      //     fontSize: 14.sp,
+                      //     color: Colors.grey,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

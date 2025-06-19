@@ -13,6 +13,7 @@ import 'package:homesloc/screens/detailed_view_screen/detail_view_tourism_screen
 import 'package:homesloc/screens/home/widget/calendar_bottom_sheet.dart';
 import 'package:homesloc/screens/home/widget/guest_dialog.dart';
 import 'package:homesloc/screens/home/widget/search_button.dart';
+import 'package:lottie/lottie.dart';
 
 class TourismPackageSearchScreen extends StatelessWidget {
   TourismPackageSearchScreen({super.key});
@@ -267,7 +268,15 @@ class TourismPackageSearchScreen extends StatelessWidget {
           Obx(() {
             if (toouristcontroller.isLoading.value) {
               return SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator(color: blue)),
+                child: Center(child:  Container(
+                        width: 50.w,
+                        height: 50.h,
+                        child: Lottie.asset(
+                          'assets/images/loading.json',
+                          // controller: _checkmarkController,
+                          repeat: true,
+                        ),
+                      ),),
               );
             } else if (toouristcontroller.tourism.isEmpty) {
               return SliverFillRemaining(
@@ -275,17 +284,26 @@ class TourismPackageSearchScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.search_off, size: 64.sp, color: Colors.grey),
-                      SizedBox(height: 16.h),
-                      Text('No tourism packages found',
-                          style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey)),
-                      SizedBox(height: 8.h),
-                      Text('Try adjusting your search criteria',
-                          style:
-                              TextStyle(fontSize: 14.sp, color: Colors.grey)),
+                      Container(
+                            width: 150.w,
+                            height: 150.h,
+                            child: Lottie.asset(
+                              'assets/images/search_animation.json', 
+                             // controller: _checkmarkController,
+                              repeat:true, 
+                            ),
+                          ),
+                      // Icon(Icons.search_off, size: 64.sp, color: Colors.grey),
+                      // SizedBox(height: 16.h),
+                      // Text('No tourism packages found',
+                      //     style: TextStyle(
+                      //         fontSize: 18.sp,
+                      //         fontWeight: FontWeight.bold,
+                      //         color: Colors.grey)),
+                      // SizedBox(height: 8.h),
+                      // Text('Try adjusting your search criteria',
+                      //     style:
+                      //         TextStyle(fontSize: 14.sp, color: Colors.grey)),
                     ],
                   ),
                 ),
@@ -332,14 +350,17 @@ class TourismPackageSearchScreen extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-         // Only proceed if dates are selected
+        // Only proceed if dates are selected
         if (calendarController.checkInDate.value != null) {
           // Navigate to detail view with required parameters
           Get.to(() => TourismDetailViewScreen(
-            packageId: package.id ?? '', 
-            startDate: calendarController.formatDateForApi(calendarController.checkInDate.value), // Default price method
-            endDate: calendarController.formatDateForApi(calendarController.checkOutDate.value),
-          ));
+                packageId: package.id ?? '',
+                startDate: calendarController.formatDateForApi(
+                    calendarController
+                        .checkInDate.value), // Default price method
+                endDate: calendarController
+                    .formatDateForApi(calendarController.checkOutDate.value),
+              ));
         } else {
           // Show a snackbar if date is not selected
           Get.snackbar(

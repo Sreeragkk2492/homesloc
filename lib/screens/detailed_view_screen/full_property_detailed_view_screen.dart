@@ -32,6 +32,7 @@ import 'package:homesloc/screens/detailed_view_screen/full_property_widgets/full
 import 'package:homesloc/screens/detailed_view_screen/full_property_widgets/property_policies.dart';
 import 'package:homesloc/screens/detailed_view_screen/full_property_widgets/property_amenities.dart';
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/full_property_first_detailed_view_builder.dart';
+import 'package:lottie/lottie.dart';
 
 class FullPropertyDetailedViewScreen extends StatelessWidget {
   final dynamic hotel;
@@ -48,18 +49,22 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Initialize both controllers
-    final fullPropertyController = Get.put(SearchHotelFullPropertiesController());
+    final fullPropertyController =
+        Get.put(SearchHotelFullPropertiesController());
     final roomDetailsController = Get.put(SearchHotelRoomDetailsController());
 
     // Fetch full property details if hotel is a full property and dates are provided
-    if (hotel != null && hotel.isFullProperty == true && startDate != null && endDate != null) {
+    if (hotel != null &&
+        hotel.isFullProperty == true &&
+        startDate != null &&
+        endDate != null) {
       print('Fetching full property details for hotel ID: ${hotel.id}');
       print('Is full property: ${hotel.isFullProperty}');
       print('Start date: $startDate, End date: $endDate');
-      
+
       // Use the full property ID if available, otherwise use the hotel ID
       final propertyId = hotel.fullProperty?.id ?? hotel.id;
-      
+
       fullPropertyController.fetchFullPropertyDetails(
         propertyId: propertyId,
         startDate: startDate!,
@@ -107,11 +112,21 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
         ],
       ),
       body: Obx(() {
-        if (hotel?.isFullProperty == true && fullPropertyController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+        if (hotel?.isFullProperty == true &&
+            fullPropertyController.isLoading.value) {
+          return  Center(child:  Container(
+                        width: 50.w,
+                        height: 50.h,
+                        child: Lottie.asset(
+                          'assets/images/loading.json',
+                          // controller: _checkmarkController,
+                          repeat: true,
+                        ),
+                      ),);
         }
 
-        if (hotel?.isFullProperty == true && fullPropertyController.errorMessage.value.isNotEmpty) {
+        if (hotel?.isFullProperty == true &&
+            fullPropertyController.errorMessage.value.isNotEmpty) {
           return Center(child: Text(fullPropertyController.errorMessage.value));
         }
 
@@ -126,13 +141,15 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(hotel?.coverImageUrl ?? 'assets/images/image (33).png'),
+                    image: NetworkImage(
+                        hotel?.coverImageUrl ?? 'assets/images/image (33).png'),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
               // Full Property Details Section
-              if (hotel?.isFullProperty == true && fullPropertyController.fullPropertyDetails.value != null)
+              if (hotel?.isFullProperty == true &&
+                  fullPropertyController.fullPropertyDetails.value != null)
                 Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,17 +162,17 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
               SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: 98.h,
-                child: hotel?.isFullProperty == true 
+                child: hotel?.isFullProperty == true
                     ? FullPropertyFirstDetailedViewBuilder(hotel: hotel)
                     : FirstDetailedViewBuilder(hotel: hotel),
               ),
-              
+
               // Property Location Section
               const PropertyLocation(),
-              
+
               // Property Route Section
-            //  const PropertyRoute(),
-              
+              //  const PropertyRoute(),
+
               HomeDivider(),
               NameView(
                 name: "Property highlights",
@@ -172,13 +189,13 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
               SizedBox(
                 height: 15.h,
               ),
-              
+
               // Use the custom FullPropertyBookNow widget
               const FullPropertyBookNow(),
-              
+
               // Property Rating Section
               const PropertyRating(),
-              
+
               SizedBox(height: 5.h),
               RatingFirstRow(),
               RatingSecondRow(),
@@ -190,11 +207,11 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
               ),
               HomeDivider(),
               // Use the new PropertyAmenities widget for full properties, otherwise use the original AmenitieRow
-              hotel?.isFullProperty == true 
-                  ? const PropertyAmenities() 
+              hotel?.isFullProperty == true
+                  ? const PropertyAmenities()
                   : AmenitieRow(),
               HomeDivider(),
-              Padding( 
+              Padding(
                 padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
                 child: Text(
                   'Transportations',
@@ -208,10 +225,10 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
               TransportationsFirstRow(),
               TransportationsSecondRow(),
               HomeDivider(),
-              
+
               // Property Description Section
               PropertyDescription(coverImageUrl: hotel?.coverImageUrl),
-              
+
               HomeDivider(),
               // Replace the HotelPoliciesRow with our new PropertyPolicies widget
               const PropertyPolicies(),
@@ -222,4 +239,4 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
       }),
     );
   }
-} 
+}

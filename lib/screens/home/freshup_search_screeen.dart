@@ -13,6 +13,7 @@ import 'package:homesloc/screens/detailed_view_screen/detail_view_fresh_up_scree
 import 'package:homesloc/screens/home/widget/calendar_bottom_sheet.dart';
 import 'package:homesloc/screens/home/widget/guest_dialog.dart';
 import 'package:homesloc/screens/home/widget/search_button.dart';
+import 'package:lottie/lottie.dart';
 
 class FreshUpSearchScreen extends StatelessWidget {
   FreshUpSearchScreen({super.key});
@@ -103,7 +104,8 @@ class FreshUpSearchScreen extends StatelessWidget {
                                         context: context,
                                         backgroundColor: Colors.transparent,
                                         isScrollControlled: true,
-                                        builder: (context) => const CalendarBottomSheet(),
+                                        builder: (context) =>
+                                            const CalendarBottomSheet(),
                                       );
                                     },
                                     child: Obx(() => Row(
@@ -238,9 +240,10 @@ class FreshUpSearchScreen extends StatelessWidget {
                                         calendarController.formatDateForApi(
                                             calendarController
                                                 .checkOutDate.value));
-                                    
+
                                     // Perform the search
-                                    freshUpController.searchFreshUp(refresh: true);
+                                    freshUpController.searchFreshUp(
+                                        refresh: true);
                                   } else {
                                     // Show a snackbar if dates are not selected
                                     Get.snackbar(
@@ -266,9 +269,15 @@ class FreshUpSearchScreen extends StatelessWidget {
             if (freshUpController.isLoading.value) {
               return SliverFillRemaining(
                 child: Center(
-                  child: CircularProgressIndicator(
-                    color: blue,
-                  ),
+                  child:  Container(
+                        width: 50.w,
+                        height: 50.h,
+                        child: Lottie.asset(
+                          'assets/images/loading.json',
+                          // controller: _checkmarkController,
+                          repeat: true,
+                        ),
+                      ),
                 ),
               );
             } else if (freshUpController.accommodations.isEmpty) {
@@ -277,28 +286,37 @@ class FreshUpSearchScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.search_off,
-                        size: 64.sp,
-                        color: Colors.grey,
-                      ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        'No fresh up services found',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
+                      Container(
+                        width: 150.w,
+                        height: 150.h,
+                        child: Lottie.asset(
+                          'assets/images/search_animation.json',
+                          // controller: _checkmarkController,
+                          repeat: true,
                         ),
                       ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        'Try adjusting your search criteria',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: Colors.grey,
-                        ),
-                      ),
+                      // Icon(
+                      //   Icons.search_off,
+                      //   size: 64.sp,
+                      //   color: Colors.grey,
+                      // ),
+                      // SizedBox(height: 16.h),
+                      // Text(
+                      //   'No fresh up services found',
+                      //   style: TextStyle(
+                      //     fontSize: 18.sp,
+                      //     fontWeight: FontWeight.bold,
+                      //     color: Colors.grey,
+                      //   ),
+                      // ),
+                      // SizedBox(height: 8.h),
+                      // Text(
+                      //   'Try adjusting your search criteria',
+                      //   style: TextStyle(
+                      //     fontSize: 14.sp,
+                      //     color: Colors.grey,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -310,7 +328,8 @@ class FreshUpSearchScreen extends StatelessWidget {
                     if (index == 0) {
                       // Return the heading for the first item
                       return Container(
-                        margin: EdgeInsets.only(top: 10.h, bottom: 10.h, left: 16.w, right: 16.w),
+                        margin: EdgeInsets.only(
+                            top: 10.h, bottom: 10.h, left: 16.w, right: 16.w),
                         child: Text(
                           "Fresh Up Hotels ${freshUpController.accommodations.length} Found",
                           style: TextStyle(
@@ -323,11 +342,13 @@ class FreshUpSearchScreen extends StatelessWidget {
                       );
                     } else {
                       // Return accommodation card for other items
-                      final accommodation = freshUpController.accommodations[index - 1];
+                      final accommodation =
+                          freshUpController.accommodations[index - 1];
                       return _buildAccommodationCard(accommodation);
                     }
                   },
-                  childCount: freshUpController.accommodations.length + 1, // Add 1 for the heading
+                  childCount: freshUpController.accommodations.length +
+                      1, // Add 1 for the heading
                 ),
               );
             }
@@ -339,20 +360,23 @@ class FreshUpSearchScreen extends StatelessWidget {
 
   Widget _buildAccommodationCard(Accommodation accommodation) {
     // Get the first room image if available, otherwise use cover image
-    String? imageUrl = accommodation.roomImages != null && accommodation.roomImages!.isNotEmpty
-        ? accommodation.roomImages!.first
-        : accommodation.coverImageUrl;
-    
+    String? imageUrl =
+        accommodation.roomImages != null && accommodation.roomImages!.isNotEmpty
+            ? accommodation.roomImages!.first
+            : accommodation.coverImageUrl;
+
     return GestureDetector(
       onTap: () {
         // Only proceed if dates are selected
         if (calendarController.checkInDate.value != null) {
           // Navigate to detail view with required parameters
           Get.to(() => DetailViewFreshUpScreen(
-            freshUpId: accommodation.id ?? '', 
-            priceMethod: accommodation.priceMethod ?? '', // Default price method
-            date: calendarController.formatDateForApi(calendarController.checkInDate.value),
-          ));
+                freshUpId: accommodation.id ?? '',
+                priceMethod:
+                    accommodation.priceMethod ?? '', // Default price method
+                date: calendarController
+                    .formatDateForApi(calendarController.checkInDate.value),
+              ));
         } else {
           // Show a snackbar if date is not selected
           Get.snackbar(
@@ -382,7 +406,8 @@ class FreshUpSearchScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(13.sp),
                 image: DecorationImage(
-                  image: NetworkImage(imageUrl ?? 'https://via.placeholder.com/150'),
+                  image: NetworkImage(
+                      imageUrl ?? 'https://via.placeholder.com/150'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -399,7 +424,7 @@ class FreshUpSearchScreen extends StatelessWidget {
                       color: black,
                       fontWeight: FontWeight.bold,
                       fontSize: 14.sp,
-                    ), 
+                    ),
                   ),
                   SizedBox(height: 3.h),
                   Text(
@@ -423,7 +448,8 @@ class FreshUpSearchScreen extends StatelessWidget {
                           fontSize: 14.sp,
                         ),
                       ),
-                      if (accommodation.offerPrice != null && accommodation.offerPrice!.isNotEmpty) ...[
+                      if (accommodation.offerPrice != null &&
+                          accommodation.offerPrice!.isNotEmpty) ...[
                         SizedBox(width: 5.w),
                         Text(
                           "₹${accommodation.offerPrice}",
@@ -457,7 +483,8 @@ class FreshUpSearchScreen extends StatelessWidget {
                           fontSize: 11.sp,
                         ),
                       ),
-                      if (accommodation.amenities != null && accommodation.amenities!.isNotEmpty)
+                      if (accommodation.amenities != null &&
+                          accommodation.amenities!.isNotEmpty)
                         _buildAmenities(accommodation.amenities!)
                       else
                         Text(
@@ -538,7 +565,8 @@ class FreshUpSearchScreen extends StatelessWidget {
       final double originalPrice = double.parse(price);
       final double discountedPrice = double.parse(offerPrice);
       if (originalPrice > 0) {
-        return ((originalPrice - discountedPrice) / originalPrice * 100).round();
+        return ((originalPrice - discountedPrice) / originalPrice * 100)
+            .round();
       }
     } catch (e) {
       print('Error calculating discount: $e');
@@ -564,7 +592,8 @@ class FreshUpSearchScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Show first amenity
-          _buildAmenityChip(_truncateAmenityName(amenities[0].name ?? "Amenity")),
+          _buildAmenityChip(
+              _truncateAmenityName(amenities[0].name ?? "Amenity")),
           SizedBox(width: 4.w),
           // Show count of remaining amenities
           if (amenities.length > 1) ...[

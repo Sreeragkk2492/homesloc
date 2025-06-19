@@ -30,6 +30,8 @@ class SearchHallEventDetailsApi {
       );
 
       // Check if the request was successful
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
       if (response.statusCode == 200) {
         // Parse the response body
         final Map<String, dynamic> data = json.decode(response.body);

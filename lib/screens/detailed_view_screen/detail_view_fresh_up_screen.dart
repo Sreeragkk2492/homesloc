@@ -21,6 +21,7 @@ import 'package:homesloc/core/widgets/yellow_star/yellow_star.dart';
 import 'package:homesloc/core/widgets/book_now/fresh_up_book_now.dart';
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/fresh_up_first_detailed_view_builder.dart';
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/second_detailed_view_builder.dart';
+import 'package:lottie/lottie.dart';
 
 class DetailViewFreshUpScreen extends StatelessWidget {
   final String freshUpId;
@@ -91,7 +92,15 @@ class DetailViewFreshUpScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (freshUpController.isLoadingRoomDetails.value) {
-          return const Center(child: CircularProgressIndicator());
+          return  Center(child:  Container(
+                        width: 50.w,
+                        height: 50.h,
+                        child: Lottie.asset(
+                          'assets/images/loading.json',
+                          // controller: _checkmarkController,
+                          repeat: true,
+                        ),
+                      ),);
         }
 
         if (freshUpController.roomDetailsErrorMessage.value.isNotEmpty) {
