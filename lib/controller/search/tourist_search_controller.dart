@@ -45,7 +45,7 @@ class TouristSearchController extends GetxController {
 
       // Call the API
       final api = TourismDetailsApi();
-      final TourismDetailsModel result = await api. fetchTourismDetails(
+      final TourismDetailsModel result = await api.fetchTourismDetails(
         packageId: packageId,
         startDate: startDate,
         endDate: endDate,

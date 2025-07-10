@@ -4,9 +4,12 @@ import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
 import 'package:homesloc/controller/search/search_hotel_full_properties_controller.dart';
+import 'package:homesloc/controller/search/search_hotel_room_details_controller.dart';
 
 class PropertyAmenities extends StatefulWidget {
-  const PropertyAmenities({Key? key}) : super(key: key);
+  final dynamic hotel;
+  
+  const PropertyAmenities({Key? key, this.hotel}) : super(key: key);
 
   @override
   State<PropertyAmenities> createState() => _PropertyAmenitiesState();
@@ -14,7 +17,6 @@ class PropertyAmenities extends StatefulWidget {
 
 class _PropertyAmenitiesState extends State<PropertyAmenities> {
   bool isExpanded = false;
-  final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
 
   void toggleExpanded() {
     setState(() {
@@ -25,7 +27,30 @@ class _PropertyAmenitiesState extends State<PropertyAmenities> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final amenities = fullPropertyController.getAmenities();
+      // Try to get controllers
+      final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+      final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+      
+      List<String> amenities = [];
+      
+      // Try to get amenities from full property details first
+      final fullPropertyDetails = fullPropertyController.fullPropertyDetails.value;
+      final fullPropertyHotelDetails = fullPropertyDetails?.hotelDetails;
+      if (fullPropertyHotelDetails?.amenities != null) {
+        amenities = fullPropertyHotelDetails!.amenities!.map((amenity) => amenity.name ?? '').where((name) => name.isNotEmpty).toList();
+      }
+      // Try to get amenities from room details if full property amenities are not available
+      else {
+        final roomDetails = roomDetailsController.roomDetails.value;
+        final roomDetailsHotelDetails = roomDetails?.hotelDetails;
+        if (roomDetailsHotelDetails?.amenities != null) {
+          amenities = roomDetailsHotelDetails!.amenities!.map((amenity) => amenity.name ?? '').where((name) => name.isNotEmpty).toList();
+        }
+        // Fallback to accommodation amenities if detailed amenities are not available
+        else if (widget.hotel?.amenities != null) {
+          amenities = widget.hotel.amenities.map((amenity) => amenity.name ?? '').where((name) => name.isNotEmpty).toList();
+        }
+      }
       
       if (amenities.isEmpty) {
         return const SizedBox.shrink();

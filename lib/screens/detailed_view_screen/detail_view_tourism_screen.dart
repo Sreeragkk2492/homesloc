@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/search/tourist_search_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
+import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:lottie/lottie.dart';
 
 class TourismDetailViewScreen extends StatelessWidget {
@@ -73,15 +74,17 @@ class TourismDetailViewScreen extends StatelessWidget {
         ),
         body: Obx(() {
           if (screenController.isLoadingTourismDetails.value) {
-            return  Center(child:  Container(
-                        width: 50.w,
-                        height: 50.h,
-                        child: Lottie.asset(
-                          'assets/images/loading.json',
-                          // controller: _checkmarkController,
-                          repeat: true,
-                        ),
-                      ),);
+            return Center(
+              child: Container(
+                width: 50.w,
+                height: 50.h,
+                child: Lottie.asset(
+                  'assets/images/loading.json',
+                  // controller: _checkmarkController,
+                  repeat: true,
+                ),
+              ),
+            );
           }
           if (screenController.tourismDetailsErrorMessage.value.isNotEmpty) {
             return Center(
@@ -221,55 +224,55 @@ class TourismDetailViewScreen extends StatelessWidget {
                 SizedBox(height: 20.h),
 
                 // Property Highlights Grid
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Property highlights',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: blue,
-                          fontSize: 17.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      Row(
-                        children: [
-                          _buildFeatureItem(Icons.park, "Garden view"),
-                          SizedBox(width: 20.w),
-                          _buildFeatureItem(Icons.deck, "Terrace"),
-                          SizedBox(width: 20.w),
-                          _buildFeatureItem(Icons.water, "River view"),
-                        ],
-                      ),
-                      SizedBox(height: 15.h),
-                      Row(
-                        children: [
-                          _buildFeatureItem(Icons.local_bar, "Bar"),
-                          SizedBox(width: 20.w),
-                          _buildFeatureItem(Icons.fitness_center, "Gym"),
-                          SizedBox(width: 20.w),
-                          _buildFeatureItem(Icons.pool, "Swimming Pool"),
-                        ],
-                      ),
-                      SizedBox(height: 15.h),
-                      Row(
-                        children: [
-                          _buildFeatureItem(Icons.face, "Grilling"),
-                          SizedBox(width: 20.w),
-                          _buildFeatureItem(Icons.medical_services, "Medical"),
-                          SizedBox(width: 20.w),
-                          _buildFeatureItem(Icons.free_breakfast, "Breakfast"),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                // Padding(
+                //   padding: EdgeInsets.symmetric(horizontal: 15.w),
+                //   child: Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       Text(
+                //         'Property highlights',
+                //         style: TextStyle(
+                //           fontFamily: 'Poppins',
+                //           color: blue,
+                //           fontSize: 17.sp,
+                //           fontWeight: FontWeight.bold,
+                //         ),
+                //       ),
+                //       SizedBox(height: 10.h),
+                //       Row(
+                //         children: [
+                //           _buildFeatureItem(Icons.park, "Garden view"),
+                //           SizedBox(width: 20.w),
+                //           _buildFeatureItem(Icons.deck, "Terrace"),
+                //           SizedBox(width: 20.w),
+                //           _buildFeatureItem(Icons.water, "River view"),
+                //         ],
+                //       ),
+                //       SizedBox(height: 15.h),
+                //       Row(
+                //         children: [
+                //           _buildFeatureItem(Icons.local_bar, "Bar"),
+                //           SizedBox(width: 20.w),
+                //           _buildFeatureItem(Icons.fitness_center, "Gym"),
+                //           SizedBox(width: 20.w),
+                //           _buildFeatureItem(Icons.pool, "Swimming Pool"),
+                //         ],
+                //       ),
+                //       SizedBox(height: 15.h),
+                //       Row(
+                //         children: [
+                //           _buildFeatureItem(Icons.face, "Grilling"),
+                //           SizedBox(width: 20.w),
+                //           _buildFeatureItem(Icons.medical_services, "Medical"),
+                //           SizedBox(width: 20.w),
+                //           _buildFeatureItem(Icons.free_breakfast, "Breakfast"),
+                //         ],
+                //       ),
+                //     ],
+                //   ),
+                // ),
 
-                SizedBox(height: 20.h),
+                SizedBox(height: 15.h),
 
                 // Book Now Section
                 Container(
@@ -452,7 +455,7 @@ class TourismDetailViewScreen extends StatelessWidget {
                 ),
 
                 SizedBox(height: 25.h),
-
+                HomeDivider(),
                 // Amenities Section
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -474,10 +477,10 @@ class TourismDetailViewScreen extends StatelessWidget {
                           Text(
                             'View All',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                              fontSize: 14.sp,
-                            ),
+                                fontFamily: 'Poppins',
+                                color: blue,
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
@@ -529,7 +532,7 @@ class TourismDetailViewScreen extends StatelessWidget {
                 ),
 
                 SizedBox(height: 25.h),
-
+                HomeDivider(),
                 // Itinerary Section
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -568,7 +571,7 @@ class TourismDetailViewScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 25.h),
-
+                HomeDivider(),
                 // About Section
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -612,7 +615,7 @@ class TourismDetailViewScreen extends StatelessWidget {
                 ),
 
                 SizedBox(height: 25.h),
-
+                HomeDivider(),
                 // Policies Section
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -634,10 +637,10 @@ class TourismDetailViewScreen extends StatelessWidget {
                           Text(
                             'View All',
                             style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                              fontSize: 14.sp,
-                            ),
+                                fontFamily: 'Poppins',
+                                color: blue,
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),

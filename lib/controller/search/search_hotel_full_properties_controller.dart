@@ -9,6 +9,7 @@ class SearchHotelFullPropertiesController extends GetxController {
   final Rx<HotelFullPropertyModel?> fullPropertyDetails = Rx<HotelFullPropertyModel?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+  var selectedRoomIndex = RxnInt();
   
   // Function to fetch full property details
   Future<void> fetchFullPropertyDetails({

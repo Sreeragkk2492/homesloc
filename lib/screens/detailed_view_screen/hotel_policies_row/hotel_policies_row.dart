@@ -41,7 +41,7 @@ class HotelPoliciesRow extends StatelessWidget {
                 icon: Icons.cancel_rounded,
                 title: 'Cancellation Policy',
                 content: policies.cancellationPolicy!,
-                iconColor: Colors.red,
+               // iconColor: Colors.red,
               ),
             if (policies.extraBedPolicy != null)
               _buildPolicyCard(
@@ -50,7 +50,7 @@ class HotelPoliciesRow extends StatelessWidget {
                 content: policies.extraBedPolicy! 
                     ? 'Available${policies.extraBedRate != null ? ' (₹${policies.extraBedRate})' : ''}'
                     : 'Not Available',
-                iconColor: policies.extraBedPolicy! ? green : Colors.red,
+               // iconColor: policies.extraBedPolicy! ? green : Colors.red,
               ),
             if (policies.mealRates != null)
               _buildPolicyCard(
@@ -67,14 +67,14 @@ class HotelPoliciesRow extends StatelessWidget {
                 icon: Icons.people_rounded,
                 title: 'Visitors Policy',
                 content: policies.outsideVisitorAllowed! ? 'Visitors Allowed' : 'No Visitors Allowed',
-                iconColor: policies.outsideVisitorAllowed! ? green : Colors.red,
+                //iconColor: policies.outsideVisitorAllowed! ? green : Colors.red,
               ),
             if (policies.partiesOrEventsAllowed != null)
               _buildPolicyCard(
                 icon: Icons.celebration_rounded,
                 title: 'Events Policy',
                 content: policies.partiesOrEventsAllowed! ? 'Events Allowed' : 'No Events Allowed',
-                iconColor: policies.partiesOrEventsAllowed! ? green : Colors.red,
+                //iconColor: policies.partiesOrEventsAllowed! ? green : Colors.red,
               ),
           ],
         ),

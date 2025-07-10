@@ -171,6 +171,16 @@ class DetailViewFreshUpScreen extends StatelessWidget {
             ? pricePerRoom?.slots 
             : pricePerHead?.slots;
 
+        // Get amenities based on price method
+        final amenities = isPerRoom 
+            ? pricePerRoom?.amenities 
+            : pricePerHead?.amenities;
+            
+        // Fallback to property amenities if price method amenities are empty
+        final displayAmenities = (amenities != null && amenities.isNotEmpty) 
+            ? amenities 
+            : propertyDetails?.freshupAmenities ?? [];
+
         return SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Column(
@@ -448,20 +458,20 @@ class DetailViewFreshUpScreen extends StatelessWidget {
               //   ),
               // ),
 
-              HomeDivider(),
+              // HomeDivider(),
 
-              // Property Highlights Section
-              NameView(
-                name: "Property highlights",
-                color: blue,
-                secondName: 'View All',
-                secondColor: blue,
-              ),
-              SizedBox(height: 15.h),
-              PropertyFirstRow(),
-              PropertySecondRow(),
-              ProperyThirdRow(),
-              SizedBox(height: 15.h),
+              // // Property Highlights Section
+              // NameView(
+              //   name: "Property highlights",
+              //   color: blue,
+              //   secondName: 'View All',
+              //   secondColor: blue,
+              // ),
+              // SizedBox(height: 15.h),
+              // PropertyFirstRow(),
+              // PropertySecondRow(),
+              // ProperyThirdRow(),
+                SizedBox(height: 15.h),
               FreshUpBookNow(
                 freshUp: roomDetails,
                 price: null,
@@ -554,16 +564,16 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              RatingFirstRow(),
-              RatingSecondRow(),
-              RatingThirdRow(),
+              // RatingFirstRow(),
+              // RatingSecondRow(),
+              // RatingThirdRow(),
 
-              // Second Detailed View Builder
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 120.h,
-                child: SecondDetailedViewBuilder(),
-              ),
+              // // Second Detailed View Builder
+              // SizedBox(
+              //   width: MediaQuery.of(context).size.width,
+              //   height: 120.h,
+              //   child: SecondDetailedViewBuilder(),
+              // ),
 
               HomeDivider(),
 
@@ -577,7 +587,7 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Amenities',
+                            'Amenities ',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               color: blue,
@@ -590,7 +600,8 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               color: blue,
-                              fontSize: 14.sp,
+                               fontSize: 10.sp,
+                      fontWeight: FontWeight.w600
                             ),
                           ),
                         ],
@@ -598,14 +609,27 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                       SizedBox(height: 15.h),
                       Column(
                         children: [
+                          if (displayAmenities.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10.w),
+                              child: Text(
+                                'No amenities available for this ${isPerRoom ? 'room' : 'per head'} option',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: fontColor,
+                                  fontSize: 13.sp,
+                                ),
+                              ),
+                            )
+                          else
                           Padding(
                             padding: EdgeInsets.only(
                                 left: 10.w, right: 10.w, top: 10.h),
                             child: Wrap(
                               spacing: 10.w,
                               runSpacing: 10.h,
-                              children:
-                                  (propertyDetails!.freshupAmenities ?? []).map((amenity) {
+                              children: 
+                                  displayAmenities.map((amenity) {
                                 return Container(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 12.w, vertical: 6.h),
@@ -834,7 +858,8 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               color: blue,
-                              fontSize: 14.sp,
+                               fontSize: 10.sp,
+                      fontWeight: FontWeight.w600
                             ),
                           ),
                         ],
@@ -871,7 +896,7 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                       if ((propertyDetails?.freshupPolicies?.propertyrules ?? '').isNotEmpty)
                         _buildPolicyItem(
                           Icons.rule,
-                          "Property Rules",
+                          "Property Rules", 
                           propertyDetails!.freshupPolicies!.propertyrules ?? '',
                         ),
                     ],

@@ -17,6 +17,7 @@ import 'package:homesloc/models/search/search_hotel_model.dart';
     int? starRating,
     int page = 1,
     int pageSize = 10,
+    //String accommodationType = "FULL_PROPERTY",
     String sortBy = "created_at",
     String sortOrder = "desc",
   }) async {
@@ -31,6 +32,7 @@ import 'package:homesloc/models/search/search_hotel_model.dart';
         if (minPrice != null && minPrice > 0) 'min_price': minPrice.toString(),
         if (maxPrice != null && maxPrice > 0) 'max_price': maxPrice.toString(),
         if (starRating != null && starRating > 0) 'star_rating': starRating.toString(),
+       // if (accommodationType != null && accommodationType.isNotEmpty) 'accommodation_type': accommodationType,
         'is_active': isActive.toString(),
         'page': page.toString(),
         'page_size': pageSize.toString(),

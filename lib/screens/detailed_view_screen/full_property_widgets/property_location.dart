@@ -3,14 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/controller/search/search_hotel_full_properties_controller.dart';
+import 'package:homesloc/controller/search/search_hotel_room_details_controller.dart';
 
 class PropertyLocation extends StatelessWidget {
-  const PropertyLocation({Key? key}) : super(key: key);
+  final dynamic hotel;
+  
+  const PropertyLocation({Key? key, this.hotel}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -72,17 +73,41 @@ class PropertyLocation extends StatelessWidget {
               ),
               Expanded(
                 child: Obx(() {
-                  final hotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
-                  final address = [
-                    hotelDetails?.address,
-                    hotelDetails?.postcode,
-                    hotelDetails?.city,
-                    hotelDetails?.state,
-                    hotelDetails?.country,
-                  ].where((element) => element != null && element.isNotEmpty).join(", ");
+                  // Try to get controllers
+                  final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+                  final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+                  
+                  // Try to get address from full property details first
+                  final fullPropertyHotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                  String address = '';
+                  
+                  if (fullPropertyHotelDetails != null) {
+                    address = [
+                      fullPropertyHotelDetails.address,
+                      fullPropertyHotelDetails.postcode,
+                      fullPropertyHotelDetails.city,
+                      fullPropertyHotelDetails.state,
+                      fullPropertyHotelDetails.country,
+                    ].where((element) => element != null && element.isNotEmpty).join(", ");
+                  } else {
+                    // Try to get address from room details
+                    final roomDetailsHotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                    if (roomDetailsHotelDetails != null) {
+                      address = [
+                        roomDetailsHotelDetails.address,
+                        roomDetailsHotelDetails.postcode,
+                        roomDetailsHotelDetails.city,
+                        roomDetailsHotelDetails.state,
+                        roomDetailsHotelDetails.country,
+                      ].where((element) => element != null && element.isNotEmpty).join(", ");
+                    }
+                  }
+                  
+                  // Fall back to accommodation data if detailed data is not available
+                  final fallbackAddress = "${hotel?.city ?? ''}${hotel?.city != null && hotel?.state != null ? ', ' : ''}${hotel?.state ?? ''}";
                   
                   return Text(
-                    address.isNotEmpty ? address : "Address not available",
+                    address.isNotEmpty ? address : fallbackAddress,
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       color: black,
@@ -114,9 +139,24 @@ class PropertyLocation extends StatelessWidget {
               ),
               Expanded(
                 child: Obx(() {
-                  final hotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                  // Try to get controllers
+                  final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+                  final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+                  
+                  // Try to get phone number from full property details first
+                  final fullPropertyHotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                  String phoneNumber = '';
+                  
+                  if (fullPropertyHotelDetails?.phoneNumber != null) {
+                    phoneNumber = fullPropertyHotelDetails!.phoneNumber!;
+                  } else {
+                    // Try to get phone number from room details
+                    final roomDetailsHotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                    phoneNumber = roomDetailsHotelDetails?.phoneNumber ?? "Contact number not available";
+                  }
+                  
                   return Text(
-                    hotelDetails?.phoneNumber ?? "Contact number not available",
+                    phoneNumber,
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       color: black,

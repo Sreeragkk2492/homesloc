@@ -18,7 +18,7 @@ class TourismDetailsModel {
     List<dynamic> tripAttractions;
     int durationDays;
     int durationNights;
-    String description;
+    String? description;
     String priceWithoutFlight;
     dynamic priceWithFlight;
     dynamic offerPrice;
@@ -27,7 +27,7 @@ class TourismDetailsModel {
     List<Itinerary> itinerary;
     List<String> images;
     AgencyDetails agencyDetails;
-    String message;
+    String? message;
 
     TourismDetailsModel({
         required this.id,
@@ -39,7 +39,7 @@ class TourismDetailsModel {
         required this.tripAttractions,
         required this.durationDays,
         required this.durationNights,
-        required this.description,
+        this.description,
         required this.priceWithoutFlight,
         required this.priceWithFlight,
         required this.offerPrice,
@@ -48,28 +48,28 @@ class TourismDetailsModel {
         required this.itinerary,
         required this.images,
         required this.agencyDetails,
-        required this.message,
+        this.message,
     });
 
     factory TourismDetailsModel.fromJson(Map<String, dynamic> json) => TourismDetailsModel(
-        id: json["id"],
-        packageName: json["package_name"],
-        packageType: json["package_type"],
-        startLocation: json["start_location"],
-        destination: json["destination"],
-        packageMiddlePlace: List<dynamic>.from(json["package_middle_place"].map((x) => x)),
-        tripAttractions: List<dynamic>.from(json["trip_attractions"].map((x) => x)),
-        durationDays: json["duration_days"],
-        durationNights: json["duration_nights"],
+        id: json["id"] ?? '',
+        packageName: json["package_name"] ?? '',
+        packageType: json["package_type"] ?? '',
+        startLocation: json["start_location"] ?? '',
+        destination: json["destination"] ?? '',
+        packageMiddlePlace: List<dynamic>.from(json["package_middle_place"]?.map((x) => x) ?? []),
+        tripAttractions: List<dynamic>.from(json["trip_attractions"]?.map((x) => x) ?? []),
+        durationDays: json["duration_days"] ?? 0,
+        durationNights: json["duration_nights"] ?? 0,
         description: json["description"],
-        priceWithoutFlight: json["price_without_flight"],
+        priceWithoutFlight: json["price_without_flight"] ?? '',
         priceWithFlight: json["price_with_flight"],
         offerPrice: json["offer_price"],
-        galleryImages: List<String>.from(json["gallery_images"].map((x) => x)),
-        amenities: List<Amenity>.from(json["amenities"].map((x) => Amenity.fromJson(x))),
-        itinerary: List<Itinerary>.from(json["itinerary"].map((x) => Itinerary.fromJson(x))),
-        images: List<String>.from(json["images"].map((x) => x)),
-        agencyDetails: AgencyDetails.fromJson(json["agency_details"]),
+        galleryImages: List<String>.from(json["gallery_images"]?.map((x) => x) ?? []),
+        amenities: List<Amenity>.from(json["amenities"]?.map((x) => Amenity.fromJson(x)) ?? []),
+        itinerary: List<Itinerary>.from(json["itinerary"]?.map((x) => Itinerary.fromJson(x)) ?? []),
+        images: List<String>.from(json["images"]?.map((x) => x) ?? []),
+        agencyDetails: AgencyDetails.fromJson(json["agency_details"] ?? {}),
         message: json["message"],
     );
 
@@ -126,18 +126,18 @@ class AgencyDetails {
     });
 
     factory AgencyDetails.fromJson(Map<String, dynamic> json) => AgencyDetails(
-        id: json["id"],
-        name: json["name"],
-        startedSince: json["started_since"],
-        email: json["email"],
-        phoneNumber: json["phone_number"],
-        coverImageUrl: json["cover_image_url"],
-        description: json["description"],
-        videos: List<dynamic>.from(json["videos"].map((x) => x)),
-        amenities: List<dynamic>.from(json["amenities"].map((x) => x)),
-        packages: List<dynamic>.from(json["packages"].map((x) => x)),
-        policies: Policies.fromJson(json["policies"]),
-        legalPolicies: LegalPolicies.fromJson(json["legal_policies"]),
+        id: json["id"] ?? '',
+        name: json["name"] ?? '',
+        startedSince: json["started_since"] ?? '',
+        email: json["email"] ?? '',
+        phoneNumber: json["phone_number"] ?? '',
+        coverImageUrl: json["cover_image_url"] ?? '',
+        description: json["description"] ?? '',
+        videos: List<dynamic>.from(json["videos"]?.map((x) => x) ?? []),
+        amenities: List<dynamic>.from(json["amenities"]?.map((x) => x) ?? []),
+        packages: List<dynamic>.from(json["packages"]?.map((x) => x) ?? []),
+        policies: Policies.fromJson(json["policies"] ?? {}),
+        legalPolicies: LegalPolicies.fromJson(json["legal_policies"] ?? {}),
     );
 
     Map<String, dynamic> toJson() => {
@@ -180,15 +180,15 @@ class LegalPolicies {
     });
 
     factory LegalPolicies.fromJson(Map<String, dynamic> json) => LegalPolicies(
-        id: json["id"],
-        ownershipType: json["ownershipType"],
-        panCardDetails: json["panCardDetails"],
-        propertyRestrictions: json["propertyRestrictions"],
-        gstDetails: json["gstDetails"],
-        bankAccountDetails: BankAccountDetails.fromJson(json["bankAccountDetails"]),
-        registrationDocument: List<String>.from(json["registrationDocument"].map((x) => x)),
-        documentImageUrl: List<String>.from(json["document_image_url"].map((x) => x)),
-        videos: List<dynamic>.from(json["videos"].map((x) => x)),
+        id: json["id"] ?? '',
+        ownershipType: json["ownershipType"] ?? '',
+        panCardDetails: json["panCardDetails"] ?? '',
+        propertyRestrictions: json["propertyRestrictions"] ?? '',
+        gstDetails: json["gstDetails"] ?? '',
+        bankAccountDetails: BankAccountDetails.fromJson(json["bankAccountDetails"] ?? {}),
+        registrationDocument: List<String>.from(json["registrationDocument"]?.map((x) => x) ?? []),
+        documentImageUrl: List<String>.from(json["document_image_url"]?.map((x) => x) ?? []),
+        videos: List<dynamic>.from(json["videos"]?.map((x) => x) ?? []),
     );
 
     Map<String, dynamic> toJson() => {
@@ -218,10 +218,10 @@ class BankAccountDetails {
     });
 
     factory BankAccountDetails.fromJson(Map<String, dynamic> json) => BankAccountDetails(
-        accountNumber: json["account_number"],
-        ifscCode: json["ifsc_code"],
-        bankName: json["bank_name"],
-        accountHolderName: json["account_holder_name"],
+        accountNumber: json["account_number"] ?? '',
+        ifscCode: json["ifsc_code"] ?? '',
+        bankName: json["bank_name"] ?? '',
+        accountHolderName: json["account_holder_name"] ?? '',
     );
 
     Map<String, dynamic> toJson() => {
@@ -234,28 +234,28 @@ class BankAccountDetails {
 
 class Policies {
     String id;
-    String cancellationPolicy;
+    String? cancellationPolicy;
     int cancellationDays;
-    String paymentPolicy;
+    String? paymentPolicy;
     List<String> acceptableIdentityProof;
     List<String> tripTermsConditions;
 
     Policies({
         required this.id,
-        required this.cancellationPolicy,
+        this.cancellationPolicy,
         required this.cancellationDays,
-        required this.paymentPolicy,
+        this.paymentPolicy,
         required this.acceptableIdentityProof,
         required this.tripTermsConditions,
     });
 
     factory Policies.fromJson(Map<String, dynamic> json) => Policies(
-        id: json["id"],
+        id: json["id"] ?? '',
         cancellationPolicy: json["cancellationPolicy"],
-        cancellationDays: json["cancellationDays"],
+        cancellationDays: json["cancellationDays"] ?? 0,
         paymentPolicy: json["paymentPolicy"],
-        acceptableIdentityProof: List<String>.from(json["acceptableIdentityProof"].map((x) => x)),
-        tripTermsConditions: List<String>.from(json["tripTermsConditions"].map((x) => x)),
+        acceptableIdentityProof: List<String>.from(json["acceptableIdentityProof"]?.map((x) => x) ?? []),
+        tripTermsConditions: List<String>.from(json["tripTermsConditions"]?.map((x) => x) ?? []),
     );
 
     Map<String, dynamic> toJson() => {
@@ -280,9 +280,9 @@ class Amenity {
     });
 
     factory Amenity.fromJson(Map<String, dynamic> json) => Amenity(
-        id: json["id"],
-        name: json["name"],
-        description: json["description"],
+        id: json["id"] ?? '',
+        name: json["name"] ?? '',
+        description: json["description"] ?? '',
     );
 
     Map<String, dynamic> toJson() => {
@@ -308,9 +308,9 @@ class Itinerary {
     });
 
     factory Itinerary.fromJson(Map<String, dynamic> json) => Itinerary(
-        id: json["id"],
-        day: json["day"],
-        description: json["description"],
+        id: json["id"] ?? '',
+        day: json["day"] ?? '',
+        description: json["description"] ?? '',
         location: json["location"],
         mealPlan: json["meal_plan"],
     );

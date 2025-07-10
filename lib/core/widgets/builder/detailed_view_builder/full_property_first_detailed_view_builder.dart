@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/search/search_hotel_full_properties_controller.dart';
+import 'package:homesloc/controller/search/search_hotel_room_details_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
 
 class FullPropertyFirstDetailedViewBuilder extends StatelessWidget {
@@ -12,9 +13,11 @@ class FullPropertyFirstDetailedViewBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
-
     return Obx(() {
+      // Try to get controllers
+      final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+      final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+      
       // Check if hotel is null
       if (hotel == null) {
         return Center(
@@ -32,35 +35,98 @@ class FullPropertyFirstDetailedViewBuilder extends StatelessWidget {
       // Collect all images
       List<String> allImages = [];
       
-      // Add hotel's cover image if available
-      if (hotel.coverImageUrl != null) {
-        allImages.add(hotel.coverImageUrl);
-      }
-      
-      // Add gallery images from full property data if available
-      if (hotel.isFullProperty == true && fullPropertyController.fullPropertyDetails.value != null) {
-        final galleryImages = fullPropertyController.fullPropertyDetails.value?.hotelDetails?.galleryImages;
-        if (galleryImages != null && galleryImages.isNotEmpty) {
-          allImages.addAll(galleryImages);
+      // Check if this is a full property data structure (has hotelDetails property)
+      if (hotel.hotelDetails != null) {
+        // This is full property data structure
+        // Add hotel's cover image if available (from hotelDetails)
+        if (hotel.hotelDetails.coverImageUrl != null) {
+          allImages.add(hotel.hotelDetails.coverImageUrl);
         }
         
-        // Also add images from the full property model if available
-        final propertyImages = fullPropertyController.fullPropertyDetails.value?.images;
-        if (propertyImages != null && propertyImages.isNotEmpty) {
-          allImages.addAll(propertyImages);
+        // Add gallery images if available (from hotelDetails)
+        if (hotel.hotelDetails.galleryImages != null && hotel.hotelDetails.galleryImages.isNotEmpty) {
+          allImages.addAll(hotel.hotelDetails.galleryImages);
+        }
+        
+        // Add images from the full property model if available
+        if (hotel.images != null && hotel.images.isNotEmpty) {
+          allImages.addAll(hotel.images);
+        }
+        
+        // Add room images from full property
+        if (hotel.rooms != null) {
+          for (var room in hotel.rooms) {
+            if (room.roomImages != null && room.roomImages!.isNotEmpty) {
+              allImages.addAll(room.roomImages!);
+            }
+          }
+        }
+      } else {
+        // This could be hotel details data structure or room details structure
+        // Check if it has room_images (room details structure)
+        if (hotel.roomImages != null && hotel.roomImages.isNotEmpty) {
+          allImages.addAll(hotel.roomImages);
+        }
+        
+        // Check if it has images (room details structure)
+        if (hotel.images != null && hotel.images.isNotEmpty) {
+          allImages.addAll(hotel.images);
+        }
+        
+        // Check if it has coverImageUrl (hotel details structure)
+        if (hotel.coverImageUrl != null) {
+          allImages.add(hotel.coverImageUrl);
+        }
+        
+        // Check if it has galleryImages (hotel details structure)
+        if (hotel.galleryImages != null && hotel.galleryImages.isNotEmpty) {
+          allImages.addAll(hotel.galleryImages);
+        }
+        
+        // Check if it has rooms (hotel details structure)
+        if (hotel.rooms != null) {
+          for (var room in hotel.rooms) {
+            if (room.roomImages != null && room.roomImages.isNotEmpty) {
+              allImages.addAll(room.roomImages);
+            }
+          }
         }
       }
       
-      // Add room images if available
-      if (hotel.rooms != null) {
-        for (var room in hotel.rooms) {
-          if (room.roomImages != null && room.roomImages.isNotEmpty) {
-            allImages.addAll(room.roomImages);
+      // Try to get additional images from room details controller
+      final roomDetails = roomDetailsController.roomDetails.value;
+      if (roomDetails != null) {
+        // Add room images from room details
+        if (roomDetails.roomImages != null && roomDetails.roomImages!.isNotEmpty) {
+          allImages.addAll(roomDetails.roomImages!);
+        }
+        
+        // Add images from room details
+        if (roomDetails.images != null && roomDetails.images!.isNotEmpty) {
+          allImages.addAll(roomDetails.images!);
+        }
+        
+        // Add images from room details hotel_details
+        if (roomDetails.hotelDetails != null) {
+          if (roomDetails.hotelDetails!.coverImageUrl != null) {
+            allImages.add(roomDetails.hotelDetails!.coverImageUrl!);
+          }
+          if (roomDetails.hotelDetails!.galleryImages != null && roomDetails.hotelDetails!.galleryImages!.isNotEmpty) {
+            allImages.addAll(roomDetails.hotelDetails!.galleryImages!);
+          }
+          if (roomDetails.hotelDetails!.rooms != null) {
+            for (var room in roomDetails.hotelDetails!.rooms!) {
+              if (room.roomImages != null && room.roomImages!.isNotEmpty) {
+                allImages.addAll(room.roomImages!);
+              }
+            }
           }
         }
       }
 
-      // Check if we have any images to display
+      // Remove duplicates and check if we have any images to display
+      allImages = allImages.toSet().toList();
+      
       if (allImages.isEmpty) {
         return Center(
           child: Text(

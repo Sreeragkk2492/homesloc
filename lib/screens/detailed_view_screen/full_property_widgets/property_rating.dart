@@ -3,14 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/controller/search/search_hotel_full_properties_controller.dart';
+import 'package:homesloc/controller/search/search_hotel_room_details_controller.dart';
 
 class PropertyRating extends StatelessWidget {
   const PropertyRating({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -38,12 +37,27 @@ class PropertyRating extends StatelessWidget {
                   borderRadius: BorderRadius.circular(3.sp),
                 ),
                 child: Obx(() {
-                  final hotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                  // Try to get controllers
+                  final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+                  final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+                  
+                  // Try to get star rating from full property details first
+                  final fullPropertyHotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                  int starRating = 0;
+                  
+                  if (fullPropertyHotelDetails?.starRating != null) {
+                    starRating = fullPropertyHotelDetails!.starRating!;
+                  } else {
+                    // Try to get star rating from room details
+                    final roomDetailsHotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                    starRating = roomDetailsHotelDetails?.starRating ?? 0;
+                  }
+                  
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "${hotelDetails?.starRating ?? 0}",
+                        "$starRating",
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: white,
@@ -61,11 +75,26 @@ class PropertyRating extends StatelessWidget {
                 }),
               ),
               Obx(() {
-                final hotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                // Try to get controllers
+                final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+                final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+                
+                // Try to get total rooms from full property details first
+                final fullPropertyHotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                int totalRooms = 0;
+                
+                if (fullPropertyHotelDetails?.totalRooms != null) {
+                  totalRooms = fullPropertyHotelDetails!.totalRooms!;
+                } else {
+                  // Try to get total rooms from room details
+                  final roomDetailsHotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                  totalRooms = roomDetailsHotelDetails?.totalRooms ?? 0;
+                }
+                
                 return Padding(
                   padding: EdgeInsets.only(right: 128.w),
                   child: Text(
-                    "${hotelDetails?.totalRooms ?? 0} Reviews",
+                    "$totalRooms Reviews",
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       color: const Color.fromARGB(255, 190, 190, 190),
@@ -92,8 +121,22 @@ class PropertyRating extends StatelessWidget {
                     ),
                     SizedBox(width: 5.w),
                     Obx(() {
-                      final hotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
-                      final rating = hotelDetails?.starRating ?? 0;
+                      // Try to get controllers
+                      final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+                      final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+                      
+                      // Try to get star rating from full property details first
+                      final fullPropertyHotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                      int rating = 0;
+                      
+                      if (fullPropertyHotelDetails?.starRating != null) {
+                        rating = fullPropertyHotelDetails!.starRating!;
+                      } else {
+                        // Try to get star rating from room details
+                        final roomDetailsHotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                        rating = roomDetailsHotelDetails?.starRating ?? 0;
+                      }
+                      
                       String ratingText = 'Poor';
                       if (rating >= 4) {
                         ratingText = 'Excellent';

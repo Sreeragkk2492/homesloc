@@ -39,42 +39,42 @@ class HallPoliciesRow extends StatelessWidget {
                 icon: Icons.cancel_rounded,
                 title: 'Cancellation Policy',
                 content: banquetPolicies.cancellationPolicy!,
-                iconColor: Colors.red,
+               // iconColor: Colors.red,
               ),
             if (banquetPolicies.parkingCapacity != null)
               _buildPolicyCard(
                 icon: Icons.local_parking_rounded,
                 title: 'Parking Capacity',
                 content: '${banquetPolicies.parkingCapacity} vehicles',
-                iconColor: green,
+               // iconColor: green,
               ),
             if (banquetPolicies.decorationAllowed != null)
               _buildPolicyCard(
                 icon: Icons.celebration_rounded,
                 title: 'Decoration Policy',
                 content: banquetPolicies.decorationAllowed! ? 'Decoration Allowed' : 'Decoration Not Allowed',
-                iconColor: banquetPolicies.decorationAllowed! ? green : Colors.red,
+               // iconColor: banquetPolicies.decorationAllowed! ? green : Colors.red,
               ),
             if (banquetPolicies.valetParkingAvailable != null)
               _buildPolicyCard(
                 icon: Icons.directions_car_rounded,
                 title: 'Valet Parking',
                 content: banquetPolicies.valetParkingAvailable! ? 'Available' : 'Not Available',
-                iconColor: banquetPolicies.valetParkingAvailable! ? green : Colors.red,
+               // iconColor: banquetPolicies.valetParkingAvailable! ? green : Colors.red,
               ),
             if (banquetPolicies.propertyExtraCharges != null)
               _buildPolicyCard(
                 icon: Icons.payments_rounded,
                 title: 'Extra Charges',
                 content: '₹${banquetPolicies.propertyExtraCharges}',
-                iconColor: Colors.orange,
+               // iconColor: Colors.orange,
               ),
             if (banquetPolicies.propertyRestrictions != null)
               _buildPolicyCard(
                 icon: Icons.gavel_rounded,
                 title: 'Property Restrictions',
                 content: banquetPolicies.propertyRestrictions!,
-                iconColor: Colors.red,
+               // iconColor: Colors.red,
               ),
           ],
         ),

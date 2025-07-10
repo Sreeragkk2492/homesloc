@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/controller/search/search_hotel_full_properties_controller.dart';
+import 'package:homesloc/controller/search/search_hotel_room_details_controller.dart';
 
 class PropertyDescription extends StatelessWidget {
   final String? coverImageUrl;
@@ -14,17 +15,30 @@ class PropertyDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
           child: Obx(() {
-            final hotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+            // Try to get controllers
+            final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+            final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+            
+            // Try to get hotel name from full property details first
+            final fullPropertyHotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+            String hotelName = '';
+            
+            if (fullPropertyHotelDetails?.name != null) {
+              hotelName = fullPropertyHotelDetails!.name!;
+            } else {
+              // Try to get hotel name from room details
+              final roomDetailsHotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+              hotelName = roomDetailsHotelDetails?.name ?? "Property";
+            }
+            
             return Text(
-              'About ${hotelDetails?.name ?? "Property"}', 
+              'About $hotelName', 
               style: TextStyle(
                   fontFamily: 'Poppins',
                   color: blue,
@@ -50,9 +64,24 @@ class PropertyDescription extends StatelessWidget {
           child: Column(
             children: [
               Obx(() {
-                final hotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                // Try to get controllers
+                final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+                final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+                
+                // Try to get description from full property details first
+                final fullPropertyHotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+                String description = '';
+                
+                if (fullPropertyHotelDetails?.description != null) {
+                  description = fullPropertyHotelDetails!.description!;
+                } else {
+                  // Try to get description from room details
+                  final roomDetailsHotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+                  description = roomDetailsHotelDetails?.description ?? "No description available";
+                }
+                
                 return Text(
-                  hotelDetails?.description ?? "No description available",
+                  description,
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     color: black,

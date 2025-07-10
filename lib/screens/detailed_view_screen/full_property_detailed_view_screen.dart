@@ -32,6 +32,7 @@ import 'package:homesloc/screens/detailed_view_screen/full_property_widgets/full
 import 'package:homesloc/screens/detailed_view_screen/full_property_widgets/property_policies.dart';
 import 'package:homesloc/screens/detailed_view_screen/full_property_widgets/property_amenities.dart';
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/full_property_first_detailed_view_builder.dart';
+import 'package:homesloc/core/widgets/builder/detailed_view_builder/room_details_first_detailed_view_builder.dart';
 import 'package:lottie/lottie.dart';
 
 class FullPropertyDetailedViewScreen extends StatelessWidget {
@@ -53,20 +54,22 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
         Get.put(SearchHotelFullPropertiesController());
     final roomDetailsController = Get.put(SearchHotelRoomDetailsController());
 
-    // Fetch full property details if hotel is a full property and dates are provided
-    if (hotel != null &&
-        hotel.isFullProperty == true &&
-        startDate != null &&
-        endDate != null) {
-      print('Fetching full property details for hotel ID: ${hotel.id}');
-      print('Is full property: ${hotel.isFullProperty}');
-      print('Start date: $startDate, End date: $endDate');
+    // Detect ROOM type
+    final isRoomType = hotel?.accommodationType == 'ROOM';
 
-      // Use the full property ID if available, otherwise use the hotel ID
-      final propertyId = hotel.fullProperty?.id ?? hotel.id;
+    // Fetch room details if ROOM type
+    if (isRoomType && hotel != null && startDate != null && endDate != null) {
+      roomDetailsController.fetchRoomDetails(
+        roomId: hotel.id,
+        startDate: startDate!,
+        endDate: endDate!,
+      );
+    }
 
+    // Fetch full property details when hotel is selected and dates are provided
+    if (!isRoomType && hotel != null && startDate != null && endDate != null) {
       fullPropertyController.fetchFullPropertyDetails(
-        propertyId: propertyId,
+        propertyId: hotel.id,
         startDate: startDate!,
         endDate: endDate!,
       );
@@ -85,12 +88,13 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
           ),
           onPressed: () {
             fullPropertyController.clearFullPropertyDetails();
+            roomDetailsController.clearRoomDetails();
             Get.back();
           },
         ),
         title: Center(
           child: Text(
-            hotel?.name ?? "Full Property Details",
+            hotel?.name ?? "Property Details",
             style: TextStyle(
                 fontFamily: 'Poppins',
                 color: blue,
@@ -111,24 +115,279 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Obx(() {
-        if (hotel?.isFullProperty == true &&
-            fullPropertyController.isLoading.value) {
-          return  Center(child:  Container(
-                        width: 50.w,
-                        height: 50.h,
-                        child: Lottie.asset(
-                          'assets/images/loading.json',
-                          // controller: _checkmarkController,
-                          repeat: true,
+      body: isRoomType
+          ? Obx(() {
+              if (roomDetailsController.isLoading.value) {
+                return Center(child: Container(
+                  width: 50.w,
+                  height: 50.h,
+                  child: Lottie.asset(
+                    'assets/images/loading.json',
+                    repeat: true,
+                  ),
+                ));
+              }
+              if (roomDetailsController.errorMessage.value.isNotEmpty) {
+                return Center(child: Text(roomDetailsController.errorMessage.value));
+              }
+              final hotelDetails = roomDetailsController.roomDetails.value?.hotelDetails;
+              final rooms = hotelDetails?.rooms ?? [];
+              if (rooms.isEmpty) return SizedBox();
+
+              return SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Property Cover Image
+                    Container(
+                      height: 200.h,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(
+                              hotelDetails?.coverImageUrl ?? 'assets/images/image (33).png'),
+                          fit: BoxFit.cover,
                         ),
-                      ),);
+                      ),
+                    ),
+                    
+                    // Base Property Price and Hotel Type
+                    Container(
+                      padding: EdgeInsets.all(15.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Property Name
+                          Text(
+                            hotelDetails?.name ?? "Property",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: black,
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 5.h),
+                          
+                          // Hotel Type
+                          Text(
+                            hotelDetails?.hotelType ?? "Property Type",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                          SizedBox(height: 5.h),
+                          
+                          // Base Property Price
+                          Text(
+                            "₹${roomDetailsController.roomDetails.value?.price ?? '0'}",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: black,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          
+                          SizedBox(height: 10.h),
+                        ],
+                      ),
+                    ),
+                    
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: 98.h,
+                      child: RoomDetailsFirstDetailedViewBuilder(roomDetails: roomDetailsController.roomDetails.value),
+                    ),
+
+                    // Property Location Section
+                    PropertyLocation(hotel: hotelDetails),
+
+                    SizedBox(height: 15.h),
+
+                    // Use the custom FullPropertyBookNow widget
+                    const FullPropertyBookNow(),
+
+                    // Property Rating Section
+                    const PropertyRating(),
+
+                    SizedBox(height: 5.h),
+                    
+                    HomeDivider(),
+                    
+                    // Use the new PropertyAmenities widget for full properties
+                    PropertyAmenities(hotel: hotel),
+                    
+                    HomeDivider(),
+
+                    // Choose your room section
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                      child: Text(
+                        'Choose your room',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          color: black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.sp,
+                        ),
+                      ),
+                    ),
+                    Obx(() => Column(
+                      children: List.generate(rooms.length, (index) {
+                        final room = rooms[index];
+                        final isSelected = fullPropertyController.selectedRoomIndex.value == index;
+                        return Container(
+                          margin: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 15.h),
+                          padding: EdgeInsets.all(15.w),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8.sp),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // First line: Room name
+                              Row(
+                                children: [
+                                  Text(
+                                    (room.roomName ?? '').toUpperCase(),
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      color: black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.sp,
+                                    ),
+                                  ),
+                                  SizedBox(width: 6.w),
+                                  Icon(Icons.check_circle, color: Colors.green, size: 18.sp),
+                                ],
+                              ),
+                              SizedBox(height: 10.h),
+                              // Second line: room size and price left, image right
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Room size and price (left)
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          room.roomSize != null ? '${room.roomSize} sq ft' : '',
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            color: fontColor,
+                                            fontSize: 14.sp,
+                                          ),
+                                        ),
+                                        if (room.price != null) ...[
+                                          SizedBox(height: 4.h),
+                                          Text(
+                                            '₹${room.price}',
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              color: black,
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                        if (room.offerPrice != null && room.offerPrice != room.price) ...[
+                                          SizedBox(height: 2.h),
+                                          Text(
+                                            '₹${room.offerPrice}',
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              color: Colors.green,
+                                              fontSize: 14.sp,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  // Room image (right)
+                                  if (room.roomImages != null && room.roomImages!.isNotEmpty)
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(6.sp),
+                                      child: Image.network(
+                                        room.roomImages![0],
+                                        width: 110.w,
+                                        height: 80.h,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              SizedBox(height: 16.h),
+                              // Third line: Centered SELECTED button
+                              Center(
+                                child: SizedBox(
+                                  width: 140.w,
+                                  child: ElevatedButton(
+                                    onPressed: () => fullPropertyController.selectedRoomIndex.value = index,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: isSelected ? Colors.green : Colors.grey,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4.sp),
+                                      ),
+                                      minimumSize: Size(100.w, 40.h),
+                                    ),
+                                    child: Text(
+                                      isSelected ? 'SELECTED' : 'SELECT',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    )),
+
+                    // Property Description Section
+                    PropertyDescription(coverImageUrl: hotelDetails?.coverImageUrl),
+
+                    HomeDivider(),
+                    
+                    // Replace the HotelPoliciesRow with our new PropertyPolicies widget
+                    const PropertyPolicies(),
+                    SizedBox(height: 30.h),
+                  ],
+                ),
+              );
+            })
+          : Obx(() {
+        if (fullPropertyController.isLoading.value) {
+          return Center(child: Container(
+            width: 50.w,
+            height: 50.h,
+            child: Lottie.asset(
+              'assets/images/loading.json',
+              repeat: true,
+            ),
+          ));
         }
 
-        if (hotel?.isFullProperty == true &&
-            fullPropertyController.errorMessage.value.isNotEmpty) {
+        if (fullPropertyController.errorMessage.value.isNotEmpty) {
           return Center(child: Text(fullPropertyController.errorMessage.value));
         }
+
+        // Use the fetched full property details if available, otherwise fall back to accommodation data
+       // final hotelDetails = fullPropertyController.fullPropertyDetails.value?.hotelDetails;
+      //  final displayHotel = hotelDetails ?? hotel;
 
         return SingleChildScrollView(
           scrollDirection: Axis.vertical,
@@ -142,50 +401,81 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(
-                        hotel?.coverImageUrl ?? 'assets/images/image (33).png'),
+                        fullPropertyController.fullPropertyDetails.value?.hotelDetails?.coverImageUrl ?? 'assets/images/image (33).png'),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
-              // Full Property Details Section
-              if (hotel?.isFullProperty == true &&
-                  fullPropertyController.fullPropertyDetails.value != null)
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Property Details
-                      const PropertyHeader(),
-                    ],
-                  ),
+              
+              // Base Property Price and Hotel Type
+              Container(
+                padding: EdgeInsets.all(15.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Property Name
+                    Text(
+                      fullPropertyController.fullPropertyDetails.value?.hotelDetails?.name ?? "Property",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: black,
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 5.h),
+                    
+                    // Hotel Type
+                    Text(
+                      fullPropertyController.fullPropertyDetails.value!.hotelDetails!.hotelType ?? "Property Type",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: fontColor,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                    SizedBox(height: 5.h),
+                    
+                    // Base Property Price
+                    Text(
+                      "₹${fullPropertyController.fullPropertyDetails.value?.basePropertyPrice ?? '0'}",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: black,
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    
+                    SizedBox(height: 5.h),
+                    
+                    // Property Description
+                    // if (fullPropertyController.fullPropertyDetails.value?.hotelDetails?.description != null)
+                    //   Text(
+                    //     fullPropertyController.fullPropertyDetails.value?.hotelDetails?.description ?? "",
+                    //     style: TextStyle(
+                    //       fontFamily: 'Poppins',
+                    //       color: black,
+                    //       fontSize: 14.sp,
+                    //     ),
+                    //   ),
+                    
+                    SizedBox(height: 10.h),
+                  ],
                 ),
+              ),
+              
+             
+              
               SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: 98.h,
-                child: hotel?.isFullProperty == true
-                    ? FullPropertyFirstDetailedViewBuilder(hotel: hotel)
-                    : FirstDetailedViewBuilder(hotel: hotel),
+                child: FullPropertyFirstDetailedViewBuilder(hotel: fullPropertyController.fullPropertyDetails.value),
               ),
 
               // Property Location Section
-              const PropertyLocation(),
+              PropertyLocation(hotel: fullPropertyController.fullPropertyDetails.value?.hotelDetails),
 
-              // Property Route Section
-              //  const PropertyRoute(),
-
-              HomeDivider(),
-              NameView(
-                name: "Property highlights",
-                color: blue,
-                secondName: 'View All',
-                secondColor: blue,
-              ),
-              SizedBox(
-                height: 15.h,
-              ),
-              PropertyFirstRow(),
-              PropertySecondRow(),
-              ProperyThirdRow(),
               SizedBox(
                 height: 15.h,
               ),
@@ -197,39 +487,140 @@ class FullPropertyDetailedViewScreen extends StatelessWidget {
               const PropertyRating(),
 
               SizedBox(height: 5.h),
-              RatingFirstRow(),
-              RatingSecondRow(),
-              RatingThirdRow(),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 120.h,
-                child: SecondDetailedViewBuilder(),
-              ),
+              
               HomeDivider(),
-              // Use the new PropertyAmenities widget for full properties, otherwise use the original AmenitieRow
-              hotel?.isFullProperty == true
-                  ? const PropertyAmenities()
-                  : AmenitieRow(),
+              
+              // Use the new PropertyAmenities widget for full properties
+              PropertyAmenities(hotel: hotel),
+              
               HomeDivider(),
+              
+              // Remove Transportations Section
+              // Padding(
+              //   padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
+              //   child: Text(
+              //     'Transportations',
+              //     style: TextStyle(
+              //         fontFamily: 'Poppins',
+              //         color: blue,
+              //         fontSize: 17.sp,
+              //         fontWeight: FontWeight.bold),
+              //   ),
+              // ),
+              // TransportationsFirstRow(),
+              // TransportationsSecondRow(),
+              // HomeDivider(),
+
+              // Choose your room section
               Padding(
-                padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                 child: Text(
-                  'Transportations',
+                  'Choose your room',
                   style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: blue,
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.bold),
+                    fontFamily: 'Poppins',
+                    color: black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.sp,
+                  ),
                 ),
               ),
-              TransportationsFirstRow(),
-              TransportationsSecondRow(),
-              HomeDivider(),
+              Obx(() => Column(
+                children: List.generate(fullPropertyController.fullPropertyDetails.value?.rooms?.length ?? 0, (index) {
+                  final room = fullPropertyController.fullPropertyDetails.value!.rooms![index];
+                  final isSelected = fullPropertyController.selectedRoomIndex.value == index;
+                  return Container(
+                    margin: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 15.h),
+                    padding: EdgeInsets.all(15.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.sp),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // First line: Room name
+                        Row(
+                          children: [
+                            Text(
+                              (room.roomName ?? '').toUpperCase(),
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp,
+                              ),
+                            ),
+                            SizedBox(width: 6.w),
+                            Icon(Icons.check_circle, color: Colors.green, size: 18.sp),
+                          ],
+                        ),
+                        SizedBox(height: 10.h),
+                        // Second line: room size left, image right
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Room size (left)
+                            Expanded(
+                              child: Text(
+                                room.roomSize != null ? '${room.roomSize} sq ft' : '',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: fontColor,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                            ),
+                            // Room image (right)
+                            if (room.roomImages != null && room.roomImages!.isNotEmpty)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6.sp),
+                                child: Image.network(
+                                  room.roomImages![0],
+                                  width: 110.w,
+                                  height: 80.h,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                          ],
+                        ),
+                        SizedBox(height: 16.h),
+                        // Third line: Centered SELECTED button
+                        Center(
+                          child: SizedBox(
+                            width: 140.w,
+                            child: ElevatedButton(
+                              onPressed: () => fullPropertyController.selectedRoomIndex.value = index,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: isSelected ? Colors.green : Colors.grey,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.sp),
+                                ),
+                                minimumSize: Size(100.w, 40.h),
+                              ),
+                              child: Text(
+                                isSelected ? 'SELECTED' : 'SELECT',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              )),
 
               // Property Description Section
-              PropertyDescription(coverImageUrl: hotel?.coverImageUrl),
+              PropertyDescription(coverImageUrl: fullPropertyController.fullPropertyDetails.value?.hotelDetails?.coverImageUrl),
 
               HomeDivider(),
+              
               // Replace the HotelPoliciesRow with our new PropertyPolicies widget
               const PropertyPolicies(),
               SizedBox(height: 30.h),

@@ -10,6 +10,7 @@ import 'package:homesloc/core/widgets/builder/home_builder/fourth_home_builder.d
 import 'package:homesloc/core/widgets/logo.dart/logo.dart';
 import 'package:homesloc/core/widgets/search_form/search_form.dart';
 import 'package:homesloc/screens/detailed_view_screen/detailed_view_screen.dart';
+import 'package:homesloc/screens/detailed_view_screen/full_property_detailed_view_screen.dart';
 import 'package:homesloc/screens/home/widget/build_ameneties.dart';
 import 'package:homesloc/screens/home/widget/calendar_bottom_sheet.dart';
 import 'package:homesloc/screens/home/widget/guest_dialog.dart';
@@ -268,18 +269,12 @@ class HotelSearchScreen extends StatelessWidget {
                         ),
                       ),),
               ); 
-            } else if (searchHotelController.searchResult.value?.hotels?.isEmpty ?? true) {
+            } else if (searchHotelController.searchResult.value?.accommodations.isEmpty ?? true) {
               return SliverFillRemaining(
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Icon(
-                      //   Icons.search_off,
-                      //   size: 64.sp,
-                      //   color: Colors.grey,
-                      // ),
-                      // SizedBox(height: 16.h),
                        Container(
                             width: 150.w,
                             height: 150.h,
@@ -289,65 +284,56 @@ class HotelSearchScreen extends StatelessWidget {
                               repeat:true, 
                             ),
                           ),
-                      // Text(
-                      //   'No hotels found',
-                      //   style: TextStyle(
-                      //     fontSize: 18.sp,
-                      //     fontWeight: FontWeight.bold,
-                      //     color: Colors.grey,
-                      //   ),
-                      // ),
-                      // SizedBox(height: 8.h),
-                      // Text(
-                      //   'Try adjusting your search criteria',
-                      //   style: TextStyle(
-                      //     fontSize: 14.sp,
-                      //     color: Colors.grey,
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
               );
-            } else if (searchHotelController.searchResult.value?.hotels !=
+            } else if (searchHotelController.searchResult.value?.accommodations !=
                     null &&
-                searchHotelController.searchResult.value!.hotels!.isNotEmpty) {
+                searchHotelController.searchResult.value!.accommodations.isNotEmpty) {
               // Display search results
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
-                    final hotel = searchHotelController
-                        .searchResult.value!.hotels![index];
+                    final accommodation = searchHotelController
+                        .searchResult.value!.accommodations[index];
 
-                    // Calculate discount percentage if priceRange is available
+                    // Calculate discount percentage if price is available
                     int discountPercentage = 0;
-                    if (hotel.priceRange != null &&
-                        hotel.priceRange!.min != null &&
-                        hotel.priceRange!.max != null) {
+                    if (accommodation.price != null && accommodation.offerPrice != null) {
                       try {
-                        final minPrice = double.parse(hotel.priceRange!.min!);
-                        final maxPrice = double.parse(hotel.priceRange!.max!);
-                        if (maxPrice > 0) {
+                        final originalPrice = double.parse(accommodation.price!);
+                        final offerPrice = double.parse(accommodation.offerPrice!);
+                        if (originalPrice > 0) {
                           discountPercentage =
-                              ((maxPrice - minPrice) / maxPrice * 100).round();
+                              ((originalPrice - offerPrice) / originalPrice * 100).round();
                         }
                       } catch (e) {
                         print('Error parsing price: $e');
                       }
                     }
 
-                    // Check if hotel has full property data
-                    final hasFullProperty = hotel.isFullProperty == true &&
-                        hotel.fullProperty != null;
+                    // Determine which price to display based on accommodation type
+                    String displayPrice;
+                    String originalPrice;
+                    
+                    if (accommodation.accommodationType == 'ROOM') {
+                      // For ROOM type, use room price and offer price
+                      displayPrice = accommodation.offerPrice ?? accommodation.price ?? '0';
+                      originalPrice = accommodation.price ?? '0';
+                    } else {
+                      // For FULL_PROPERTY type, use base property price
+                      displayPrice = accommodation.offerPrice ?? accommodation.basePropertyPrice ?? '0';
+                      originalPrice = accommodation.price ?? accommodation.basePropertyPrice ?? '0';
+                    }
 
                     return Column(
                       children: [
-                        // Hotel Info Section - Only show if it has full property data
-                        if (hasFullProperty)
+                        // Main Accommodation Card
                           GestureDetector(
                             onTap: () {
-                              Get.to(() => DetailedViewScreen(
-                                    hotel: hotel,
+                            Get.to(() => FullPropertyDetailedViewScreen(
+                                hotel: accommodation,
                                     startDate: DateFormat('yyyy-MM-dd').format(
                                         calendarController.checkInDate.value!),
                                     endDate: DateFormat('yyyy-MM-dd').format(
@@ -378,95 +364,109 @@ class HotelSearchScreen extends StatelessWidget {
                                       borderRadius:
                                           BorderRadius.circular(13.sp),
                                       image: DecorationImage(
-                                        image: NetworkImage(hotel
-                                                .coverImageUrl ??
-                                            'https://via.placeholder.com/150'),
+                                      image: NetworkImage(accommodation
+                                              .coverImageUrl.isNotEmpty
+                                          ? accommodation.coverImageUrl
+                                          : 'https://via.placeholder.com/150'),
                                         fit: BoxFit.cover,
-                                      ),
                                     ),
                                   ),
-                                  Padding(
+                                ),
+                                Expanded(
+                                  child: Padding(
                                     padding:
-                                        EdgeInsets.only(left: 5.w, top: 11.h),
+                                        EdgeInsets.only(left: 5.w, top: 11.h, right: 5.w),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          (hotel.name ?? "Hotel Name").length >
-                                                  20
-                                              ? "${(hotel.name ?? "Hotel Name").substring(0, 20)}..."
-                                              : hotel.name ?? "Hotel Name",
+                                          accommodation.name.length > 20
+                                              ? "${accommodation.name.substring(0, 20)}..."
+                                              : accommodation.name,
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             color: black,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14.sp,
                                           ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                         SizedBox(height: 3.h),
                                         Text(
-                                          (hotel.locationInfo?.city ?? "City")
-                                                      .length >
-                                                  20
-                                              ? "${(hotel.locationInfo?.city ?? "City").substring(0, 20)}..."
-                                              : hotel.locationInfo?.city ??
-                                                  "City",
+                                          accommodation.city.length > 20
+                                              ? "${accommodation.city.substring(0, 20)}..."
+                                              : accommodation.city,
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             color: fontColor,
                                             fontWeight: FontWeight.w400,
                                             fontSize: 11.sp,
                                           ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                         SizedBox(height: 3.h),
-                                        Row(
+                                        Flexible(
+                                          child: Row(
                                           children: [
-                                            Text(
-                                              "₹${hotel.priceRange?.min ?? '0'}",
+                                              Flexible(
+                                                child: Text(
+                                                  "₹$displayPrice",
                                               style: TextStyle(
                                                 fontFamily: 'Poppins',
                                                 color: black,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14.sp,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
+                                              if (originalPrice != '0') ...[
                                             SizedBox(width: 5.w),
-                                            Text(
-                                              "₹${hotel.priceRange?.max ?? '0'}",
+                                                Flexible(
+                                                  child: Text(
+                                                    "₹$originalPrice",
                                               style: TextStyle(
                                                 fontFamily: 'Poppins',
                                                 color: fontColor,
                                                 fontSize: 9.sp,
                                                 decoration:
                                                     TextDecoration.lineThrough,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
+                                              ],
+                                              if (discountPercentage > 0) ...[
                                             SizedBox(width: 5.w),
-                                            Text(
+                                                Flexible(
+                                                  child: Text(
                                               "$discountPercentage% OFF",
                                               style: TextStyle(
                                                 fontFamily: 'Poppins',
                                                 color: green,
                                                 fontSize: 11.sp,
+                                                    ),
+                                                    overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
                                           ],
+                                            ],
+                                          ),
                                         ),
                                         SizedBox(height: 3.h),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 7.w),
-                                          child: Text(
-                                            "+ ₹${(double.parse(hotel.priceRange?.min ?? '0') * 0.18).round()} Taxes & Fees",
+                                        Text(
+                                          "+ ₹${(double.parse(displayPrice) * 0.18).round()} Taxes & Fees",
                                             style: TextStyle(
                                               fontFamily: 'Poppins',
                                               color: fontColor,
                                               fontSize: 11.sp,
                                             ),
-                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                         SizedBox(height: 3.h),
-                                        Row(
+                                        Flexible(
+                                          child: Row(
                                           children: [
                                             Text(
                                               "Amenities : ",
@@ -476,8 +476,11 @@ class HotelSearchScreen extends StatelessWidget {
                                                 fontSize: 11.sp,
                                               ),
                                             ),
-                                            buildAmenities(hotel),
+                                              Expanded(
+                                                child: buildAmenities(accommodation),
+                                              ),
                                           ],
+                                          ),
                                         ),
                                         SizedBox(height: 3.h),
                                         Row(
@@ -495,7 +498,7 @@ class HotelSearchScreen extends StatelessWidget {
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   Text(
-                                                    "${hotel.starRating}",
+                                                    "${accommodation.hotelStarRating ?? 0}",
                                                     style: TextStyle(
                                                       fontFamily: 'Poppins',
                                                       color: white,
@@ -512,199 +515,32 @@ class HotelSearchScreen extends StatelessWidget {
                                               ),
                                             ),
                                             SizedBox(width: 5.w),
-                                            Text(
-                                              "${hotel.quickInfo?.totalRooms ?? 0.toInt()} Rooms Available",
+                                            Flexible(
+                                              child: Text(
+                                                "${accommodation.quantity ?? 0} Rooms Available",
                                               style: TextStyle(
                                                 fontFamily: 'Poppins',
                                                 color: fontColor,
                                                 fontSize: 10.sp,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ],
                                     ),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                        // Rooms Section - Show for all hotels
-                        if (hotel.rooms != null && hotel.rooms!.isNotEmpty)
-                          ...hotel.rooms!
-                              .map((room) => GestureDetector(
-                                    onTap: () {
-                                      Get.to(() => DetailedViewScreen(
-                                            hotel: hotel,
-                                            selectedRoom: room,
-                                            roomId: room.id,
-                                            startDate: calendarController
-                                                .checkInDate.value
-                                                ?.toIso8601String(),
-                                            endDate: calendarController
-                                                .checkOutDate.value
-                                                ?.toIso8601String(),
-                                          ));
-                                    },
-                                    child: Container(
-                                      margin: EdgeInsets.only(
-                                          top: 5.h,
-                                          bottom: 5.h,
-                                          left: 10.w,
-                                          right: 10.w),
-                                      width: 339.w,
-                                      height: 138.h,
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: border),
-                                        borderRadius:
-                                            BorderRadius.circular(15.sp),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            margin: EdgeInsets.only(
-                                                left: 5.w, top: 2.h),
-                                            width: 144.w,
-                                            height: 128.h,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(13.sp),
-                                              image: DecorationImage(
-                                                image: NetworkImage(room
-                                                                .roomImages !=
-                                                            null &&
-                                                        room.roomImages!
-                                                            .isNotEmpty
-                                                    ? room.roomImages![0]
-                                                    : 'https://via.placeholder.com/150'),
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                left: 5.w, top: 11.h),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  room.roomName ?? "Room",
-                                                  style: TextStyle(
-                                                    fontFamily: 'Poppins',
-                                                    color: black,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14.sp,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 3.h),
-                                                Text(
-                                                  room.roomType ?? "Room Type",
-                                                  style: TextStyle(
-                                                    fontFamily: 'Poppins',
-                                                    color: fontColor,
-                                                    fontWeight: FontWeight.w400,
-                                                    fontSize: 11.sp,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 3.h),
-                                                Text(
-                                                  "₹${room.price ?? '0'}",
-                                                  style: TextStyle(
-                                                    fontFamily: 'Poppins',
-                                                    color: black,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14.sp,
-                                                  ),
-                                                ),
-                                                SizedBox(height: 3.h),
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 7.w),
-                                                  child: Text(
-                                                    "+ ₹${(double.parse(room.price ?? '0') * 0.18).round()} Taxes & Fees",
-                                                    style: TextStyle(
-                                                      fontFamily: 'Poppins',
-                                                      color: fontColor,
-                                                      fontSize: 11.sp,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(height: 3.h),
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      "Amenities : ",
-                                                      style: TextStyle(
-                                                        fontFamily: 'Poppins',
-                                                        color: fontColor,
-                                                        fontSize: 11.sp,
-                                                      ),
-                                                    ),
-                                                    buildAmenities(hotel),
-                                                  ],
-                                                ),
-                                                SizedBox(height: 3.h),
-                                                Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 44.w,
-                                                      height: 18.h,
-                                                      decoration: BoxDecoration(
-                                                        color: blue,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(3.sp),
-                                                      ),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            "${hotel.starRating}",
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  'Poppins',
-                                                              color: white,
-                                                              fontSize: 10.sp,
-                                                            ),
-                                                          ),
-                                                          SizedBox(width: 2.w),
-                                                          Icon(
-                                                            Icons.star,
-                                                            color: yellow,
-                                                            size: 13.sp,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    SizedBox(width: 5.w),
-                                                    Text(
-                                                      "${hotel.quickInfo?.totalRooms ?? 0.toInt()} Rooms Available",
-                                                      style: TextStyle(
-                                                        fontFamily: 'Poppins',
-                                                        color: fontColor,
-                                                        fontSize: 10.sp,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
                       ],
                     );
                   },
                   childCount: searchHotelController
-                          .searchResult.value?.hotels?.length ??
+                          .searchResult.value?.accommodations.length ??
                       0,
                 ),
               );

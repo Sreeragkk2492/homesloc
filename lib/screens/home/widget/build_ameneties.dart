@@ -2,51 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 
-Widget buildAmenities(dynamic hotel) {
-    if (hotel.quickInfo?.amenities != null &&
-        hotel.quickInfo!.amenities!.isNotEmpty) {
-      final amenities = hotel.quickInfo!.amenities!;
+Widget buildAmenities(dynamic accommodation) {
+    // Check if the accommodation has amenities directly (new model structure)
+    if (accommodation.amenities != null && accommodation.amenities.isNotEmpty) {
+      final amenities = accommodation.amenities;
       
-      return Container(
-        margin: EdgeInsets.only(left: 5.w),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Show only first amenity
-            _buildAmenityChip(_truncateAmenityName(amenities[0].name ?? "Amenity")),
-            SizedBox(width: 4.w),
-            // Show count of remaining amenities
-            if (amenities.length > 1) ...[
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                decoration: BoxDecoration(
-                  color: gwhite,
-                  borderRadius: BorderRadius.circular(4.sp),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "+${amenities.length - 1}",
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: ogBlue,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Show only first amenity
+          Flexible(
+            child: _buildAmenityChip(_truncateAmenityName(amenities[0].name ?? "Amenity")),
+          ),
+          SizedBox(width: 4.w),
+          // Show count if more than 1 amenity
+          if (amenities.length > 1)
+            Flexible(
+              child: _buildAmenityChip("+${amenities.length - 1} more"),
+            ),
+        ],
       );
     } else {
-      // Default amenities if none are provided
-      return _buildAmenityChip("Basic");
+      // Return empty container if no amenities
+      return Container();
     }
-}
+  }
 
 Widget _buildAmenityChip(String amenityName) {
   return Container(

@@ -375,7 +375,7 @@ class TourismPackageSearchScreen extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.only(top: 5.h, bottom: 5.h, left: 10.w, right: 10.w),
         width: 339.w,
-        height: 170.h,
+        height: 138.h,
         decoration: BoxDecoration(
           border: Border.all(color: border),
           borderRadius: BorderRadius.circular(15.sp),

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/controller/search/search_hotel_full_properties_controller.dart';
+import 'package:homesloc/controller/search/search_hotel_room_details_controller.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
 
 class PropertyPolicies extends StatelessWidget {
@@ -10,8 +11,6 @@ class PropertyPolicies extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -23,7 +22,16 @@ class PropertyPolicies extends StatelessWidget {
         ),
         SizedBox(height: 10.h),
         Obx(() {
-          final policies = fullPropertyController.getPolicies();
+          // Try to get controllers
+          final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
+          final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
+          
+          // Try to get policies from full property details first
+          final fullPropertyPolicies = fullPropertyController.getPolicies();
+          final roomDetailsPolicies = roomDetailsController.roomDetails.value?.hotelDetails?.policies;
+          
+          // Cast to the correct type - both have the same structure
+          final policies = fullPropertyPolicies ?? roomDetailsPolicies as dynamic;
           
           if (policies == null) {
             return Center(
@@ -62,7 +70,7 @@ class PropertyPolicies extends StatelessWidget {
                     icon: Icons.cancel_rounded,
                     title: 'Cancellation Policy',
                     content: policies.cancellationPolicy!,
-                    iconColor: Colors.red,
+                   // iconColor: Colors.red,
                   ),
                 if (policies.extraBedPolicy != null)
                   _buildPolicyCard(
@@ -71,7 +79,7 @@ class PropertyPolicies extends StatelessWidget {
                     content: policies.extraBedPolicy! 
                         ? 'Available${policies.extraBedRate != null ? ' (₹${policies.extraBedRate})' : ''}'
                         : 'Not Available',
-                    iconColor: policies.extraBedPolicy! ? green : Colors.red,
+                   // iconColor: policies.extraBedPolicy! ? green : Colors.red,
                   ),
                 if (policies.mealRates != null)
                   _buildPolicyCard(
@@ -88,14 +96,14 @@ class PropertyPolicies extends StatelessWidget {
                     icon: Icons.people_rounded,
                     title: 'Visitors Policy',
                     content: policies.outsideVisitorAllowed! ? 'Visitors Allowed' : 'No Visitors Allowed',
-                    iconColor: policies.outsideVisitorAllowed! ? green : Colors.red,
+                   // iconColor: policies.outsideVisitorAllowed! ? green : Colors.red,
                   ),
                 if (policies.partiesOrEventsAllowed != null)
                   _buildPolicyCard(
                     icon: Icons.celebration_rounded,
                     title: 'Events Policy',
                     content: policies.partiesOrEventsAllowed! ? 'Events Allowed' : 'No Events Allowed',
-                    iconColor: policies.partiesOrEventsAllowed! ? green : Colors.red,
+                   // iconColor: policies.partiesOrEventsAllowed! ? green : Colors.red,
                   ),
               ],
             ),
