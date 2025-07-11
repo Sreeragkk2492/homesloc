@@ -4,29 +4,53 @@ import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/controller/search/search_hotel_full_properties_controller.dart';
 import 'package:homesloc/controller/search/search_hotel_room_details_controller.dart';
+import 'package:homesloc/screens/payment_screen/booking_successful/booking_successful.dart';
+import 'package:homesloc/screens/payment_screen/payment_screen.dart';
 
 class FullPropertyBookNow extends StatelessWidget {
-  const FullPropertyBookNow({Key? key}) : super(key: key);
+  final String startDate;
+  final String endDate;
+  FullPropertyBookNow({required this.startDate, required this.endDate});
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      // Try to get controllers
       final fullPropertyController = Get.find<SearchHotelFullPropertiesController>();
       final roomDetailsController = Get.find<SearchHotelRoomDetailsController>();
-      
-      // Try to get price from full property details first
-      final fullPropertyDetails = fullPropertyController.fullPropertyDetails.value;
+
       String price = '0';
-      
-      if (fullPropertyDetails?.basePropertyPrice != null) {
-        price = fullPropertyDetails!.basePropertyPrice!;
+      dynamic hotelToPass;
+      // ROOM type logic
+      final roomDetails = roomDetailsController.roomDetails.value;
+      final hotelDetails = roomDetails?.hotelDetails;
+      final rooms = hotelDetails?.rooms ?? [];
+      final selectedIndex = fullPropertyController.selectedRoomIndex.value;
+
+      if (rooms.isNotEmpty && selectedIndex != null && selectedIndex >= 0 && selectedIndex < rooms.length) {
+        // Use selected room's price/offerPrice if available
+        final selectedRoom = rooms[selectedIndex];
+        if (selectedRoom.price != null && selectedRoom.price!.isNotEmpty) {
+          price = selectedRoom.price!;
+        } else if (selectedRoom.offerPrice != null && selectedRoom.offerPrice!.isNotEmpty) {
+          price = selectedRoom.offerPrice!;
+        }
+        hotelToPass = hotelDetails;
+      } else if (roomDetails?.price != null && roomDetails!.price!.isNotEmpty) {
+        price = roomDetails.price!;
+        hotelToPass = hotelDetails;
+      } else if (roomDetails?.offerPrice != null && roomDetails!.offerPrice!.isNotEmpty) {
+        price = roomDetails.offerPrice!;
+        hotelToPass = hotelDetails;
       } else {
-        // Try to get price from room details
-        final roomDetails = roomDetailsController.roomDetails.value;
-        price = roomDetails?.price ?? '0';
+        // For full property, always show basePropertyPrice
+        final fullPropertyDetails = fullPropertyController.fullPropertyDetails.value;
+        if (fullPropertyDetails?.basePropertyPrice != null && fullPropertyDetails!.basePropertyPrice!.isNotEmpty) {
+          price = fullPropertyDetails.basePropertyPrice!;
+        }
+        hotelToPass = fullPropertyDetails?.hotelDetails;
       }
-      
+
+      // Use the widget's startDate and endDate properties
       return Container(
         padding: EdgeInsets.all(12.r),
         margin: EdgeInsets.symmetric(horizontal: 10.w),
@@ -77,7 +101,7 @@ class FullPropertyBookNow extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "+ ₹${(double.parse(price) * 0.18).round()} taxes & fees",
+                        "+ ₹${(double.tryParse(price) != null ? (double.parse(price) * 0.18).round() : 0)} taxes & fees",
                         style: TextStyle(
                           color: const Color.fromARGB(255, 190, 190, 190),
                           fontFamily: 'Poppins',
@@ -90,21 +114,31 @@ class FullPropertyBookNow extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 8.w),
-                Container(
-                  width: 110.w,
-                  height: 40.h,
-                  decoration: BoxDecoration(
-                    color: yellow,
-                    borderRadius: BorderRadius.circular(28.sp),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "BOOK NOW",
-                      style: TextStyle(
-                        color: black,
-                        fontSize: 14.sp,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500
+                GestureDetector(
+                  onTap: () {
+                    Get.to(() => PaymentSreen(), arguments: {
+                      'hotel': hotelToPass,
+                      'price': price,
+                      'startDate': startDate,
+                      'endDate': endDate,
+                    });
+                  },
+                  child: Container(
+                    width: 110.w,
+                    height: 40.h,
+                    decoration: BoxDecoration(
+                      color: yellow,
+                      borderRadius: BorderRadius.circular(28.sp),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "BOOK NOW",
+                        style: TextStyle(
+                          color: black,
+                          fontSize: 14.sp,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500
+                        ),
                       ),
                     ),
                   ),

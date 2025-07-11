@@ -7,24 +7,17 @@ import 'package:homesloc/models/booking/booking_model.dart';
 import 'package:homesloc/screens/payment_screen/booking_successful/booking_successful.dart';
 
 class PayNow extends StatelessWidget {
-  PayNow({super.key});
+  final double basePrice;
+  final double tax;
+  final double total;
+  final int numberOfNights;
+
+  PayNow({Key? key, required this.basePrice, required this.tax, required this.total, required this.numberOfNights}) : super(key: key);
 
   final screenController = Get.put(TripController());
 
   @override
   Widget build(BuildContext context) {
-    // Logical data
-    final double nightlyRate = 120.0;
-    final int numberOfNights = 30;
-    final double discount = 50.0;
-    final double taxesAndFees = 15.0;
-
-    // Calculations
-    final double subtotal = nightlyRate * numberOfNights;
-    final double totalDiscount = discount;
-    final double totalTaxesAndFees = taxesAndFees;
-    final double grandTotal = subtotal - totalDiscount + totalTaxesAndFees;
-
     return Container(
       margin: EdgeInsets.only(top: 15, right: 10.w, left: 10.w, bottom: 20.h),
       decoration: BoxDecoration(
@@ -54,7 +47,7 @@ class PayNow extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '₹$nightlyRate x $numberOfNights Nights',
+                  'For $numberOfNights Night${numberOfNights > 1 ? 's' : ''}',
                   style: TextStyle(
                       color: const Color.fromARGB(255, 190, 190, 190),
                       fontFamily: 'Poppins',
@@ -62,31 +55,7 @@ class PayNow extends StatelessWidget {
                       fontWeight: FontWeight.w100),
                 ),
                 Text(
-                  '₹${subtotal.toStringAsFixed(2)}',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 190, 190, 190),
-                      fontFamily: 'Poppins',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w100),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 6.h,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Discount',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 190, 190, 190),
-                      fontFamily: 'Poppins',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w100),
-                ),
-                Text(
-                  '-₹${totalDiscount.toStringAsFixed(2)}',
+                  '₹${basePrice.toStringAsFixed(2)}',
                   style: TextStyle(
                       color: const Color.fromARGB(255, 190, 190, 190),
                       fontFamily: 'Poppins',
@@ -102,7 +71,7 @@ class PayNow extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Occupancy taxes and fees',
+                  'Taxes & Fees (18%)',
                   style: TextStyle(
                       color: const Color.fromARGB(255, 190, 190, 190),
                       fontFamily: 'Poppins',
@@ -110,7 +79,7 @@ class PayNow extends StatelessWidget {
                       fontWeight: FontWeight.w100),
                 ),
                 Text(
-                  '₹${totalTaxesAndFees.toStringAsFixed(2)}',
+                  '₹${tax.toStringAsFixed(2)}',
                   style: TextStyle(
                       color: const Color.fromARGB(255, 190, 190, 190),
                       fontFamily: 'Poppins',
@@ -139,7 +108,7 @@ class PayNow extends StatelessWidget {
                           fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      "₹${grandTotal.toStringAsFixed(2)}",
+                      "₹${total.toStringAsFixed(2)}",
                       style: TextStyle(
                           color: white,
                           fontFamily: 'Poppins',
@@ -158,7 +127,7 @@ class PayNow extends StatelessWidget {
                       final booking = BookingModel(
                         hotelName:
                             'Issacs Residency', // Replace with actual hotel name
-                        totalAmount: grandTotal,
+                        totalAmount: total,
                         numberOfNights: numberOfNights,
                         checkInDate:
                             DateTime.now(), // Replace with actual check-in date

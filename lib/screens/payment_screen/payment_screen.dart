@@ -5,12 +5,32 @@ import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/book_now/book_now.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/pay_now/pay_now.dart';
+import 'package:get/get.dart';
 
 class PaymentSreen extends StatelessWidget {
   const PaymentSreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final args = Get.arguments ?? {};
+    final hotel = args['hotel'];
+    final price = args['price'] ?? '0';
+    final startDate = args['startDate'] ?? '';
+    final endDate = args['endDate'] ?? '';
+
+    // Calculate number of nights
+    int numberOfNights = 1;
+    try {
+      if (startDate.isNotEmpty && endDate.isNotEmpty) {
+        final start = DateTime.parse(startDate);
+        final end = DateTime.parse(endDate);
+        numberOfNights = end.difference(start).inDays;
+        if (numberOfNights < 1) numberOfNights = 1;
+      }
+    } catch (_) {
+      numberOfNights = 1;
+    }
+
     return Scaffold(
       backgroundColor: white,
       appBar: AppBar(
@@ -45,7 +65,6 @@ class PaymentSreen extends StatelessWidget {
               height: 130.h,
               decoration: BoxDecoration(
                 color: white,
-                // border: Border.all(color: border),
                 borderRadius: BorderRadius.circular(15.sp),
                 boxShadow: [
                   BoxShadow(
@@ -66,27 +85,38 @@ class PaymentSreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(13.sp),
                       image: DecorationImage(
-                          image: AssetImage('assets/images/image (33).png'),
+                          image: NetworkImage(hotel.coverImageUrl ?? ''),
                           fit: BoxFit.cover),
                     ),
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 10.w, top: 11.h),
                     child: Column(
-                      // mainAxisAlignment: MainAxisAlignment.s,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
                           height: 10.h,
                         ),
-                        Text(
-                          "Issacs Residency",
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp),
-                        ),
+                         Text(
+                                          hotel.name.length > 20
+                                              ? "${hotel.name.substring(0, 16)}..."
+                                              : hotel.name,
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            color: black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.sp,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                        // Text(
+                        //   hotel != null && hotel.name != null ? hotel.name : "Hotel Name",
+                        //   style: TextStyle(
+                        //       fontFamily: 'Poppins',
+                        //       color: black,
+                        //       fontWeight: FontWeight.bold,
+                        //       fontSize: 16.sp),
+                        // ),
                         SizedBox(
                           height: 8.h,
                         ),
@@ -102,7 +132,7 @@ class PaymentSreen extends StatelessWidget {
                               width: 4.w,
                             ),
                             Text(
-                              "Munnar, Kerala",
+                              hotel != null && hotel.city != null ? hotel.city : "Location",
                               style: TextStyle(
                                   fontFamily: 'Poppins',
                                   color: black,
@@ -127,7 +157,7 @@ class PaymentSreen extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "4.2",
+                                    hotel != null && hotel.starRating != null ? hotel.starRating.toString() : "-",
                                     style: TextStyle(
                                         fontFamily: 'Poppins',
                                         color: white,
@@ -200,7 +230,7 @@ class PaymentSreen extends StatelessWidget {
                         fontSize: 16.sp),
                   ),
                   Text(
-                    "November 06, 2024 - December 08 2024",
+                    startDate != '' && endDate != '' ? "$startDate - $endDate" : "Select Dates",
                     style: TextStyle(
                         fontFamily: 'Poppins',
                         color: fontColor,
@@ -266,7 +296,7 @@ class PaymentSreen extends StatelessWidget {
                   SizedBox(
                     height: 10.h,
                   ),
-                  Text(
+                   Text(
                     "Advance / Pay Later",
                     style: TextStyle(
                         fontFamily: 'Poppins',
@@ -296,7 +326,7 @@ class PaymentSreen extends StatelessWidget {
                   SizedBox(
                     height: 8.h,
                   ),
-                  Row(
+                   Row(
                     children: [
                       Container(
                         margin: EdgeInsets.only(right: 5.w),
@@ -307,7 +337,6 @@ class PaymentSreen extends StatelessWidget {
                           image: DecorationImage(
                               image: AssetImage('assets/images/Picture.png'),
                               fit: BoxFit.cover),
-                          // color: blue,
                         ),
                       ),
                       Container(
@@ -320,7 +349,6 @@ class PaymentSreen extends StatelessWidget {
                               image:
                                   AssetImage('assets/images/Picture (1).png'),
                               fit: BoxFit.cover),
-                          // color: blue,
                         ),
                       ),
                       Container(
@@ -330,23 +358,19 @@ class PaymentSreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(7.sp),
                           image: DecorationImage(
-                              image:
-                                  AssetImage('assets/images/Picture (2).png'),
+                              image: AssetImage('assets/images/Picture (2).png'),
                               fit: BoxFit.cover),
-                          // color: blue,
                         ),
                       ),
-                      Container(
+                        Container(
                         margin: EdgeInsets.only(right: 5.w),
                         width: 50.w,
                         height: 25.h,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(7.sp),
                           image: DecorationImage(
-                              image:
-                                  AssetImage('assets/images/Picture (3).png'),
+                              image: AssetImage('assets/images/Picture (3).png'),
                               fit: BoxFit.cover),
-                          // color: blue,
                         ),
                       ),
                       Container(
@@ -356,14 +380,11 @@ class PaymentSreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(7.sp),
                           image: DecorationImage(
-                              image:
-                                  AssetImage('assets/images/Picture (4).png'),
+                              image: AssetImage('assets/images/Picture (4).png'),
                               fit: BoxFit.cover),
-                          // color: blue,
                         ),
                       ),
                       Container(
-                        // margin: EdgeInsets.only(right: 10.w),
                         width: 50.w,
                         height: 25.h,
                         decoration: BoxDecoration(
@@ -386,7 +407,30 @@ class PaymentSreen extends StatelessWidget {
                 ],
               ),
             ),
-            PayNow(),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+              child: Builder(
+                builder: (context) {
+                  final priceValue = double.tryParse(price) ?? 0.0;
+                  final tax = (priceValue * 0.18).round();
+                  final total = priceValue * numberOfNights + tax;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                     PayNow(
+                        basePrice: priceValue * numberOfNights,
+                        tax: tax.toDouble(),
+                        total: total,
+                        numberOfNights: numberOfNights,
+                      ),
+                      // Pass values to PayNow
+                     
+                    ],
+                  );
+                },
+              ),
+            ),
+            
           ],
         ),
       ),
