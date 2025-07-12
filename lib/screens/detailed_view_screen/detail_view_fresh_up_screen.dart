@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:homesloc/controller/search/search_fresh_up_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/detailed_view_screen/amenitie_row/fresh_up_amenitie_row.dart';
+import 'package:homesloc/screens/detailed_view_screen/full_property_widgets/property_maps.dart';
 import 'package:homesloc/screens/detailed_view_screen/time_slots_row/fresh_up_time_slots_row.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
@@ -67,7 +68,8 @@ class DetailViewFreshUpScreen extends StatelessWidget {
         ),
         title: Center(
           child: Obx(() {
-            final propertyDetails = freshUpController.roomDetails.value?.propertyDetails;
+            final propertyDetails =
+                freshUpController.roomDetails.value?.propertyDetails;
             return Text(
               propertyDetails?.name ?? "Fresh Up Details",
               style: TextStyle(
@@ -92,15 +94,17 @@ class DetailViewFreshUpScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (freshUpController.isLoadingRoomDetails.value) {
-          return  Center(child:  Container(
-                        width: 50.w,
-                        height: 50.h,
-                        child: Lottie.asset(
-                          'assets/images/loading.json',
-                          // controller: _checkmarkController,
-                          repeat: true,
-                        ),
-                      ),);
+          return Center(
+            child: Container(
+              width: 50.w,
+              height: 50.h,
+              child: Lottie.asset(
+                'assets/images/loading.json',
+                // controller: _checkmarkController,
+                repeat: true,
+              ),
+            ),
+          );
         }
 
         if (freshUpController.roomDetailsErrorMessage.value.isNotEmpty) {
@@ -136,49 +140,41 @@ class DetailViewFreshUpScreen extends StatelessWidget {
         }
 
         final propertyDetails = roomDetails.propertyDetails;
-        
+
         // Get the appropriate price details based on price method
         final pricePerRoom = roomDetails.pricePerRoom;
         final pricePerHead = roomDetails.pricePerHead;
-        
+
         // Determine which price details to use
         final isPerRoom = roomDetails.priceMethod == "PER_ROOM";
         final priceDetails = isPerRoom ? pricePerRoom : pricePerHead;
-        
+
         // Get the appropriate price based on price method
-        final price = isPerRoom 
-            ? pricePerRoom?.price 
-            : pricePerHead?.price ; 
-            
-        final offerPrice = isPerRoom 
-            ? pricePerRoom?.offerPrice 
-            : pricePerHead?.offerPrice;
-            
+        final price = isPerRoom ? pricePerRoom?.price : pricePerHead?.price;
+
+        final offerPrice =
+            isPerRoom ? pricePerRoom?.offerPrice : pricePerHead?.offerPrice;
+
         // Get common properties with proper type casting
-        final freshupName = isPerRoom 
-            ? pricePerRoom?.freshupName 
-            : pricePerHead?.freshupName;
-            
-        final freshupType = isPerRoom 
-            ? pricePerRoom?.freshupType 
-            : pricePerHead?.freshupType;
-            
-        final freshupDescription = isPerRoom 
-            ? pricePerRoom?.freshupDescription 
+        final freshupName =
+            isPerRoom ? pricePerRoom?.freshupName : pricePerHead?.freshupName;
+
+        final freshupType =
+            isPerRoom ? pricePerRoom?.freshupType : pricePerHead?.freshupType;
+
+        final freshupDescription = isPerRoom
+            ? pricePerRoom?.freshupDescription
             : pricePerHead?.freshupDescription;
-            
-        final slots = isPerRoom 
-            ? pricePerRoom?.slots 
-            : pricePerHead?.slots;
+
+        final slots = isPerRoom ? pricePerRoom?.slots : pricePerHead?.slots;
 
         // Get amenities based on price method
-        final amenities = isPerRoom 
-            ? pricePerRoom?.amenities 
-            : pricePerHead?.amenities;
-            
+        final amenities =
+            isPerRoom ? pricePerRoom?.amenities : pricePerHead?.amenities;
+
         // Fallback to property amenities if price method amenities are empty
-        final displayAmenities = (amenities != null && amenities.isNotEmpty) 
-            ? amenities 
+        final displayAmenities = (amenities != null && amenities.isNotEmpty)
+            ? amenities
             : propertyDetails?.freshupAmenities ?? [];
 
         return SingleChildScrollView(
@@ -195,7 +191,8 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                     image: NetworkImage(
                       roomDetails.images?.isNotEmpty == true
                           ? roomDetails.images!.first
-                          : propertyDetails?.coverImageUrl ?? 'assets/images/image (33).png',
+                          : propertyDetails?.coverImageUrl ??
+                              'assets/images/image (33).png',
                     ),
                     fit: BoxFit.cover,
                   ),
@@ -289,7 +286,8 @@ class DetailViewFreshUpScreen extends StatelessWidget {
 
               // Property Highlights Section
               Padding(
-                padding: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 10.h, top: 10.h),
+                padding: EdgeInsets.only(
+                    left: 10.w, right: 10.w, bottom: 10.h, top: 10.h),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -356,7 +354,10 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                           propertyDetails?.city,
                           propertyDetails?.state,
                           propertyDetails?.country,
-                        ].where((element) => element != null && element.isNotEmpty).join(", "),
+                        ]
+                            .where((element) =>
+                                element != null && element.isNotEmpty)
+                            .join(", "),
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: black,
@@ -389,7 +390,7 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                     ),
                     Expanded(
                       child: Text(
-                        "ph : ${propertyDetails?.phoneNumber ?? ''}",  
+                        "ph : ${propertyDetails?.phoneNumber ?? ''}",
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           color: black,
@@ -471,7 +472,7 @@ class DetailViewFreshUpScreen extends StatelessWidget {
               // PropertyFirstRow(),
               // PropertySecondRow(),
               // ProperyThirdRow(),
-                SizedBox(height: 15.h),
+              SizedBox(height: 15.h),
               FreshUpBookNow(
                 freshUp: roomDetails,
                 price: null,
@@ -579,57 +580,55 @@ class DetailViewFreshUpScreen extends StatelessWidget {
 
               // Amenities Section
               Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Amenities ',
-                            style: TextStyle(
+                padding: EdgeInsets.symmetric(horizontal: 15.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Amenities ',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: blue,
+                            fontSize: 17.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'View All',
+                          style: TextStyle(
                               fontFamily: 'Poppins',
                               color: blue,
-                              fontSize: 17.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'View All',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                               fontSize: 10.sp,
-                      fontWeight: FontWeight.w600
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 15.h),
-                      Column(
-                        children: [
-                          if (displayAmenities.isEmpty)
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10.w),
-                              child: Text(
-                                'No amenities available for this ${isPerRoom ? 'room' : 'per head'} option',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  color: fontColor,
-                                  fontSize: 13.sp,
-                                ),
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15.h),
+                    Column(
+                      children: [
+                        if (displayAmenities.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w),
+                            child: Text(
+                              'No amenities available for this ${isPerRoom ? 'room' : 'per head'} option',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: fontColor,
+                                fontSize: 13.sp,
                               ),
-                            )
-                          else
+                            ),
+                          )
+                        else
                           Padding(
                             padding: EdgeInsets.only(
                                 left: 10.w, right: 10.w, top: 10.h),
                             child: Wrap(
                               spacing: 10.w,
                               runSpacing: 10.h,
-                              children: 
-                                  displayAmenities.map((amenity) {
+                              children: displayAmenities.map((amenity) {
                                 return Container(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 12.w, vertical: 6.h),
@@ -660,11 +659,11 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                               }).toList(),
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
+              ),
 
               HomeDivider(),
 
@@ -729,14 +728,21 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.access_time, color: blue, size: 20.sp),
+                                Icon(Icons.access_time,
+                                    color: blue, size: 20.sp),
                                 SizedBox(width: 12.w),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Check-in: ' + (checkIn != null ? checkIn.toString().substring(0,5) : '-'),
+                                        'Check-in: ' +
+                                            (checkIn != null
+                                                ? checkIn
+                                                    .toString()
+                                                    .substring(0, 5)
+                                                : '-'),
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
                                           color: black,
@@ -746,7 +752,12 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                                       ),
                                       SizedBox(height: 3.h),
                                       Text(
-                                        'Check-out: ' + (checkOut != null ? checkOut.toString().substring(0,5) : '-'),
+                                        'Check-out: ' +
+                                            (checkOut != null
+                                                ? checkOut
+                                                    .toString()
+                                                    .substring(0, 5)
+                                                : '-'),
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
                                           color: fontColor,
@@ -813,7 +824,8 @@ class DetailViewFreshUpScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(5.sp),
                   image: DecorationImage(
                     image: NetworkImage(
-                      propertyDetails?.coverImageUrl ?? 'assets/images/image (33).png',
+                      propertyDetails?.coverImageUrl ??
+                          'assets/images/image (33).png',
                     ),
                     fit: BoxFit.fill,
                   ),
@@ -837,73 +849,98 @@ class DetailViewFreshUpScreen extends StatelessWidget {
 
               // Policies Section
               Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Our Policies',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                              fontSize: 17.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
+                padding: EdgeInsets.symmetric(horizontal: 15.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Our Policies',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: blue,
+                            fontSize: 17.sp,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Text(
-                            'View All',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                               fontSize: 10.sp,
-                      fontWeight: FontWeight.w600
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 15.h),
-                      _buildPolicyItem(
-                        Icons.access_time,
-                        "Cancellation Policy",
-                        (propertyDetails?.freshupPolicies?.cancellationPolicy ?? '').isNotEmpty
-                            ? propertyDetails!.freshupPolicies!.cancellationPolicy!
-                            : "No cancellation policy available",
-                      ),
-                      _buildPolicyItem(
-                        Icons.schedule,
-                        "Accepted Time Slots",
-                        (propertyDetails?.freshupPolicies?.acceptedtimeslots ?? '').isNotEmpty
-                            ? propertyDetails!.freshupPolicies!.acceptedtimeslots!
-                            : "Not specified",
-                      ),
-                      _buildPolicyItem(
-                        Icons.bed,
-                        "Extra Bed Policy",
-                        (propertyDetails?.freshupPolicies?.extraBedPolicy ?? '').isNotEmpty
-                            ? propertyDetails!.freshupPolicies!.extraBedPolicy!
-                            : "Not specified",
-                      ),
-                      _buildPolicyItem(
-                        Icons.badge,
-                        "Acceptable Identity Proof",
-                        (propertyDetails?.freshupPolicies?.acceptableIdentityProof != null && (propertyDetails!.freshupPolicies!.acceptableIdentityProof?.isNotEmpty ?? false))
-                            ? propertyDetails!.freshupPolicies!.acceptableIdentityProof!.join(", ")
-                            : "Not specified",
-                      ),
-                      if ((propertyDetails?.freshupPolicies?.propertyrules ?? '').isNotEmpty)
-                        _buildPolicyItem(
-                          Icons.rule,
-                          "Property Rules", 
-                          propertyDetails!.freshupPolicies!.propertyrules ?? '',
                         ),
-                    ],
-                  ),
+                        Text(
+                          'View All',
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: blue,
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15.h),
+                    _buildPolicyItem(
+                      Icons.access_time,
+                      "Cancellation Policy",
+                      (propertyDetails?.freshupPolicies?.cancellationPolicy ??
+                                  '')
+                              .isNotEmpty
+                          ? propertyDetails!
+                              .freshupPolicies!.cancellationPolicy!
+                          : "No cancellation policy available",
+                    ),
+                    _buildPolicyItem(
+                      Icons.schedule,
+                      "Accepted Time Slots",
+                      (propertyDetails?.freshupPolicies?.acceptedtimeslots ??
+                                  '')
+                              .isNotEmpty
+                          ? propertyDetails!.freshupPolicies!.acceptedtimeslots!
+                          : "Not specified",
+                    ),
+                    _buildPolicyItem(
+                      Icons.bed,
+                      "Extra Bed Policy",
+                      (propertyDetails?.freshupPolicies?.extraBedPolicy ?? '')
+                              .isNotEmpty
+                          ? propertyDetails!.freshupPolicies!.extraBedPolicy!
+                          : "Not specified",
+                    ),
+                    _buildPolicyItem(
+                      Icons.badge,
+                      "Acceptable Identity Proof",
+                      (propertyDetails?.freshupPolicies
+                                      ?.acceptableIdentityProof !=
+                                  null &&
+                              (propertyDetails!.freshupPolicies!
+                                      .acceptableIdentityProof?.isNotEmpty ??
+                                  false))
+                          ? propertyDetails!
+                              .freshupPolicies!.acceptableIdentityProof!
+                              .join(", ")
+                          : "Not specified",
+                    ),
+                    if ((propertyDetails?.freshupPolicies?.propertyrules ?? '')
+                        .isNotEmpty)
+                      _buildPolicyItem(
+                        Icons.rule,
+                        "Property Rules",
+                        propertyDetails!.freshupPolicies!.propertyrules ?? '',
+                      ),
+                  ],
                 ),
+              ),
 
               SizedBox(height: 30.h),
+              if (roomDetails.propertyDetails?.latitude != null &&
+                  roomDetails.propertyDetails?.longitude != null) ...[
+                PropertyMapSection(
+                  latitude: double.tryParse(
+                          roomDetails.propertyDetails?.latitude ?? '') ??
+                      0.0,
+                  longitude: double.tryParse(
+                          roomDetails.propertyDetails?.longitude ?? '') ??
+                      0.0,
+                  propertyName: roomDetails.propertyDetails?.name ?? '',
+                ),
+              ],
             ],
           ),
         );
@@ -918,7 +955,7 @@ class DetailViewFreshUpScreen extends StatelessWidget {
     return 0;
   }
 
-   Widget _buildPolicyItem(IconData icon, String title, String description) {
+  Widget _buildPolicyItem(IconData icon, String title, String description) {
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       padding: EdgeInsets.all(12.w),
@@ -971,7 +1008,7 @@ class DetailViewFreshUpScreen extends StatelessWidget {
     );
   }
 
-   IconData _getAmenityIcon(String amenityName) {
+  IconData _getAmenityIcon(String amenityName) {
     // Map amenity names to appropriate icons
     final amenityIcons = {
       'Wi-Fi': Icons.wifi,

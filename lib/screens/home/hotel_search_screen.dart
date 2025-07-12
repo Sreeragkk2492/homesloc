@@ -9,7 +9,6 @@ import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/builder/home_builder/fourth_home_builder.dart';
 import 'package:homesloc/core/widgets/logo.dart/logo.dart';
 import 'package:homesloc/core/widgets/search_form/search_form.dart';
-import 'package:homesloc/screens/detailed_view_screen/detailed_view_screen.dart';
 import 'package:homesloc/screens/detailed_view_screen/full_property_detailed_view_screen.dart';
 import 'package:homesloc/screens/home/widget/build_ameneties.dart';
 import 'package:homesloc/screens/home/widget/calendar_bottom_sheet.dart';

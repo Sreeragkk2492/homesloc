@@ -82,21 +82,33 @@ class HallBookNow extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 8.w),
-                Container(
-                  width: 110.w,
-                  height: 40.h,
-                  decoration: BoxDecoration(
-                    color: yellow,
-                    borderRadius: BorderRadius.circular(28.sp),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "BOOK NOW",
-                      style: TextStyle(
-                        color: black,
-                        fontSize: 14.sp,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500
+                GestureDetector(
+                  onTap: () {
+                    // Navigate to payment screen with hall data
+                    Get.to(() => PaymentSreen(), arguments: {
+                      'bookingType': 'hall',
+                      'hall': hall,
+                      'price': price,
+                      'startDate': hallSearchController.checkInDate.value,
+                      'endDate': hallSearchController.checkOutDate.value,
+                    });
+                  },
+                  child: Container(
+                    width: 110.w,
+                    height: 40.h,
+                    decoration: BoxDecoration(
+                      color: yellow,
+                      borderRadius: BorderRadius.circular(28.sp),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "BOOK NOW",
+                        style: TextStyle(
+                          color: black,
+                          fontSize: 14.sp,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500
+                        ),
                       ),
                     ),
                   ),
@@ -189,21 +201,34 @@ class HallBookNow extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 8.w),
-                  Container(
-                    width: 110.w,
-                    height: 40.h,
-                    decoration: BoxDecoration(
-                      color: yellow,
-                      borderRadius: BorderRadius.circular(28.sp),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "BOOK NOW",
-                        style: TextStyle(
-                          color: black,
-                          fontSize: 14.sp,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500
+                  GestureDetector(
+                    onTap: () {
+                      // Navigate to payment screen with hall data
+                      Get.to(() => PaymentSreen(), arguments: {
+                        'bookingType': 'hall',
+                        'hall': hall,
+                        'selectedEvent': eventDetails,
+                        'price': eventDetails.offerPrice ?? eventDetails.price ?? '0',
+                        'startDate': hallSearchController.checkInDate.value,
+                        'endDate': hallSearchController.checkOutDate.value,
+                      });
+                    },
+                    child: Container(
+                      width: 110.w,
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        color: yellow,
+                        borderRadius: BorderRadius.circular(28.sp),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "BOOK NOW",
+                          style: TextStyle(
+                            color: black,
+                            fontSize: 14.sp,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500
+                          ),
                         ),
                       ),
                     ),

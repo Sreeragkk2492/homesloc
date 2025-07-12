@@ -51,7 +51,7 @@ class SearchFreshUpController extends GetxController {
         page: currentPage.value,
         sortBy: sortBy.value,
         sortOrder: sortOrder.value,
-        isHotel: true,
+        //isHotel: true,
       );
 
       // Update the observable variables

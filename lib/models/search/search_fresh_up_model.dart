@@ -71,6 +71,8 @@ class Accommodation {
     int? starRating;
     String? coverImageUrl;
     List<String>? galleryImages;
+    String? city;
+    String? state;
     String? latitude;
     String? longitude;
     List<NearByAttraction>? nearByAttraction;
@@ -102,6 +104,8 @@ class Accommodation {
         this.starRating,
         this.coverImageUrl,
         this.galleryImages,
+        this.city,
+        this.state,
         this.latitude,
         this.longitude,
         this.nearByAttraction,
@@ -134,6 +138,8 @@ class Accommodation {
         starRating: json["star_rating"],
         coverImageUrl: json["cover_image_url"],
         galleryImages: json["gallery_images"] == null ? [] : List<String>.from(json["gallery_images"]!.map((x) => x)),
+        city: json["city"],
+        state: json["state"],
         latitude: json["latitude"],
         longitude: json["longitude"],
         nearByAttraction: json["near_by_attraction"] == null ? [] : List<NearByAttraction>.from(json["near_by_attraction"]!.map((x) => NearByAttraction.fromJson(x))),
@@ -166,6 +172,8 @@ class Accommodation {
         "star_rating": starRating,
         "cover_image_url": coverImageUrl,
         "gallery_images": galleryImages == null ? [] : List<dynamic>.from(galleryImages!.map((x) => x)),
+        "city": city,
+        "state": state,
         "latitude": latitude,
         "longitude": longitude,
         "near_by_attraction": nearByAttraction == null ? [] : List<dynamic>.from(nearByAttraction!.map((x) => x.toJson())),

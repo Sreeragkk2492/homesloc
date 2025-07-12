@@ -13,10 +13,17 @@ class PaymentSreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = Get.arguments ?? {};
+    final bookingType = args['bookingType'] ?? 'hotel'; // 'hotel', 'hall', 'freshup'
     final hotel = args['hotel'];
+    final hall = args['hall'];
+    final freshup = args['freshup'];
+    final selectedEvent = args['selectedEvent']; // For hall bookings
     final price = args['price'] ?? '0';
     final startDate = args['startDate'] ?? '';
     final endDate = args['endDate'] ?? '';
+    
+    // Get the appropriate data based on booking type
+    final bookingData = _getBookingData(bookingType, hotel, hall, freshup, selectedEvent);
 
     // Calculate number of nights
     int numberOfNights = 1;
@@ -85,7 +92,7 @@ class PaymentSreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(13.sp),
                       image: DecorationImage(
-                          image: NetworkImage(hotel.coverImageUrl ?? ''),
+                          image: NetworkImage(bookingData['coverImageUrl'] ?? ''),
                           fit: BoxFit.cover),
                     ),
                   ),
@@ -98,9 +105,9 @@ class PaymentSreen extends StatelessWidget {
                           height: 10.h,
                         ),
                          Text(
-                                          hotel.name.length > 20
-                                              ? "${hotel.name.substring(0, 16)}..."
-                                              : hotel.name,
+                                          (bookingData['name'] ?? '').length > 20
+                                              ? "${(bookingData['name'] ?? '').substring(0, 16)}..."
+                                              : bookingData['name'] ?? '',
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             color: black,
@@ -132,7 +139,7 @@ class PaymentSreen extends StatelessWidget {
                               width: 4.w,
                             ),
                             Text(
-                              hotel != null && hotel.city != null ? hotel.city : "Location",
+                              bookingData['city'] ?? "Location",
                               style: TextStyle(
                                   fontFamily: 'Poppins',
                                   color: black,
@@ -157,7 +164,7 @@ class PaymentSreen extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    hotel != null && hotel.starRating != null ? hotel.starRating.toString() : "-",
+                                    (bookingData['starRating'] ?? 0).toString(),
                                     style: TextStyle(
                                         fontFamily: 'Poppins',
                                         color: white,
@@ -222,7 +229,7 @@ class PaymentSreen extends StatelessWidget {
                     height: 10.h,
                   ),
                   Text(
-                    "Dates",
+                    bookingType == 'freshup' ? "Service Date" : "Dates",
                     style: TextStyle(
                         fontFamily: 'Poppins',
                         color: black,
@@ -230,7 +237,9 @@ class PaymentSreen extends StatelessWidget {
                         fontSize: 16.sp),
                   ),
                   Text(
-                    startDate != '' && endDate != '' ? "$startDate - $endDate" : "Select Dates",
+                    bookingType == 'freshup' 
+                        ? "Same day service" 
+                        : (startDate != '' && endDate != '' ? "$startDate - $endDate" : "Select Dates"),
                     style: TextStyle(
                         fontFamily: 'Poppins',
                         color: fontColor,
@@ -241,7 +250,7 @@ class PaymentSreen extends StatelessWidget {
                     height: 7.h,
                   ),
                   Text(
-                    "Guests",
+                    bookingType == 'freshup' ? "Service Type" : "Guests",
                     style: TextStyle(
                         fontFamily: 'Poppins',
                         color: black,
@@ -249,7 +258,9 @@ class PaymentSreen extends StatelessWidget {
                         fontSize: 16.sp),
                   ),
                   Text(
-                    "2 Adult   |  1 Child",
+                    bookingType == 'freshup' 
+                        ? _getFreshupServiceType(freshup)
+                        : "2 Adult   |  1 Child",
                     style: TextStyle(
                         fontFamily: 'Poppins',
                         color: fontColor,
@@ -413,15 +424,21 @@ class PaymentSreen extends StatelessWidget {
                 builder: (context) {
                   final priceValue = double.tryParse(price) ?? 0.0;
                   final tax = (priceValue * 0.18).round();
-                  final total = priceValue * numberOfNights + tax;
+                  
+                  // For freshup, it's a single service, not multiple nights
+                  final isFreshup = bookingType == 'freshup';
+                  final basePrice = isFreshup ? priceValue : priceValue * numberOfNights;
+                  final total = basePrice + tax;
+                  final displayNights = isFreshup ? 1 : numberOfNights;
+                  
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                      PayNow(
-                        basePrice: priceValue * numberOfNights,
+                        basePrice: basePrice,
                         tax: tax.toDouble(),
                         total: total,
-                        numberOfNights: numberOfNights,
+                        numberOfNights: displayNights,
                       ),
                       // Pass values to PayNow
                      
@@ -435,5 +452,75 @@ class PaymentSreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Helper method to get booking data based on type
+  Map<String, dynamic> _getBookingData(String bookingType, dynamic hotel, dynamic hall, dynamic freshup, dynamic selectedEvent) {
+    switch (bookingType) {
+      case 'hotel':
+        return {
+          'name': hotel?.name ?? 'Hotel',
+          'coverImageUrl': hotel?.coverImageUrl ?? '',
+          'city': hotel?.city ?? 'Location',
+          'starRating': hotel?.starRating ?? 0,
+        };
+      case 'hall':
+        // If we have selectedEvent (which contains hall details), use that
+        if (selectedEvent != null && selectedEvent.hallDetails != null) {
+          return {
+            'name': selectedEvent.hallDetails?.name ?? hall?.name ?? 'Hall',
+            'coverImageUrl': selectedEvent.hallDetails?.coverImageUrl ?? hall?.coverImage ?? '',
+            'city': selectedEvent.hallDetails?.city ?? hall?.locationInfo?.city ?? 'Location',
+            //'starRating': selectedEvent.hallDetails?.startingRange ?? hall?.startingRange ?? 0,
+          };
+        }
+        // Otherwise use the hall object directly
+        return {
+          'name': hall?.name ?? 'Hall',
+          'coverImageUrl': hall?.coverImage ?? '',
+          'city': hall?.locationInfo?.city ?? 'Location',
+          'starRating': hall?.startingRange ?? 0,
+        };
+      case 'freshup':
+        // Extract data from FreshUpRoomDetailsModel
+        final propertyDetails = freshup?.propertyDetails;
+        final pricePerRoom = freshup?.pricePerRoom;
+        final pricePerHead = freshup?.pricePerHead;
+        
+        // Get the appropriate price details based on price method
+        final isPerRoom = freshup?.priceMethod == "PER_ROOM";
+        final priceDetails = isPerRoom ? pricePerRoom : pricePerHead;
+        
+        return {
+          'name': propertyDetails?.name ?? priceDetails?.freshupName ?? 'Freshup',
+          'coverImageUrl': propertyDetails?.coverImageUrl ?? freshup?.images?.firstOrNull ?? '',
+          'city': propertyDetails?.city ?? 'Location',
+          'starRating': propertyDetails?.starRating?.toInt() ?? 0,
+        };
+      default:
+        return {
+          'name': 'Property',
+          'coverImageUrl': '',
+          'city': 'Location',
+          'starRating': 0,
+        };
+    }
+  }
+
+  // Helper method to get freshup service type
+  String _getFreshupServiceType(dynamic freshup) {
+    if (freshup == null) return "Freshup Service";
+    
+    final pricePerRoom = freshup.pricePerRoom;
+    final pricePerHead = freshup.pricePerHead;
+    final isPerRoom = freshup.priceMethod == "PER_ROOM";
+    
+    if (isPerRoom && pricePerRoom != null) {
+      return "${pricePerRoom.freshupType ?? 'Room'} - ${pricePerRoom.freshupName ?? 'Service'}";
+    } else if (pricePerHead != null) {
+      return "${pricePerHead.freshupType ?? 'Per Head'} - ${pricePerHead.freshupName ?? 'Service'}";
+    }
+    
+    return "Freshup Service";
   }
 }

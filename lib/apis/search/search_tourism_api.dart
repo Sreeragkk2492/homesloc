@@ -16,7 +16,7 @@ class SearchTourismApi {
     num? maxPrice,
     String? currency,
     int page = 1,
-    int? pageSize,
+    int pageSize = 100,
     String? sortBy,
     String? sortOrder,
   }) async {

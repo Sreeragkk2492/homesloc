@@ -7,6 +7,7 @@ import 'package:homesloc/controller/search/search_hotel_room_details_controller.
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/detailed_view_screen/amenitie_row/amenitie_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/amenitie_row/hall_amenitie_row.dart';
+import 'package:homesloc/screens/detailed_view_screen/full_property_widgets/property_maps.dart';
 import 'package:homesloc/screens/detailed_view_screen/hall_policies_row/hall_policies_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/property_row/property_first_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/property_row/property_second_row.dart';
@@ -539,6 +540,21 @@ class DetailViewHallScreen extends StatelessWidget {
              
               const HallPoliciesRow(),
               SizedBox(height: 30.h),
+              //  SizedBox(height: 30.h),
+                    if ( hallSearchController.selectedEventDetails.value
+                                ?.hallDetails?.latitude !=
+                            null &&
+                        hallSearchController.selectedEventDetails.value
+                                ?.hallDetails?.longitude !=
+                            null) ...[
+                      PropertyMapSection(
+                        latitude: double.tryParse(hallSearchController.selectedEventDetails.value?.hallDetails?.latitude ?? '') ?? 0.0,
+                        longitude: double.tryParse(hallSearchController.selectedEventDetails.value?.hallDetails?.longitude ?? '') ?? 0.0,
+                        propertyName: hallSearchController.selectedEventDetails
+                                .value?.hallDetails?.name ??
+                            '',
+                      ),
+                    ],
             ],
           ),
         );

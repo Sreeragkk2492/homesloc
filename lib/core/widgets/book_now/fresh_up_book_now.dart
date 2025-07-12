@@ -112,21 +112,34 @@ class FreshUpBookNow extends StatelessWidget {
                 );
               }
 
+              // Get the appropriate price details based on price method
+              final pricePerRoom = roomDetails.pricePerRoom;
               final pricePerHead = roomDetails.pricePerHead;
+              
+              // Determine which price details to use
+              final isPerRoom = roomDetails.priceMethod == "PER_ROOM";
+              final priceDetails = isPerRoom ? pricePerRoom : pricePerHead;
+              
+              // Get the appropriate price based on price method
+              final currentPrice = isPerRoom ? pricePerRoom?.price : pricePerHead?.perHeadPrice;
+              final offerPrice = isPerRoom ? pricePerRoom?.offerPrice : pricePerHead?.offerPrice;
               
               // Calculate discount percentage if offer price is available
               int discountPercentage = 0;
-              if (pricePerHead?.perHeadPrice != null && pricePerHead?.offerPrice != null) {
+              if (currentPrice != null && offerPrice != null) {
                 try {
-                  final price = pricePerHead!.perHeadPrice!;
-                  final offerPrice = pricePerHead.offerPrice!;
+                  final price = currentPrice.toDouble();
+                  final offer = offerPrice.toDouble();
                   if (price > 0) {
-                    discountPercentage = ((price - offerPrice) / price * 100).round();
+                    discountPercentage = ((price - offer) / price * 100).round();
                   }
                 } catch (e) {
                   print('Error calculating discount: $e');
                 }
               }
+
+              // Get price method text for display
+              final priceMethodText = isPerRoom ? "per room" : "per person";
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -138,7 +151,7 @@ class FreshUpBookNow extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              "₹${pricePerHead?.offerPrice ?? pricePerHead?.perHeadPrice ?? '0'}",
+                              "₹${offerPrice ?? currentPrice ?? '0'}",
                               style: TextStyle(
                                 color: white,
                                 fontFamily: 'Poppins',
@@ -146,13 +159,13 @@ class FreshUpBookNow extends StatelessWidget {
                                 fontSize: 18.sp
                               ),
                             ),
-                            if (pricePerHead?.perHeadPrice != null && pricePerHead?.offerPrice != null)
+                            if (currentPrice != null && offerPrice != null)
                               Padding(
                                 padding: EdgeInsets.only(left: 4.w),
                                 child: Row(
                                   children: [
                                     Text(
-                                      "₹${pricePerHead?.perHeadPrice}",
+                                      "₹$currentPrice",
                                       style: TextStyle(
                                         color: const Color.fromARGB(255, 190, 190, 190),
                                         fontFamily: 'Poppins',
@@ -177,7 +190,7 @@ class FreshUpBookNow extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          "+ ₹${(double.parse((pricePerHead?.offerPrice ?? pricePerHead?.perHeadPrice ?? '0').toString()) * 0.18).round()} taxes & fees",
+                          "$priceMethodText • + ₹${(double.parse((offerPrice ?? currentPrice ?? '0').toString()) * 0.18).round()} taxes & fees",
                           style: TextStyle(
                             color: const Color.fromARGB(255, 190, 190, 190),
                             fontFamily: 'Poppins',
@@ -190,21 +203,33 @@ class FreshUpBookNow extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 8.w),
-                  Container(
-                    width: 110.w,
-                    height: 40.h,
-                    decoration: BoxDecoration(
-                      color: yellow,
-                      borderRadius: BorderRadius.circular(28.sp),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "BOOK NOW",
-                        style: TextStyle(
-                          color: black,
-                          fontSize: 14.sp,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500
+                  GestureDetector(
+                    onTap: () {
+                      // Navigate to payment screen with freshup data
+                      Get.to(() => PaymentSreen(), arguments: {
+                        'bookingType': 'freshup',
+                        'freshup': roomDetails,
+                        'price': (offerPrice ?? currentPrice ?? 0).toString(),
+                        'startDate': '', // Freshup doesn't have start/end dates
+                        'endDate': '', // Same date for freshup
+                      });
+                    },
+                    child: Container(
+                      width: 110.w,
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        color: yellow,
+                        borderRadius: BorderRadius.circular(28.sp),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "BOOK NOW",
+                          style: TextStyle(
+                            color: black,
+                            fontSize: 14.sp,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500
+                          ),
                         ),
                       ),
                     ),

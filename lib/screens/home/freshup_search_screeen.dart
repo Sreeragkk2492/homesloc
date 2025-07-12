@@ -365,6 +365,22 @@ class FreshUpSearchScreen extends StatelessWidget {
             ? accommodation.roomImages!.first
             : accommodation.coverImageUrl;
 
+    // Calculate discount percentage
+    int discountPercentage = _calculateDiscountPercentage(
+        accommodation.price ?? '0', accommodation.offerPrice ?? '0');
+
+    // Format location
+    String location = _formatLocation(accommodation);
+
+    // Format room size
+    String roomSizeText = _formatRoomSize(accommodation.roomSize);
+
+    // Get price method text
+    String priceMethodText = _getPriceMethodText(accommodation.priceMethod);
+
+    // Get availability text
+    String availabilityText = _getAvailabilityText(accommodation);
+
     return GestureDetector(
       onTap: () {
         // Only proceed if dates are selected
@@ -391,7 +407,7 @@ class FreshUpSearchScreen extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.only(top: 5.h, bottom: 5.h, left: 10.w, right: 10.w),
         width: 339.w,
-        height: 138.h,
+        height: 160.h, // Increased height to accommodate more info
         decoration: BoxDecoration(
           border: Border.all(color: border),
           borderRadius: BorderRadius.circular(15.sp),
@@ -402,7 +418,7 @@ class FreshUpSearchScreen extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(left: 5.w, top: 2.h),
               width: 144.w,
-              height: 128.h,
+              height: 150.h, // Increased height
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(13.sp),
                 image: DecorationImage(
@@ -412,141 +428,229 @@ class FreshUpSearchScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 5.w, top: 11.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    accommodation.name ?? "Fresh Up",
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.sp,
-                    ),
-                  ),
-                  SizedBox(height: 3.h),
-                  Text(
-                    accommodation.freshupName ?? "Type",
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: fontColor,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 11.sp,
-                    ),
-                  ),
-                  SizedBox(height: 3.h),
-                  Row(
-                    children: [
-                      Text(
-                        "₹${accommodation.price ?? '0'}",
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.sp,
-                        ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(left: 5.w, top: 11.h, right: 5.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Property Name
+                    Text(
+                      accommodation.name ?? "Fresh Up",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.sp,
                       ),
-                      if (accommodation.offerPrice != null &&
-                          accommodation.offerPrice!.isNotEmpty) ...[
-                        SizedBox(width: 5.w),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    SizedBox(height: 3.h),
+                    
+                    // Room Type and Location
+                    Row(
+                      children: [
                         Text(
-                          "₹${accommodation.offerPrice}",
+                          _truncateText(accommodation.freshupName ?? "Room", 20),
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: fontColor,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 11.sp,
+                          ),
+                        ),
+                        if (accommodation.freshupType != null) ...[
+                          Text(
+                            " • ${_truncateText(accommodation.freshupType!, 20)}",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 11.sp,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    SizedBox(height: 2.h),
+                    
+                    // Location
+                    // Text(
+                    //   location,
+                    //   style: TextStyle(
+                    //     fontFamily: 'Poppins',
+                    //     color: fontColor,
+                    //     fontWeight: FontWeight.w400,
+                    //     fontSize: 10.sp,
+                    //   ),
+                    //   overflow: TextOverflow.ellipsis,
+                    //   maxLines: 1,
+                    // ),
+                    SizedBox(height: 3.h),
+                    
+                    // Price Section
+                    Row(
+                      children: [
+                        Text(
+                          "₹${accommodation.price}",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                        // Text(
+                        //   _getPriceSuffix(accommodation),
+                        //   style: TextStyle(
+                        //     fontFamily: 'Poppins',
+                        //     color: fontColor,
+                        //     fontWeight: FontWeight.w400,
+                        //     fontSize: 10.sp,
+                        //   ),
+                        // ),
+                        if (accommodation.offerPrice != null &&
+                            accommodation.offerPrice!.isNotEmpty &&
+                            accommodation.offerPrice != accommodation.price) ...[
+                          SizedBox(width: 5.w),
+                          Text(
+                            "₹${_getOriginalPrice(accommodation)}",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontSize: 9.sp,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                          SizedBox(width: 5.w),
+                          Text(
+                            "$discountPercentage% OFF",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: green,
+                              fontSize: 11.sp,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    SizedBox(height: 2.h),
+                    
+                    // Price Method
+                    Text(
+                      priceMethodText,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: blue,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 3.h),
+                    
+                    // Availability and Room Info
+                    Row(
+                      children: [
+                        // Star Rating
+                        Container(
+                          width: 36.w,
+                          height: 15.h,
+                          decoration: BoxDecoration(
+                            color: blue,
+                            borderRadius: BorderRadius.circular(3.sp),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "${accommodation.starRating ?? 0}",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: white,
+                                  fontSize: 10.sp,
+                                ),
+                              ),
+                              SizedBox(width: 2.w),
+                              Icon(
+                                Icons.star,
+                                color: yellow,
+                                size: 12.sp,
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        
+                        // Availability
+                        Flexible(
+                          child: Text(
+                            availabilityText,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontSize: 10.sp,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 3.h),
+                    
+                    // Room Details
+                    Row(
+                      children: [
+                        if (roomSizeText.isNotEmpty) ...[
+                          Text(
+                            "Size: $roomSizeText",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: fontColor,
+                              fontSize: 9.sp,
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                        ],
+                        Text(
+                          "Max: ${accommodation.maxPerson ?? 'N/A'} persons",
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             color: fontColor,
                             fontSize: 9.sp,
-                            decoration: TextDecoration.lineThrough,
-                          ),
-                        ),
-                        SizedBox(width: 5.w),
-                        Text(
-                          "${_calculateDiscountPercentage(accommodation.price ?? '0', accommodation.offerPrice ?? '0')}% OFF",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: green,
-                            fontSize: 11.sp,
                           ),
                         ),
                       ],
-                    ],
-                  ),
-                  SizedBox(height: 3.h),
-                  Row(
-                    children: [
-                      Text(
-                        "Amenities : ",
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: fontColor,
-                          fontSize: 11.sp,
-                        ),
-                      ),
-                      if (accommodation.amenities != null &&
-                          accommodation.amenities!.isNotEmpty)
-                        _buildAmenities(accommodation.amenities!)
-                      else
+                    ),
+                    SizedBox(height: 3.h),
+                    
+                    // Amenities
+                    Row(
+                      children: [
                         Text(
-                          "N/A",
+                          "Amenities: ",
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             color: fontColor,
-                            fontSize: 11.sp,
+                            fontSize: 9.sp,
                           ),
                         ),
-                    ],
-                  ),
-                  SizedBox(height: 3.h),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
+                        if (accommodation.amenities != null &&
+                            accommodation.amenities!.isNotEmpty)
+                          Expanded(child: _buildAmenities(accommodation.amenities!))
+                        else
                           Text(
-                            "Capacity: ",
+                            "N/A",
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               color: fontColor,
-                              fontSize: 10.sp,
+                              fontSize: 9.sp,
                             ),
                           ),
-                          Text(
-                            "${accommodation.maxPerson ?? 'N/A'} persons",
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: black,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 2.h),
-                      Row(
-                        children: [
-                          Text(
-                            "Room Size: ",
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: fontColor,
-                              fontSize: 10.sp,
-                            ),
-                          ),
-                          Text(
-                            "${accommodation.roomSize ?? 'N/A'}",
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: black,
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -556,8 +660,77 @@ class FreshUpSearchScreen extends StatelessWidget {
   }
 
   String _formatLocation(Accommodation accommodation) {
-    // Since the model doesn't have a direct location field, we'll use a placeholder
-    return "Location";
+    List<String> locationParts = [];
+    if (accommodation.city != null && accommodation.city!.isNotEmpty) {
+      locationParts.add(accommodation.city!);
+    }
+    if (accommodation.state != null && accommodation.state!.isNotEmpty) {
+      locationParts.add(accommodation.state!);
+    }
+    return locationParts.isEmpty ? "Location" : locationParts.join(", ");
+  }
+
+  String _formatRoomSize(String? roomSize) {
+    if (roomSize == null || roomSize.isEmpty) return "";
+    
+    // Check if it's already a number (likely square feet)
+    if (double.tryParse(roomSize) != null) {
+      return "${roomSize} sq ft";
+    }
+    
+    // If it's not a number, return as is (might be descriptive text)
+    return roomSize;
+  }
+
+  String _getPriceMethodText(String? priceMethod) {
+    switch (priceMethod?.toUpperCase()) {
+      case 'PER_HEAD':
+        return "Per Person";
+      case 'PER_ROOM':
+        return "Per Room";
+      default:
+        return "Per Room";
+    }
+  }
+
+  String _getAvailabilityText(Accommodation accommodation) {
+    if (accommodation.allSlotsBooked == true) {
+      return "Fully Booked";
+    }
+    
+    if (accommodation.priceMethod?.toUpperCase() == 'PER_ROOM') {
+      return "${accommodation.availableRooms ?? 0} rooms available";
+    } else {
+      return "${accommodation.totalNumber ?? 0} total capacity";
+    }
+  }
+
+  String _getDisplayPrice(Accommodation accommodation) {
+    // For PER_HEAD pricing, show the price per person
+    if (accommodation.priceMethod?.toUpperCase() == 'PER_HEAD') {
+      return accommodation.offerPrice ?? accommodation.price ?? '0';
+    }
+    // For PER_ROOM pricing, show the price per room
+    else if (accommodation.priceMethod?.toUpperCase() == 'PER_ROOM') {
+      return accommodation.offerPrice ?? accommodation.price ?? '0';
+    }
+    // Default fallback
+    return accommodation.offerPrice ?? accommodation.price ?? '0';
+  }
+
+  String _getOriginalPrice(Accommodation accommodation) {
+    // Always return the original price (not offer price) for comparison
+    return accommodation.price ?? '0';
+  }
+
+  String _getPriceSuffix(Accommodation accommodation) {
+    // Add suffix based on price method
+    if (accommodation.priceMethod?.toUpperCase() == 'PER_HEAD') {
+      return " per person";
+    } else if (accommodation.priceMethod?.toUpperCase() == 'PER_ROOM') {
+      return " per room";
+    }
+    return "";
   }
 
   int _calculateDiscountPercentage(String price, String offerPrice) {
@@ -663,5 +836,12 @@ class FreshUpSearchScreen extends StatelessWidget {
       return name.substring(0, 8) + "...";
     }
     return name;
+  }
+
+  String _truncateText(String text, int maxLength) {
+    if (text.length <= maxLength) {
+      return text;
+    }
+    return text.substring(0, maxLength) + "...";
   }
 }

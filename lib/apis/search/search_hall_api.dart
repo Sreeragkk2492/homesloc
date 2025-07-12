@@ -11,7 +11,7 @@ class SearchHallApi {
     String? checkOutDate,
     int? guests,
     int page = 1,
-    int limit = 10,
+    int limit = 100,
     String? sortBy,
     String? sortOrder,
   }) async {

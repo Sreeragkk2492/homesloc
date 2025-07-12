@@ -690,6 +690,14 @@ class TourismDetailViewScreen extends StatelessWidget {
                 ),
 
                 SizedBox(height: 30.h),
+                // if (tourismDetails!.agencyDetails.latitude != null &&
+                //     tourismDetails!.agencyDetails.longitude != null) ...[
+                //   PropertyMapSection(
+                //     latitude: double.tryParse(tourismDetails!.agencyDetails.latitude ?? '') ?? 0.0,
+                //     longitude: double.tryParse(tourismDetails!.agencyDetails.longitude ?? '') ?? 0.0,
+                //     propertyName: tourismDetails!.agencyDetails.name ?? '',
+                //   ),
+               // ],
               ],
             ),
           );
