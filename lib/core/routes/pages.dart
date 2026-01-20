@@ -34,7 +34,7 @@ class GetPages {
     ),
     GetPage(
       name: Routes.Payment,
-      page: () => const PaymentSreen(),
+      page: () =>  PaymentSreen(),
       transition: Transition.zoom,
     ),
     GetPage(

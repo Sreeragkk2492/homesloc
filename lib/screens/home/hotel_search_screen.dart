@@ -13,6 +13,7 @@ import 'package:homesloc/screens/home/widget/guest_dialog.dart';
 import 'package:homesloc/screens/home/widget/search_button.dart';
 import 'package:scrollable_clean_calendar/scrollable_clean_calendar.dart';
 import 'package:scrollable_clean_calendar/utils/enums.dart';
+import 'package:homesloc/screens/detailed_view_screen/detailed_view_screen.dart';
 
 class HotelSearchScreen extends StatelessWidget {
   HotelSearchScreen({super.key});
@@ -235,6 +236,7 @@ class HotelSearchScreen extends StatelessWidget {
                                           null) {
                                     // Call the search method
                                     searchHotelController.searchHotels();
+                                    calendarController.clearDates();
                                   } else {
                                     // Show a snackbar if dates are not selected
                                     Get.snackbar(
@@ -287,21 +289,24 @@ class HotelSearchScreen extends StatelessWidget {
                             ((maxPrice - minPrice) / maxPrice * 100).round();
                       }
                     }
-                     
 
-                    return Container(
-                      margin: EdgeInsets.only(
-                          top: 5.h, bottom: 5.h, left: 10.w, right: 10.w),
-                      width: 339.w,
-                      height: 138.h,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: border),
-                        borderRadius: BorderRadius.circular(15.sp),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
+                    return GestureDetector(
+                      onTap: () {
+                        Get.to(() => DetailedViewScreen(hotel: hotel));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(
+                            top: 5.h, bottom: 5.h, left: 10.w, right: 10.w),
+                        width: 339.w,
+                        height: 138.h,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: border),
+                          borderRadius: BorderRadius.circular(15.sp),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
                             margin: EdgeInsets.only(left: 5.w, top: 2.h),
                             width: 144.w,
                             height: 128.h,
@@ -356,7 +361,7 @@ class HotelSearchScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontFamily: 'Poppins',
                                         color: fontColor,
-                                        fontSize: 9.sp, 
+                                        fontSize: 9.sp,
                                         decoration: TextDecoration.lineThrough,
                                       ),
                                     ),
@@ -374,7 +379,7 @@ class HotelSearchScreen extends StatelessWidget {
                                 SizedBox(height: 3.h),
                                 Padding(
                                   padding: EdgeInsets.only(left: 7.w),
-                                  child: Text( 
+                                  child: Text(
                                     "+ ₹${(double.parse(hotel.priceRange?.min ?? '0') * 0.18).round()} Taxes & Fees",
                                     style: TextStyle(
                                       fontFamily: 'Poppins',
@@ -412,7 +417,7 @@ class HotelSearchScreen extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Text( 
+                                          Text(
                                             "${hotel.starRating}",
                                             style: TextStyle(
                                               fontFamily: 'Poppins',
@@ -431,7 +436,7 @@ class HotelSearchScreen extends StatelessWidget {
                                     ),
                                     SizedBox(width: 5.w),
                                     Text(
-                                      "${hotel.quickInfo?.totalRooms ?? 0.toInt() } Rooms Available",
+                                      "${hotel.quickInfo?.totalRooms ?? 0.toInt()} Rooms Available",
                                       style: TextStyle(
                                         fontFamily: 'Poppins',
                                         color: fontColor,
@@ -441,11 +446,13 @@ class HotelSearchScreen extends StatelessWidget {
                                   ],
                                 ),
                               ],
-                            ),
                           ),
+                          )
                         ],
+                        
                       ),
-                    );
+                    ),
+                  );
                   },
                   childCount: searchHotelController
                           .searchResult.value?.hotels?.length ??
@@ -463,7 +470,7 @@ class HotelSearchScreen extends StatelessWidget {
                       fontSize: 14.sp,
                       color: fontColor,
                     ),
-                  ), 
+                  ),
                 ),
               );
             }
@@ -473,88 +480,86 @@ class HotelSearchScreen extends StatelessWidget {
     );
   }
 
- Widget _buildAmenities(dynamic hotel) { 
-  if (hotel.quickInfo?.amenities != null &&
-      hotel.quickInfo!.amenities!.isNotEmpty) {
-    // Character limit for displaying amenities
-    final int characterLimit = 16;
-    final amenities = hotel.quickInfo!.amenities!;
-    
-    // Initialize variables to track displayed text and count
-    String displayText = "";
-    int displayedCount = 0;
-    List<Widget> amenityWidgets = [];
-    
-    // Build amenity widgets while respecting character limit
-    for (int i = 0; i < amenities.length; i++) {
-      final amenityName = amenities[i].name ?? "Amenity";
-      
-      // Check if adding this amenity would exceed the character limit
-      if (displayText.length + amenityName.length <= characterLimit) {
-        // Add separator if not the first item
-        if (displayedCount > 0) {
-          displayText += ", ";
-          amenityWidgets.add(SizedBox(width: 5.w));
-        }
-        
-        // Add icon and text
-        amenityWidgets.add(Icon(
-          Icons.local_activity, 
-          size: 11.sp,
-          color: fontColor,
-        ));
-        
-        amenityWidgets.add(SizedBox(width: 2.w));
-        
-        amenityWidgets.add(Text(
-          amenityName,
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            color: fontColor,
-            fontSize: 11.sp,
-          ),
-        ));
-        
-        // Update tracking variables
-        displayText += amenityName;
-        displayedCount++;
-      } else {
-        // We've hit the character limit, add "more..." and break
-        amenityWidgets.add(SizedBox(width: 5.w));
-        amenityWidgets.add(Text(
-          "more...",
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            color: ogBlue,
-            fontSize: 11.sp,
-          ),
-        ));
-        break;
-      }
-    }
-    
-    // Return row with the amenity widgets
-    return Row(children: amenityWidgets);
-  } else {
-    // Default amenities if none are provided
-    return Row(
-      children: [
-        Icon(Icons.hotel, size: 11.sp, color: fontColor),
-        SizedBox(width: 2.w),
-        Text(
-          "Basic",
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            color: fontColor,
-            fontSize: 11.sp,
-          ),
-        ),
-      ],
-    );
-  }
-}
+  Widget _buildAmenities(dynamic hotel) {
+    if (hotel.quickInfo?.amenities != null &&
+        hotel.quickInfo!.amenities!.isNotEmpty) {
+      // Character limit for displaying amenities
+      final int characterLimit = 16;
+      final amenities = hotel.quickInfo!.amenities!;
 
-  
+      // Initialize variables to track displayed text and count
+      String displayText = "";
+      int displayedCount = 0;
+      List<Widget> amenityWidgets = [];
+
+      // Build amenity widgets while respecting character limit
+      for (int i = 0; i < amenities.length; i++) {
+        final amenityName = amenities[i].name ?? "Amenity";
+
+        // Check if adding this amenity would exceed the character limit
+        if (displayText.length + amenityName.length <= characterLimit) {
+          // Add separator if not the first item
+          if (displayedCount > 0) {
+            displayText += ", ";
+            amenityWidgets.add(SizedBox(width: 5.w));
+          }
+
+          // Add icon and text
+          amenityWidgets.add(Icon(
+            Icons.local_activity,
+            size: 11.sp,
+            color: fontColor,
+          ));
+
+          amenityWidgets.add(SizedBox(width: 2.w));
+
+          amenityWidgets.add(Text(
+            amenityName,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              color: fontColor,
+              fontSize: 11.sp,
+            ),
+          ));
+
+          // Update tracking variables
+          displayText += amenityName;
+          displayedCount++;
+        } else {
+          // We've hit the character limit, add "more..." and break
+          amenityWidgets.add(SizedBox(width: 5.w));
+          amenityWidgets.add(Text(
+            "more...",
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              color: ogBlue,
+              fontSize: 11.sp,
+            ),
+          ));
+          break;
+        }
+      }
+
+      // Return row with the amenity widgets
+      return Row(children: amenityWidgets);
+    } else {
+      // Default amenities if none are provided
+      return Row(
+        children: [
+          Icon(Icons.hotel, size: 11.sp, color: fontColor),
+          SizedBox(width: 2.w),
+          Text(
+            "Basic",
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              color: fontColor,
+              fontSize: 11.sp,
+            ),
+          ),
+        ],
+      );
+    }
+  }
 
   void _showCalendarBottomSheet(BuildContext context) {
     // final calendarController = Get.put(CalendarController());

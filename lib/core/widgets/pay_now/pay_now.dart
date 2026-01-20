@@ -7,15 +7,31 @@ import 'package:homesloc/models/booking/booking_model.dart';
 import 'package:homesloc/screens/payment_screen/booking_successful/booking_successful.dart';
 
 class PayNow extends StatelessWidget {
-  PayNow({super.key});
+  final double price;
+  final String hotelName;
+  final String location;
+  final String coverImage;
+  final String checkInDate;
+  final String checkOutDate;
+
+  PayNow({
+    super.key,
+    required this.price,
+    required this.hotelName,
+    required this.location,
+    required this.coverImage,
+    required this.checkInDate,
+    required this.checkOutDate,
+  });
 
   final screenController = Get.put(TripController());
 
   @override
   Widget build(BuildContext context) {
     // Logical data
-    final double nightlyRate = 120.0;
-    final int numberOfNights = 30;
+    final double nightlyRate = price;
+    final int numberOfNights =
+        30; // This should ideally come from CalendarController too
     final double discount = 50.0;
     final double taxesAndFees = 15.0;
 
@@ -156,8 +172,7 @@ class PayNow extends StatelessWidget {
                   child: InkWell(
                     onTap: () {
                       final booking = BookingModel(
-                        hotelName:
-                            'Issacs Residency', // Replace with actual hotel name
+                        hotelName: hotelName,
                         totalAmount: grandTotal,
                         numberOfNights: numberOfNights,
                         checkInDate:
@@ -169,7 +184,14 @@ class PayNow extends StatelessWidget {
 
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                        return BookingSuccessful();
+                        return BookingSuccessful(
+                          hotelName: hotelName,
+                          location: location,
+                          price: grandTotal.toStringAsFixed(0),
+                          checkInDate: checkInDate,
+                          checkOutDate: checkOutDate,
+                          coverImage: coverImage,
+                        );
                       }));
                     },
                     child: Container(

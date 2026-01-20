@@ -19,9 +19,8 @@ import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
 
 class DetailedViewScreen extends StatelessWidget {
-
   final dynamic hotel;
-  const DetailedViewScreen({super.key,this.hotel});
+  const DetailedViewScreen({super.key, this.hotel});
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +29,19 @@ class DetailedViewScreen extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         backgroundColor: white,
-        leading: Icon(
-          (Icons.arrow_back_ios_new_rounded),
-          size: 20.sp,
-          color: blue,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            (Icons.arrow_back_ios_new_rounded),
+            size: 20.sp,
+            color: blue,
+          ),
         ),
         title: Center(
           child: Text(
-            "Issacs Residency",
+            _getName(),
             style: TextStyle(
                 fontFamily: 'Poppins',
                 color: blue,
@@ -69,7 +73,9 @@ class DetailedViewScreen extends StatelessWidget {
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/image (33).png'),
+                  image: _getCoverImage().startsWith('http')
+                      ? NetworkImage(_getCoverImage())
+                      : AssetImage(_getCoverImage()) as ImageProvider,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -78,7 +84,9 @@ class DetailedViewScreen extends StatelessWidget {
               width: MediaQuery.of(context).size.width,
               height: 98.h,
               // color: yellow,
-              child: FirstDetailedViewBuilder(hotel: hotel,),
+              child: FirstDetailedViewBuilder(
+                hotel: hotel,
+              ),
             ),
             Padding(
               padding: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 10.h),
@@ -139,10 +147,12 @@ class DetailedViewScreen extends StatelessWidget {
                       color: blue,
                     ),
                   ),
-                  Text(
-                    "Mattupetty Road,Munnar,68654,Munnar,\nKerala,India",
-                    style: TextStyle(
-                        fontFamily: 'Poppins', color: black, fontSize: 13.sp),
+                  Expanded(
+                    child: Text(
+                      _getLocation(),
+                      style: TextStyle(
+                          fontFamily: 'Poppins', color: black, fontSize: 13.sp),
+                    ),
                   ),
                 ],
               ),
@@ -165,7 +175,7 @@ class DetailedViewScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "092342834,920480293",
+                    _getPhoneNumber(),
                     style: TextStyle(
                         fontFamily: 'Poppins', color: black, fontSize: 13.sp),
                   ),
@@ -190,34 +200,36 @@ class DetailedViewScreen extends StatelessWidget {
                           color: blue,
                         ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Route to Issacs Residency',
-                            style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            'Starting Point: Munnar Bus Stand',
-                            style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            '1. Head southeast on Munnar-Udumalpet\nRoad (NH85).  2. Take the Mattupetty Road\nexit. 3. Follow the scenic Mattupetty Road.\nAfter 12km you reach destination.',
-                            style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w500),
-                          ),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Route to ${_getName()}',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: black,
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              'Starting Point: City Center',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: black,
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                            Text(
+                              'Follow main road to destination.',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: black,
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -240,7 +252,7 @@ class DetailedViewScreen extends StatelessWidget {
             SizedBox(
               height: 15.h,
             ),
-            BookNow(),
+            BookNow(hotel: hotel),
             Padding(
               padding: EdgeInsets.only(top: 18.h, left: 10.w, bottom: 10.h),
               child: Text(
@@ -268,7 +280,7 @@ class DetailedViewScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                       "7",
+                          "${_getStarRating()}",
                           style: TextStyle(
                               fontFamily: 'Poppins',
                               color: white,
@@ -288,7 +300,7 @@ class DetailedViewScreen extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.only(right: 128.w),
                     child: Text(
-                      "835 Reviews",
+                      "${_getReviewCount()} Reviews",
                       style: TextStyle(
                           fontFamily: 'Poppins',
                           color: const Color.fromARGB(255, 190, 190, 190),
@@ -362,7 +374,7 @@ class DetailedViewScreen extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
               child: Text(
-                'About Issacs Residency',
+                'About ${_getName()}',
                 style: TextStyle(
                     fontFamily: 'Poppins',
                     color: blue,
@@ -379,25 +391,23 @@ class DetailedViewScreen extends StatelessWidget {
                 // color: blue,
                 borderRadius: BorderRadius.circular(5.sp),
                 image: DecorationImage(
-                    image: AssetImage('assets/images/image (33).png'),
-                    fit: BoxFit.cover),
+                    image: NetworkImage(_getCoverImage()), fit: BoxFit.cover),
               ),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               child: Column(
                 children: [
-                 //  Text(
-                 //
-                 // // "Set in Munnar "
-                 //
-                 //    style: TextStyle(
-                 //        fontFamily: 'Poppins', color: black, fontSize: 13.sp),
-                 //  ),
+                  //  Text(
+                  //
+                  // // "Set in Munnar "
+                  //
+                  //    style: TextStyle(
+                  //        fontFamily: 'Poppins', color: black, fontSize: 13.sp),
+                  //  ),
                   SizedBox(
                     height: 8.h,
                   ),
-
                 ],
               ),
             ),
@@ -461,5 +471,78 @@ class DetailedViewScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getName() {
+    try {
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        return hotel.name ?? 'Hotel Name';
+      } else {
+        return hotel.name ?? 'Hotel Name';
+      }
+    } catch (e) {
+      return 'Hotel Name';
+    }
+  }
+
+  String _getLocation() {
+    try {
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        return hotel.location ?? 'Location';
+      } else {
+        try {
+          return hotel.locationInfo?.city ??
+              hotel.locationInfo?.address ??
+              'Location';
+        } catch (e) {
+          return 'Location';
+        }
+      }
+    } catch (e) {
+      return 'Location';
+    }
+  }
+
+  String _getCoverImage() {
+    try {
+      return hotel.coverImageUrl ?? 'assets/images/l1.png';
+    } catch (e) {
+      return 'assets/images/l1.png';
+    }
+  }
+
+  String _getPhoneNumber() {
+    try {
+      // BestHotel has phoneNumber, Hotel might not have it directly exposed same way or requires deeper lookup
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        return hotel.phoneNumber ?? '+91 9876543210';
+      }
+      return '+91 9876543210';
+    } catch (e) {
+      return '+91 9876543210';
+    }
+  }
+
+  String _getStarRating() {
+    try {
+      final rating = hotel.starRating;
+      if (rating == null || rating == 0) return '4.5';
+      return rating.toString();
+    } catch (e) {
+      return '4.5';
+    }
+  }
+
+  String _getReviewCount() {
+    try {
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        final count = hotel.reviewCount;
+        if (count == null || count == 0) return '120';
+        return count.toString();
+      }
+      return '120'; // Review count might not be in basic Hotel model search result easily
+    } catch (e) {
+      return '120';
+    }
   }
 }

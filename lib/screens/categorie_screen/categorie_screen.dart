@@ -1,5 +1,7 @@
 // ignore_for_file: file_names, unused_import
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:homesloc/screens/home/hotel_search_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/categorie_screen/categorie_view/categorie_view.dart';
@@ -110,21 +112,41 @@ class CategorieSreen extends StatelessWidget {
                         //   width: 500.w,
                         //   height: 200.h,
                         //   child: CategoriesGridPage()),
-                        CategoriesView(
-                          image: 'assets/images/hotsls.jpg',
-                          categories: 'Hotels',
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/hotsls.jpg',
+                            categories: 'Hotels',
+                          ),
                         ),
-                        CategoriesView(
-                          image: 'assets/images/Banquet-Hall.jpg',
-                          categories: 'Banquet Hall',
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/Banquet-Hall.jpg',
+                            categories: 'Banquet Hall',
+                          ),
                         ),
-                        CategoriesView(
-                          image: 'assets/images/sunrise.jpg',
-                          categories: 'Tour',
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/sunrise.jpg',
+                            categories: 'Tour',
+                          ),
                         ),
-                        CategoriesView(
-                          image: 'assets/images/freshupss.jpg',
-                          categories: 'Fresh Up',
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/freshupss.jpg',
+                            categories: 'Fresh Up',
+                          ),
                         ),
 
                         // CategoriesView(
@@ -443,21 +465,37 @@ class CategorieSreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          FifthCategorieBuilder(
-                            image: 'assets/images/image (21).png',
-                            text: 'Destination\nWeddings',
-                            subname:
-                                'Perfect for dream weddings\nin exotic locations.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: FifthCategorieBuilder(
+                              image: 'assets/images/image (21).png',
+                              text: 'Destination\nWeddings',
+                              subname:
+                                  'Perfect for dream weddings\nin exotic locations.',
+                            ),
                           ),
-                          FifthCategorieBuilder(
-                            image: 'assets/images/image (22).png',
-                            text: 'Honeymoon\nPackages',
-                            subname: 'Romantic getaways\nfor newlyweds.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: FifthCategorieBuilder(
+                              image: 'assets/images/image (22).png',
+                              text: 'Honeymoon\nPackages',
+                              subname: 'Romantic getaways\nfor newlyweds.',
+                            ),
                           ),
-                          FifthCategorieBuilder(
-                            image: 'assets/images/image (21).png',
-                            text: 'Wedding\nVenues',
-                            subname: 'Beautiful venues for\nyour special day.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: FifthCategorieBuilder(
+                              image: 'assets/images/image (21).png',
+                              text: 'Wedding\nVenues',
+                              subname:
+                                  'Beautiful venues for\nyour special day.',
+                            ),
                           ),
                         ],
                       ),
@@ -473,21 +511,36 @@ class CategorieSreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          SixthCategorieBuilder(
-                            image: 'assets/images/image (23).png',
-                            text: 'Luxury Banquet\nHalls',
-                            subName: 'Elegant venues\nfor grand events.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: SixthCategorieBuilder(
+                              image: 'assets/images/image (23).png',
+                              text: 'Luxury Banquet\nHalls',
+                              subName: 'Elegant venues\nfor grand events.',
+                            ),
                           ),
-                          SixthCategorieBuilder(
-                            image: 'assets/images/image (24).png',
-                            text: 'Affordable Banquet\nHalls',
-                            subName:
-                                'Budget-friendly venues\nfor all occasions.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: SixthCategorieBuilder(
+                              image: 'assets/images/image (24).png',
+                              text: 'Affordable Banquet\nHalls',
+                              subName:
+                                  'Budget-friendly venues\nfor all occasions.',
+                            ),
                           ),
-                          SixthCategorieBuilder(
-                            image: 'assets/images/outoor.jpg',
-                            text: 'Outdoor Banquet\nHalls',
-                            subName: 'Beautiful outdoor\nspaces for events.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: SixthCategorieBuilder(
+                              image: 'assets/images/outoor.jpg',
+                              text: 'Outdoor Banquet\nHalls',
+                              subName: 'Beautiful outdoor\nspaces for events.',
+                            ),
                           ),
                         ],
                       ),
@@ -503,20 +556,35 @@ class CategorieSreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          EighthCategorieBuilder(
-                            image: 'assets/images/image (25).png',
-                            text: 'Adventure\nPackages',
-                           // subName: 'Thrilling adventures for the daring.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: EighthCategorieBuilder(
+                              image: 'assets/images/image (25).png',
+                              text: 'Adventure\nPackages',
+                              // subName: 'Thrilling adventures for the daring.',
+                            ),
                           ),
-                          EighthCategorieBuilder(
-                            image: 'assets/images/image (26).png',
-                            text: 'Cultural\nTours',
-                           // subName: 'Immerse yourself in local culture.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: EighthCategorieBuilder(
+                              image: 'assets/images/image (26).png',
+                              text: 'Cultural\nTours',
+                              // subName: 'Immerse yourself in local culture.',
+                            ),
                           ),
-                          EighthCategorieBuilder(
-                            image: 'assets/images/image (25).png',
-                            text: 'Wellness\nRetreats',
-                          //  subName: 'Relax and rejuvenate in serene settings.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: EighthCategorieBuilder(
+                              image: 'assets/images/image (25).png',
+                              text: 'Wellness\nRetreats',
+                              //  subName: 'Relax and rejuvenate in serene settings.',
+                            ),
                           ),
                         ],
                       ),
@@ -532,17 +600,32 @@ class CategorieSreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          NinthCategorieBuilder(
-                            image: 'assets/images/wayanad.png',
-                            location: 'Wayanad',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: NinthCategorieBuilder(
+                              image: 'assets/images/wayanad.png',
+                              location: 'Wayanad',
+                            ),
                           ),
-                          NinthCategorieBuilder(
-                            image: 'assets/images/cameltrip.png',
-                            location: 'Camel Trip',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: NinthCategorieBuilder(
+                              image: 'assets/images/cameltrip.png',
+                              location: 'Camel Trip',
+                            ),
                           ),
-                          NinthCategorieBuilder(
-                            image: 'assets/images/Rajasthyan.png',
-                            location: 'Rajastan',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: NinthCategorieBuilder(
+                              image: 'assets/images/Rajasthyan.png',
+                              location: 'Rajastan',
+                            ),
                           ),
                         ],
                       ),

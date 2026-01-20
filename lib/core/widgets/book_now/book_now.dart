@@ -5,9 +5,8 @@ import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/payment_screen/payment_screen.dart';
 
 class BookNow extends StatelessWidget {
-
   final dynamic hotel;
-  const BookNow({super.key,this.hotel});
+  const BookNow({super.key, this.hotel});
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +56,7 @@ class BookNow extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        "3565",
+                        "₹${_getPrice()}",
                         style: TextStyle(
                             color: white,
                             fontFamily: 'Poppins',
@@ -68,7 +67,7 @@ class BookNow extends StatelessWidget {
                         width: 5.w,
                       ),
                       Text(
-                       "3600",
+                        "₹${_getOriginalPrice()}",
                         style: TextStyle(
                             color: const Color.fromARGB(255, 190, 190, 190),
                             fontFamily: 'Poppins',
@@ -94,7 +93,12 @@ class BookNow extends StatelessWidget {
               InkWell(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return PaymentSreen();
+                    return PaymentSreen(
+                      hotelName: _getName(),
+                      location: _getLocation(),
+                      price: double.tryParse(_getPrice()) ?? 0.0,
+                      coverImage: _getCoverImage(),
+                    );
                   }));
                 },
                 child: Container(
@@ -122,6 +126,63 @@ class BookNow extends StatelessWidget {
       ),
     );
   }
+
+  String _getPrice() {
+    try {
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        return (hotel.pricing?.offerPrice ?? hotel.pricing?.bestPrice ?? '0')
+            .toString();
+      } else {
+        return (hotel.priceRange?.min ?? '0').toString();
+      }
+    } catch (e) {
+      return '0';
+    }
+  }
+
+  String _getOriginalPrice() {
+    try {
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        return (hotel.pricing?.bestPrice ?? '0').toString();
+      } else {
+        return (hotel.priceRange?.max ?? '0').toString();
+      }
+    } catch (e) {
+      return '0';
+    }
+  }
+
+  String _getName() {
+    try {
+      return hotel.name ?? 'Hotel Name';
+    } catch (e) {
+      return 'Hotel Name';
+    }
+  }
+
+  String _getLocation() {
+    try {
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        return hotel.location ?? 'Location';
+      } else {
+        try {
+          return hotel.locationInfo?.city ??
+              hotel.locationInfo?.address ??
+              'Location';
+        } catch (e) {
+          return 'Location';
+        }
+      }
+    } catch (e) {
+      return 'Location';
+    }
+  }
+
+  String _getCoverImage() {
+    try {
+      return hotel.coverImageUrl ?? 'https://via.placeholder.com/150';
+    } catch (e) {
+      return 'https://via.placeholder.com/150';
+    }
+  }
 }
-
-

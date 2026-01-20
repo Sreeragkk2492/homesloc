@@ -69,7 +69,8 @@ class CalendarController extends GetxController {
   // Calculate number of days between dates
   void calculateTotalDays() {
     if (checkInDate.value != null && checkOutDate.value != null) {
-      totalDays.value = checkOutDate.value!.difference(checkInDate.value!).inDays + 1;
+      totalDays.value =
+          checkOutDate.value!.difference(checkInDate.value!).inDays + 1;
     } else {
       totalDays.value = 0;
     }
@@ -79,7 +80,20 @@ class CalendarController extends GetxController {
   String formatDate(DateTime? date) {
     if (date == null) return "Select Date";
 
-    final months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    final months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
     final days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     final day = date.day;
@@ -99,5 +113,14 @@ class CalendarController extends GetxController {
   // If you want to access the guest info easily
   String getGuestRoomInfo() {
     return "${guestCount.value} guest${guestCount.value > 1 ? 's' : ''}, ${roomCount.value} room${roomCount.value > 1 ? 's' : ''}";
+  }
+
+  void clearDates() {
+    checkInDate.value = null;
+    checkOutDate.value = null;
+    totalDays.value = 0;
+    guestCount.value = 2;
+    roomCount.value = 1;
+    initCalendarController(); // Re-initialize to clear visual selection
   }
 }

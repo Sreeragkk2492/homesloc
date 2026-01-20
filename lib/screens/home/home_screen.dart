@@ -570,10 +570,10 @@ class HomeScreen extends StatelessWidget {
                             GestureDetector(
                               onTap: () {
                                 // Get.toNamed('/categorie');
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                      return CategorieView();
-                                    }));
+                                // Navigator.push(context,
+                                //     MaterialPageRoute(builder: (context) {
+                                //       return CategorieView();
+                                //     }));
                               },
                               child: Container(
                                 width: 38.w,

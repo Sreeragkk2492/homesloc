@@ -5,9 +5,24 @@ import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/book_now/book_now.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/pay_now/pay_now.dart';
+import 'package:get/get.dart';
+import 'package:homesloc/controller/calender_controller.dart';
 
 class PaymentSreen extends StatelessWidget {
-  const PaymentSreen({super.key});
+  final String hotelName;
+  final String location;
+  final double price;
+  final String coverImage;
+
+  PaymentSreen({
+    super.key,
+    this.hotelName = "Hotel Name",
+    this.location = "Location",
+    this.price = 0.0,
+    this.coverImage = "https://via.placeholder.com/150",
+  });
+
+  final calendarController = Get.find<CalendarController>();
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +31,13 @@ class PaymentSreen extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         backgroundColor: white,
-        leading: Icon(
-          (Icons.arrow_back_ios_new_rounded),
-          size: 20.sp,
-          color: blue,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(
+            (Icons.arrow_back_ios_new_rounded),
+            size: 20.sp,
+            color: blue,
+          ),
         ),
         title: Padding(
           padding: EdgeInsets.only(left: 40.w),
@@ -66,109 +84,117 @@ class PaymentSreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(13.sp),
                       image: DecorationImage(
-                          image: AssetImage('assets/images/image (33).png'),
+                          image: coverImage.startsWith('http')
+                              ? NetworkImage(coverImage)
+                              : AssetImage(coverImage) as ImageProvider,
                           fit: BoxFit.cover),
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 10.w, top: 11.h),
-                    child: Column(
-                      // mainAxisAlignment: MainAxisAlignment.s,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                        Text(
-                          "Issacs Residency",
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.sp),
-                        ),
-                        SizedBox(
-                          height: 8.h,
-                        ),
-                        Row(
-                          children: [
-                            Image(
-                              image: AssetImage('assets/images/Frame (8).png'),
-                              width: 15.w,
-                              height: 15.h,
-                              color: blue,
-                            ),
-                            SizedBox(
-                              width: 4.w,
-                            ),
-                            Text(
-                              "Munnar, Kerala",
-                              style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  color: black,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 12.sp),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 8.h,
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              width: 36.w,
-                              height: 15.h,
-                              decoration: BoxDecoration(
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 10.w, top: 11.h),
+                      child: Column(
+                        // mainAxisAlignment: MainAxisAlignment.s,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 10.h,
+                          ),
+                          Text(
+                            hotelName,
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp),
+                          ),
+                          SizedBox(
+                            height: 8.h,
+                          ),
+                          Row(
+                            children: [
+                              Image(
+                                image:
+                                    AssetImage('assets/images/Frame (8).png'),
+                                width: 15.w,
+                                height: 15.h,
                                 color: blue,
-                                borderRadius: BorderRadius.circular(3.sp),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "4.2",
-                                    style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        color: white,
-                                        fontSize: 10.sp),
-                                  ),
-                                  SizedBox(
-                                    width: 2.w,
-                                  ),
-                                  Icon(
-                                    Icons.star,
-                                    color: yellow,
-                                    size: 12.sp,
-                                  ),
-                                ],
+                              SizedBox(
+                                width: 4.w,
                               ),
-                            ),
-                            SizedBox(
-                              width: 5.w,
-                            ),
-                            Text(
-                              "835 Reviews",
-                              style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  color: fontColor,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 10.sp),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 8.h,
-                        ),
-                        Text(
-                          "2 Adult  |   1 Children",
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: black,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12.sp),
-                        ),
-                      ],
+                              Expanded(
+                                child: Text(
+                                  location,
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      color: black,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 12.sp),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 8.h,
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                width: 36.w,
+                                height: 15.h,
+                                decoration: BoxDecoration(
+                                  color: blue,
+                                  borderRadius: BorderRadius.circular(3.sp),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "4.2",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          color: white,
+                                          fontSize: 10.sp),
+                                    ),
+                                    SizedBox(
+                                      width: 2.w,
+                                    ),
+                                    Icon(
+                                      Icons.star,
+                                      color: yellow,
+                                      size: 12.sp,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: 5.w,
+                              ),
+                              Text(
+                                "835 Reviews",
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: fontColor,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 10.sp),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 8.h,
+                          ),
+                          Obx(() => Text(
+                                "${calendarController.guestCount.value} Guests | ${calendarController.roomCount.value} Room",
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: black,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 12.sp),
+                              )),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -199,14 +225,17 @@ class PaymentSreen extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         fontSize: 16.sp),
                   ),
-                  Text(
-                    "November 06, 2024 - December 08 2024",
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: fontColor,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12.sp),
-                  ),
+                  Obx(() => Text(
+                        calendarController.checkInDate.value != null &&
+                                calendarController.checkOutDate.value != null
+                            ? "${calendarController.formatDate(calendarController.checkInDate.value)} - ${calendarController.formatDate(calendarController.checkOutDate.value)}"
+                            : "Select Dates",
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: fontColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12.sp),
+                      )),
                   SizedBox(
                     height: 7.h,
                   ),
@@ -218,14 +247,14 @@ class PaymentSreen extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         fontSize: 16.sp),
                   ),
-                  Text(
-                    "2 Adult   |  1 Child",
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: fontColor,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12.sp),
-                  ),
+                  Obx(() => Text(
+                        "${calendarController.guestCount.value} Guests | ${calendarController.roomCount.value} Rooms",
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: fontColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12.sp),
+                      )),
                 ],
               ),
             ),
@@ -386,7 +415,20 @@ class PaymentSreen extends StatelessWidget {
                 ],
               ),
             ),
-            PayNow(),
+            Obx(() => PayNow(
+                  price: price,
+                  hotelName: hotelName,
+                  location: location,
+                  coverImage: coverImage,
+                  checkInDate: calendarController.checkInDate.value != null
+                      ? calendarController
+                          .formatDate(calendarController.checkInDate.value)
+                      : "N/A",
+                  checkOutDate: calendarController.checkOutDate.value != null
+                      ? calendarController
+                          .formatDate(calendarController.checkOutDate.value)
+                      : "N/A",
+                )),
           ],
         ),
       ),

@@ -16,11 +16,11 @@ class BottomBarScreen extends StatelessWidget {
   final BottomBarController controller = Get.put(BottomBarController());
 
   final List<Widget> _pages = [
-    
+     HomeScreen(),
     SearchScreen(),
-    CategorieSreen(),
-    HomeScreen(),
-    SearchScreen(),
+    // CategorieSreen(),
+   
+    // SearchScreen(),
     ProfileScreen()
   ];
 
@@ -38,14 +38,14 @@ class BottomBarScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              InkWell(
+               InkWell(
                 onTap: () {
                   controller.updateSelectedPageIndex(0);
                 },
                 child: Obx(() {
                   return NewNavigation(
-                    name: 'Search',
-                    icon: 'assets/images/Frame (3).png',
+                    name: 'Home',
+                    icon: 'assets/images/Frame (5).png',
                     iconColor: controller.selectedPageIndex.value == 0
                         ? blue
                         : Color(0xff999999),
@@ -61,8 +61,8 @@ class BottomBarScreen extends StatelessWidget {
                 },
                 child: Obx(() {
                   return NewNavigation(
-                    name: 'Category',
-                    icon: 'assets/images/Frame (4).png',
+                    name: 'Search',
+                    icon: 'assets/images/Frame (3).png',
                     iconColor: controller.selectedPageIndex.value == 1
                         ? blue
                         : Color(0xff999999),
@@ -72,52 +72,53 @@ class BottomBarScreen extends StatelessWidget {
                   );
                 }),
               ),
+              // InkWell(
+              //   onTap: () {
+              //     controller.updateSelectedPageIndex(1);
+              //   },
+              //   child: Obx(() {
+              //     return NewNavigation(
+              //       name: 'Category',
+              //       icon: 'assets/images/Frame (4).png',
+              //       iconColor: controller.selectedPageIndex.value == 1
+              //           ? blue
+              //           : Color(0xff999999),
+              //       nameColor: controller.selectedPageIndex.value == 1
+              //           ? blue
+              //           : Color(0xff999999),
+              //     );
+              //   }),
+              // ),
+             
+              // InkWell(
+              //   onTap: () {
+              //     controller.updateSelectedPageIndex(3);
+              //   },
+              //   child: Obx(() {
+              //     return NewNavigation(
+              //       name: 'Favourite',
+              //       icon: 'assets/images/Frame (6).png',
+              //       iconColor: controller.selectedPageIndex.value == 3
+              //           ? blue
+              //           : Color(0xff999999),
+              //       nameColor: controller.selectedPageIndex.value == 3
+              //           ? blue
+              //           : Color(0xff999999),
+              //     );
+              //   }),
+              // ),
               InkWell(
                 onTap: () {
                   controller.updateSelectedPageIndex(2);
                 },
                 child: Obx(() {
                   return NewNavigation(
-                    name: 'Home',
-                    icon: 'assets/images/Frame (5).png',
+                    name: 'Settings',
+                    icon: 'assets/images/Frame (7).png',
                     iconColor: controller.selectedPageIndex.value == 2
                         ? blue
                         : Color(0xff999999),
                     nameColor: controller.selectedPageIndex.value == 2
-                        ? blue
-                        : Color(0xff999999),
-                  );
-                }),
-              ),
-              InkWell(
-                onTap: () {
-                  controller.updateSelectedPageIndex(3);
-                },
-                child: Obx(() {
-                  return NewNavigation(
-                    name: 'Favourite',
-                    icon: 'assets/images/Frame (6).png',
-                    iconColor: controller.selectedPageIndex.value == 3
-                        ? blue
-                        : Color(0xff999999),
-                    nameColor: controller.selectedPageIndex.value == 3
-                        ? blue
-                        : Color(0xff999999),
-                  );
-                }),
-              ),
-              InkWell(
-                onTap: () {
-                  controller.updateSelectedPageIndex(4);
-                },
-                child: Obx(() {
-                  return NewNavigation(
-                    name: 'Settings',
-                    icon: 'assets/images/Frame (7).png',
-                    iconColor: controller.selectedPageIndex.value == 4
-                        ? blue
-                        : Color(0xff999999),
-                    nameColor: controller.selectedPageIndex.value == 4
                         ? blue
                         : Color(0xff999999),
                   );
