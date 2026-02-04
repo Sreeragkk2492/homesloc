@@ -3,6 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/profile_screen/my_bookings/my_bookings_screen.dart';
+import 'package:homesloc/core/common/global_variables.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:homesloc/screens/auth/sign_in.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -20,7 +23,7 @@ class ProfileScreen extends StatelessWidget {
         //    ),
         //  ),
         title: Text(
-          'Hi, kk',
+          'Hi, $userName',
           style: TextStyle(fontSize: 18.sp, color: white),
         ),
         actions: [
@@ -34,11 +37,22 @@ class ProfileScreen extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(
-              Icons.notifications,
+              Icons.logout,
               size: 24.sp,
               color: white,
             ),
-            onPressed: () {},
+            onPressed: () async {
+              const storage = FlutterSecureStorage();
+              await storage.deleteAll();
+
+              // Clear globals
+              accessToken = "";
+              refreshToken = "";
+              userId = "";
+              userName = "";
+
+              Get.offAll(() => const SignIn());
+            },
           ),
         ],
       ),

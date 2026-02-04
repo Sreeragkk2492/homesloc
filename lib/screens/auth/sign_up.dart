@@ -1,21 +1,22 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers, avoid_print
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:homesloc/controller/login/login_screen_controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/auth_button/auth_button.dart';
+import 'package:homesloc/widgets/custom_snackbar.dart';
 import 'package:homesloc/core/widgets/my_form/name_form/name_form.dart';
 import 'package:homesloc/core/widgets/my_form/name_form/password_form.dart';
 import 'package:homesloc/screens/auth/otp_varification.dart';
 
 class SignUp extends StatelessWidget {
-  const SignUp({super.key});
+  SignUp({super.key});
+
+  final controller = Get.put(LoginScreenController());
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController _nameController = TextEditingController();
-    TextEditingController _emailController = TextEditingController();
-    TextEditingController _phnController = TextEditingController();
-    TextEditingController _passwordController = TextEditingController();
     return Scaffold(
       backgroundColor: white,
       appBar: AppBar(
@@ -39,21 +40,23 @@ class SignUp extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             NameForm(
-                name: "Name", controller: _nameController, onSaved: (value) {}),
+                name: "Name",
+                controller: controller.nameController,
+                onSaved: (value) {}),
             NameForm(
                 name: "Email",
-                controller: _emailController,
+                controller: controller.emailController,
                 onSaved: (value) {}),
             NameForm(
                 name: "Phone Number",
-                controller: _phnController,
+                controller: controller.phoneNumberController,
                 onSaved: (value) {}),
             SizedBox(
               height: 8.h,
             ),
             PasswordForm(
               name: "Password",
-              controller: _passwordController,
+              controller: controller.passwordController,
               onSaved: (value) {},
               hintText: '',
             ),
@@ -89,14 +92,26 @@ class SignUp extends StatelessWidget {
                 ],
               ),
             ),
-            AuthButton(
-              name: 'Sign Up',
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return OtpVarification();
-                }));
-                print('Sign Up');
-              },
+            Obx(
+              () => controller.isRegisterLoading.value
+                  ? const Center(child: CircularProgressIndicator())
+                  : AuthButton(
+                      name: 'Sign Up',
+                      onPressed: () async {
+                        await controller.register();
+                        if (controller.isRegisterSuccess.value) {
+                          customSnackBar(
+                              "Success", controller.registerMessage.value);
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return OtpVarification();
+                          }));
+                        } else {
+                          customSnackBar(
+                              "Error", controller.registerMessage.value);
+                        }
+                      },
+                    ),
             ),
           ],
         ),

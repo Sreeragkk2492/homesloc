@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:homesloc/apis/login/login_api.dart';
 import 'package:homesloc/controller/login/login_screen_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/auth_button/auth_button.dart';
@@ -17,9 +16,8 @@ class SignIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    LoginScreenController screenController = LoginScreenController();
-    TextEditingController _emailController = TextEditingController();
-    TextEditingController _passwordController = TextEditingController();
+    final controller = Get.put(LoginScreenController());
+
     return Scaffold(
       backgroundColor: white,
       appBar: AppBar(
@@ -42,26 +40,13 @@ class SignIn extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Padding(
-            //   padding: EdgeInsets.only(top: 96.h, bottom: 48.h),
-            //   child: Center(
-            //     child: Text(
-            //       'Sign In',
-            //       style: TextStyle(
-            //           color: black,
-            //           fontFamily: 'Poppins',
-            //           fontWeight: FontWeight.bold,
-            //           fontSize: 35.sp),
-            //     ),
-            //   ),
-            // ),
             NameForm(
                 name: "Email",
-                controller: _emailController,
+                controller: controller.usernameController, // Bind to controller
                 onSaved: (value) {}),
             PasswordForm(
               name: "Password",
-              controller: _passwordController,
+              controller: controller.passwordController, // Bind to controller
               onSaved: (value) {},
               hintText: '',
             ),
@@ -88,28 +73,28 @@ class SignIn extends StatelessWidget {
                 ],
               ),
             ),
-
-            AuthButton(
-              name: 'Sign In',
-              onPressed: () async {
-                screenController.isLoading(true);
-                final login = await loginApi(
-                    username: _emailController.text,
-                    password: _passwordController.text);
-                screenController.isLoading(false);
-                if (login.message == "Login successful") {
-                  Get.off(() => BottomBarScreen());
-                } else {
-                  screenController.isAuthFailed(true);
-                  screenController.message(login.message);
-                  print(login.message);
-                }
-              },
+            Obx(
+              () => controller.isLoading.value
+                  ? const Center(child: CircularProgressIndicator())
+                  : AuthButton(
+                      name: 'Sign In',
+                      onPressed: () async {
+                        await controller.login();
+                        if (!controller.isAuthFailed.value) {
+                          // Assuming login() successful if isAuthFailed is false
+                          // Can verify specific message if needed, but isAuthFailed is cleaner
+                          Get.off(() => BottomBarScreen());
+                        } else {
+                          // Error is handled in controller and message updated
+                          // Could show snackbar here too if not in controller
+                        }
+                      },
+                    ),
             ),
             SizedBox(
               height: 28.h,
             ),
-            DividerUp(name: 'Or sign in with'),
+          //  DividerUp(name: 'Or sign in with'),
             SizedBox(
               height: 50.h,
             ),

@@ -14,6 +14,7 @@ import 'package:homesloc/screens/calendar_screen/calendar_screen.dart';
 import 'package:homesloc/screens/categorie_screen/categorie_screen.dart';
 import 'package:homesloc/screens/check_out/check_out.dart';
 import 'package:homesloc/screens/home/home_screen.dart';
+import 'package:homesloc/screens/splashscreen/splashscreen.dart';
 import 'package:homesloc/themes/app_theme.dart';
 
 void main() {
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
           home: child,
         );
       },
-      child: SignIn(),
+      child: Splashscreen(),
     );
   }
 }
