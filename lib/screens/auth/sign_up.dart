@@ -5,10 +5,10 @@ import 'package:homesloc/controller/login/login_screen_controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/auth_button/auth_button.dart';
+import 'package:homesloc/screens/auth/sign_in.dart';
 import 'package:homesloc/widgets/custom_snackbar.dart';
 import 'package:homesloc/core/widgets/my_form/name_form/name_form.dart';
 import 'package:homesloc/core/widgets/my_form/name_form/password_form.dart';
-import 'package:homesloc/screens/auth/otp_varification.dart';
 
 class SignUp extends StatelessWidget {
   SignUp({super.key});
@@ -36,84 +36,197 @@ class SignUp extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            NameForm(
-                name: "Name",
-                controller: controller.nameController,
-                onSaved: (value) {}),
-            NameForm(
-                name: "Email",
-                controller: controller.emailController,
-                onSaved: (value) {}),
-            NameForm(
-                name: "Phone Number",
-                controller: controller.phoneNumberController,
-                onSaved: (value) {}),
-            SizedBox(
-              height: 8.h,
-            ),
-            PasswordForm(
-              name: "Password",
-              controller: controller.passwordController,
-              onSaved: (value) {},
-              hintText: '',
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 10.w, top: 10.h, bottom: 30.h),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: false,
-                    onChanged: (value) {},
-                    activeColor: blue,
-                    hoverColor: black,
-                    // fillColor: WidgetStateProperty.all(blue),
-                  ),
-                  Text(
-                    'Agree with ',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.bold,
-                        color: black),
-                  ),
-                  Text(
-                    'Terms&Condition',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                        decorationColor: blue,
-                        color: blue),
-                  ),
-                ],
-              ),
-            ),
-            Obx(
-              () => controller.isRegisterLoading.value
-                  ? const Center(child: CircularProgressIndicator())
-                  : AuthButton(
-                      name: 'Sign Up',
-                      onPressed: () async {
-                        await controller.register();
-                        if (controller.isRegisterSuccess.value) {
-                          customSnackBar(
-                              "Success", controller.registerMessage.value);
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return OtpVarification();
-                          }));
-                        } else {
-                          customSnackBar(
-                              "Error", controller.registerMessage.value);
-                        }
-                      },
+        child: Form(
+          key: controller.signupFormKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              NameForm(
+                  name: "Username",
+                  controller: controller.nameController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter username';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {}),
+              NameForm(
+                  name: "Email",
+                  controller: controller.emailController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter email';
+                    }
+                    if (!GetUtils.isEmail(value)) {
+                      return 'Please enter valid email';
+                    }
+                    return null;
+                  },
+                  suffix: Obx(() => controller.isEmailVerified.value
+                      ? Icon(Icons.check_circle, color: Colors.green)
+                      : TextButton(
+                          onPressed: () {
+                            controller.sendOtp();
+                          },
+                          child: controller.isOtpLoading.value
+                              ? SizedBox(
+                                  width: 15,
+                                  height: 15,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2))
+                              : Text(
+                                  'Verify',
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.bold,
+                                      color: blue),
+                                ),
+                        )),
+                  onSaved: (value) {}),
+              NameForm(
+                  name: "Phone Number",
+                  controller: controller.phoneNumberController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter phone number';
+                    }
+                    if (!value.isNumericOnly) {
+                      return 'Please enter valid phone number';
+                    }
+                    return null;
+                  },
+                  prefix: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    child: Obx(
+                      () => DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: controller.countryCode.value,
+                          items: controller.countryCodes
+                              .map((code) => DropdownMenuItem(
+                                    value: code,
+                                    child: Text(
+                                      code,
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontSize: 14.sp,
+                                          color: black),
+                                    ),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              controller.countryCode.value = value;
+                            }
+                          },
+                        ),
+                      ),
                     ),
-            ),
-          ],
+                  ),
+                  onSaved: (value) {}),
+              SizedBox(
+                height: 8.h,
+              ),
+              PasswordForm(
+                name: "Password",
+                controller: controller.passwordController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter password';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
+                onSaved: (value) {},
+                hintText: '',
+              ),
+               SizedBox(
+                height: 8.h,
+              ),
+              PasswordForm(
+                name: "Confirm Password",
+                controller: controller.confirmPasswordController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm password';
+                  }
+                  if (value != controller.passwordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
+                onSaved: (value) {},
+                hintText: '',
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 10.w, top: 10.h, bottom: 30.h),
+                child: Row(
+                  children: [
+                    Obx(
+                      () => Checkbox(
+                        value: controller.isTermsAccepted.value,
+                        onChanged: (value) {
+                          controller.isTermsAccepted.value = value!;
+                        },
+                        activeColor: blue,
+                        hoverColor: black,
+                        // fillColor: WidgetStateProperty.all(blue),
+                      ),
+                    ),
+                    Text(
+                      'Agree with ',
+                      style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
+                          color: black),
+                    ),
+                    Text(
+                      'Terms&Condition',
+                      style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                          decorationColor: blue,
+                          color: blue),
+                    ),
+                  ],
+                ),
+              ),
+              Obx(
+                () => controller.isRegisterLoading.value
+                    ? const Center(child: CircularProgressIndicator(color: blue,))
+                    : AuthButton(
+                        name: 'Sign Up',
+                        onPressed: () async {
+                          if (controller.signupFormKey.currentState!
+                              .validate()) {
+                            if (!controller.isTermsAccepted.value) {
+                              customSnackBar(
+                                  "Error", "Please accept Terms & Conditions");
+                              return;
+                            }
+                            await controller.register();
+                            if (controller.isRegisterSuccess.value) {
+                              customSnackBar(
+                                  "Success", controller.registerMessage.value);
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return SignIn();
+                              }));
+                            } else {
+                              customSnackBar(
+                                  "Error", controller.registerMessage.value);
+                            }
+                          }
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );

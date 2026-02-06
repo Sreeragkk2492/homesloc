@@ -74,6 +74,9 @@ Future<void> registerUser({
   required String userType,
   required String registrationNumber,
   required String profileImageUrl,
+  required List<Map<String, dynamic>> services,
+  required num commission,
+  required String verificationToken,
 }) async {
   try {
     final url =
@@ -106,6 +109,9 @@ Future<void> registerUser({
         "user_type": userType,
         "registration_number": registrationNumber,
         "profile_image_url": profileImageUrl,
+        "services": services,
+        "commission": commission,
+        "verification_token": verificationToken,
       }),
     );
 
@@ -127,5 +133,68 @@ Future<void> registerUser({
     print("------------------------------------------------------------------");
     customSnackBar('Error', 'Registration failed: $e');
     throw Exception('Registration error: $e');
+  }
+}
+
+Future<String> sendVerificationEmail({required String email}) async {
+  try {
+    final url =
+        Uri.parse("${ApiConstant.BASE_URL}${ApiConstant.Verify_EMAIL_URL}");
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email}),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      customSnackBar('Success', 'OTP sent to email');
+      final body = jsonDecode(response.body);
+      if (body is Map<String, dynamic> &&
+          body.containsKey('verification_token')) {
+        return body['verification_token'];
+      } else {
+        // Fallback if token is not found but status is success, though unlikely based on requirement
+        return "";
+      }
+    } else {
+      throw Exception('Failed to send OTP: ${response.body}');
+    }
+  } catch (e) {
+    customSnackBar('Error', 'Failed to send OTP: $e');
+    throw Exception('Send OTP error: $e');
+  }
+}
+
+Future<String> verifyEmailOtp(
+    {required String verificationToken, required String otp}) async {
+  try {
+    final url =
+        Uri.parse("${ApiConstant.BASE_URL}${ApiConstant.Verify_OTP_URL}");
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"verification_token": verificationToken, "otp": otp}),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final body = jsonDecode(response.body);
+      // Assuming the token is in 'verification_token' or similar field.
+      // Adjust based on actual API response.
+      // If the response is just the token string or inside a data object:
+      if (body is Map<String, dynamic> &&
+          body.containsKey('verification_token')) {
+        return body['verification_token'];
+      } else if (body is Map<String, dynamic> && body.containsKey('token')) {
+        return body['token'];
+      }
+      // Fallback or explicit check needed if API structure is known.
+      // For now assuming it returns a JSON with verification_token
+      return body['verification_token'] ?? "";
+    } else {
+      throw Exception('Failed to verify OTP: ${response.body}');
+    }
+  } catch (e) {
+    customSnackBar('Error', 'Failed to verify OTP: $e');
+    throw Exception('Verify OTP error: $e');
   }
 }

@@ -37,99 +37,118 @@ class SignIn extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            NameForm(
-                name: "Email",
-                controller: controller.usernameController, // Bind to controller
-                onSaved: (value) {}),
-            PasswordForm(
-              name: "Password",
-              controller: controller.passwordController, // Bind to controller
-              onSaved: (value) {},
-              hintText: '',
-            ),
-            Padding(
-              padding: EdgeInsets.only(right: 23.w, top: 3.h, bottom: 80.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+        child: Form(
+          key: controller.loginFormKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              NameForm(
+                  name: "Username",
+                  controller:
+                      controller.usernameController, // Bind to controller
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter username';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {}),
+              PasswordForm(
+                name: "Password",
+                controller: controller.passwordController, // Bind to controller
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter password';
+                  }
+                  return null;
+                },
+                onSaved: (value) {},
+                hintText: '',
+              ),
+              Padding(
+                padding: EdgeInsets.only(right: 23.w, top: 3.h, bottom: 80.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        print('Forgot Password');
+                      },
+                      child: Text(
+                        "Forgot Password?",
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                            decorationColor: black,
+                            color: black),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Obx(
+                () => controller.isLoading.value
+                    ? const Center(child: CircularProgressIndicator(color: blue,))
+                    : AuthButton(
+                        name: 'Sign In',
+                        onPressed: () async {
+                          if (controller.loginFormKey.currentState!
+                              .validate()) {
+                            await controller.login();
+                            if (!controller.isAuthFailed.value) {
+                              // Assuming login() successful if isAuthFailed is false
+                              // Can verify specific message if needed, but isAuthFailed is cleaner
+                              Get.off(() => BottomBarScreen());
+                            } else {
+                              // Error is handled in controller and message updated
+                              // Could show snackbar here too if not in controller
+                            }
+                          }
+                        },
+                      ),
+              ),
+              SizedBox(
+                height: 28.h,
+              ),
+              //  DividerUp(name: 'Or sign in with'),
+              SizedBox(
+                height: 50.h,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Text(
+                    'Don’t have an account?  ',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.bold,
+                        color: black),
+                  ),
                   InkWell(
                     onTap: () {
-                      print('Forgot Password');
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return SignUp();
+                      }));
                     },
                     child: Text(
-                      "Forgot Password?",
+                      'Sign Up',
                       style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 11.sp,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.underline,
-                          decorationColor: black,
-                          color: black),
+                          decorationColor: blue,
+                          color: blue),
                     ),
                   ),
                 ],
-              ),
-            ),
-            Obx(
-              () => controller.isLoading.value
-                  ? const Center(child: CircularProgressIndicator())
-                  : AuthButton(
-                      name: 'Sign In',
-                      onPressed: () async {
-                        await controller.login();
-                        if (!controller.isAuthFailed.value) {
-                          // Assuming login() successful if isAuthFailed is false
-                          // Can verify specific message if needed, but isAuthFailed is cleaner
-                          Get.off(() => BottomBarScreen());
-                        } else {
-                          // Error is handled in controller and message updated
-                          // Could show snackbar here too if not in controller
-                        }
-                      },
-                    ),
-            ),
-            SizedBox(
-              height: 28.h,
-            ),
-          //  DividerUp(name: 'Or sign in with'),
-            SizedBox(
-              height: 50.h,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Don’t have an account?  ',
-                  style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.bold,
-                      color: black),
-                ),
-                InkWell(
-                  onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return SignUp();
-                    }));
-                  },
-                  child: Text(
-                    'Sign Up',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                        decorationColor: blue,
-                        color: blue),
-                  ),
-                ),
-              ],
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

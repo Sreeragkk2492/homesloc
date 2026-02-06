@@ -17,9 +17,14 @@ import 'package:homesloc/screens/home/home_screen.dart';
 import 'package:homesloc/screens/splashscreen/splashscreen.dart';
 import 'package:homesloc/themes/app_theme.dart';
 
+import 'package:flutter/services.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const MyApp());
 }
 

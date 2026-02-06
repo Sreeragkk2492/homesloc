@@ -20,7 +20,12 @@ class NameForm extends StatelessWidget {
     required Null Function(dynamic value) onSaved,
     // required this.onPressed,
     // required this.obscureText
+    this.suffix,
+    this.prefix,
   });
+
+  final Widget? suffix;
+  final Widget? prefix;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +46,7 @@ class NameForm extends StatelessWidget {
                   fontSize: 11.sp,
                   // fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color:black),
+                  color: black),
             ),
           ),
           SizedBox(
@@ -51,7 +56,10 @@ class NameForm extends StatelessWidget {
               validator: validator,
               // obscureText: obscureText,
               controller: controller,
-              decoration: InputDecoration(helperText: '',
+              decoration: InputDecoration(
+                helperText: '',
+                suffixIcon: suffix,
+                prefixIcon: prefix,
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
