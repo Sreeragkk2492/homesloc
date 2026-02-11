@@ -6,7 +6,6 @@ import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/controller/home/home_screen_controller.dart';
 import 'package:homesloc/controller/search/search_hotel_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
-import 'package:homesloc/core/widgets/builder/home_builder/fourth_home_builder.dart';
 import 'package:homesloc/core/widgets/logo.dart/logo.dart';
 import 'package:homesloc/core/widgets/search_form/search_form.dart';
 import 'package:homesloc/screens/home/widget/guest_dialog.dart';
@@ -14,6 +13,7 @@ import 'package:homesloc/screens/home/widget/search_button.dart';
 import 'package:scrollable_clean_calendar/scrollable_clean_calendar.dart';
 import 'package:scrollable_clean_calendar/utils/enums.dart';
 import 'package:homesloc/screens/detailed_view_screen/detailed_view_screen.dart';
+import 'package:homesloc/core/widgets/loader/app_loader.dart';
 
 class HotelSearchScreen extends StatelessWidget {
   HotelSearchScreen({super.key});
@@ -260,7 +260,7 @@ class HotelSearchScreen extends StatelessWidget {
           Obx(() {
             if (searchHotelController.isLoading.value) {
               return SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: AppLoader(size: 50)),
               );
             } else if (searchHotelController.errorMessage.value.isNotEmpty) {
               return SliverFillRemaining(

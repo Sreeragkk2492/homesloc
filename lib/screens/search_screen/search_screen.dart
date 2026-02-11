@@ -280,8 +280,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         .searchResult.value!.searchResults![index];
                     return GestureDetector(
                       onTap: () {
-                        // Navigate to detail view if available, or just show info
-                        // Get.to(() => DetailedViewScreen(hotel: hotel));
+                        // Navigate to detail view
+                        Get.to(() => DetailedViewScreen(hotel: hotel));
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/payment_screen/payment_screen.dart';
+import 'package:homesloc/models/home/hotel_detail_model.dart';
 
 class BookNow extends StatelessWidget {
   final dynamic hotel;
@@ -13,8 +14,6 @@ class BookNow extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(15.r),
       margin: EdgeInsets.symmetric(horizontal: 10.w),
-      //width: 340.w,
-      // height: 180.h,
       decoration: BoxDecoration(
         color: blue,
         borderRadius: BorderRadius.circular(23.sp),
@@ -22,38 +21,38 @@ class BookNow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 20.h,
-          ),
+          SizedBox(height: 10.h),
           Text(
             'Book Your Stay Now',
             style: TextStyle(
-                color: const Color.fromARGB(255, 190, 190, 190),
+                color: const Color.fromARGB(255, 230, 230, 230),
                 fontFamily: 'Poppins',
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold),
           ),
+          SizedBox(height: 5.h),
           Text(
-            'Your dream stay is just a click away! Book\nnow for a seamless and unforgettable\nexperience.',
+            'Your dream stay is just a click away! Book now for a seamless experience.',
             style: TextStyle(
-                color: const Color.fromARGB(255, 190, 190, 190),
+                color: const Color.fromARGB(255, 200, 200, 200),
                 fontFamily: 'Poppins',
                 fontSize: 13.sp,
-                fontWeight: FontWeight.w100),
+                fontWeight: FontWeight.w300),
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8.h),
             child: Divider(
-              color: const Color.fromARGB(255, 190, 190, 190),
+              color: const Color.fromARGB(255, 150, 150, 150),
             ),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
                         "₹${_getPrice()}",
@@ -63,33 +62,31 @@ class BookNow extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             fontSize: 23.sp),
                       ),
-                      SizedBox(
-                        width: 5.w,
-                      ),
-                      Text(
-                        "₹${_getOriginalPrice()}",
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 190, 190, 190),
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w500,
-                            decoration: TextDecoration.lineThrough,
-                            decorationColor: white,
-                            fontSize: 12.sp),
-                      ),
+                      if (_getOriginalPrice() != _getPrice()) ...[
+                        SizedBox(width: 8.w),
+                        Text(
+                          "₹${_getOriginalPrice()}",
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 190, 190, 190),
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.lineThrough,
+                              decorationColor: white,
+                              fontSize: 12.sp),
+                        ),
+                      ],
                     ],
                   ),
                   Text(
-                    "+ ₹15.0 taxes & fees",
+                    _getTaxInfo(),
                     style: TextStyle(
                         color: const Color.fromARGB(255, 190, 190, 190),
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w500,
-                        decorationColor: white,
                         fontSize: 12.sp),
                   ),
                 ],
               ),
-              SizedBox(width: 10.w),
               InkWell(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -102,7 +99,7 @@ class BookNow extends StatelessWidget {
                   }));
                 },
                 child: Container(
-                  width: 160.w,
+                  width: 140.w,
                   height: 43.h,
                   decoration: BoxDecoration(
                     color: yellow,
@@ -113,9 +110,9 @@ class BookNow extends StatelessWidget {
                       "BOOK NOW",
                       style: TextStyle(
                           color: black,
-                          fontSize: 16.sp,
+                          fontSize: 15.sp,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500),
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -128,6 +125,11 @@ class BookNow extends StatelessWidget {
   }
 
   String _getPrice() {
+    if (hotel is HotelDetailModel) {
+      final p = hotel.pricing;
+      if (p == null) return '0';
+      return (p.offerPrice ?? p.bestPrice ?? '0').toString();
+    }
     try {
       if (hotel.runtimeType.toString() == 'BestHotel') {
         return (hotel.pricing?.offerPrice ?? hotel.pricing?.bestPrice ?? '0')
@@ -141,6 +143,9 @@ class BookNow extends StatelessWidget {
   }
 
   String _getOriginalPrice() {
+    if (hotel is HotelDetailModel) {
+      return (hotel.pricing?.bestPrice ?? '0').toString();
+    }
     try {
       if (hotel.runtimeType.toString() == 'BestHotel') {
         return (hotel.pricing?.bestPrice ?? '0').toString();
@@ -150,6 +155,13 @@ class BookNow extends StatelessWidget {
     } catch (e) {
       return '0';
     }
+  }
+
+  String _getTaxInfo() {
+    if (hotel is HotelDetailModel) {
+      return hotel.pricing?.taxInfo ?? "+ Taxes & Fees";
+    }
+    return "+ Taxes & Fees";
   }
 
   String _getName() {
@@ -162,16 +174,13 @@ class BookNow extends StatelessWidget {
 
   String _getLocation() {
     try {
+      if (hotel is HotelDetailModel) return hotel.location ?? 'Location';
       if (hotel.runtimeType.toString() == 'BestHotel') {
         return hotel.location ?? 'Location';
       } else {
-        try {
-          return hotel.locationInfo?.city ??
-              hotel.locationInfo?.address ??
-              'Location';
-        } catch (e) {
-          return 'Location';
-        }
+        return hotel.locationInfo?.city ??
+            hotel.locationInfo?.address ??
+            'Location';
       }
     } catch (e) {
       return 'Location';

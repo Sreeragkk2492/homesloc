@@ -19,4 +19,7 @@ class ApiConstant {
 
   //search
   static String HOTEL_SEARCH_URL="/api/v1/mobile/search/hotels";
+
+  //hotel details
+  static String HOTEL_DETAILS_URL="/api/v1/mobile/hotel";
 }

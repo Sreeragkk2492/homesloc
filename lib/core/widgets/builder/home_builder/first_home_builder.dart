@@ -21,7 +21,7 @@ class FirstHomeBuilder extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  Get.to(() => HotelSearchScreen());
+                //  Get.to(() => HotelSearchScreen());
                 },
                 child: Container(
                   height: 80.h,

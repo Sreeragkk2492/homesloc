@@ -84,7 +84,9 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               children: [
                 //  SizedBox(height: 5.h),
-                const HeroSection(),
+                HeroSection(
+                  onCalendarTap: () => showCalendarBottomSheet(context),
+                ),
                 SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: Column(
@@ -189,7 +191,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   // Add this function to your HomeScreen class
-  void _showCalendarBottomSheet(BuildContext context) {
+  void showCalendarBottomSheet(BuildContext context) {
     final calendarController = Get.put(CalendarController());
     final ScrollController calenderScroll = ScrollController();
 

@@ -25,10 +25,21 @@ class CalendarController extends GetxController {
   }
 
   void initCalendarController() {
+    // Set default dates: Today and Tomorrow
+    DateTime today = DateTime.now();
+    DateTime tomorrow = today.add(const Duration(days: 1));
+
+    checkInDate.value = DateTime(today.year, today.month, today.day);
+    checkOutDate.value = DateTime(tomorrow.year, tomorrow.month, tomorrow.day);
+    calculateTotalDays();
+
     calendarController = CleanCalendarController(
       minDate: DateTime.now(),
       maxDate: DateTime.now().add(const Duration(days: 365)),
       weekdayStart: DateTime.monday,
+      initialFocusDate: checkInDate.value,
+      initialDateSelected: checkInDate.value,
+      endDateSelected: checkOutDate.value,
       onRangeSelected: updateSelectedDateRange,
     );
   }
