@@ -30,39 +30,18 @@ class CalendarController extends GetxController {
       maxDate: DateTime.now().add(const Duration(days: 365)),
       weekdayStart: DateTime.monday,
       onRangeSelected: updateSelectedDateRange,
-      onDayTapped: handleDayTapped,
     );
   }
 
-  // Handle single day tap
-  void handleDayTapped(DateTime date) {
-    // If no date selected yet or both dates are selected, start new selection
-    if (checkInDate.value == null || checkOutDate.value != null) {
-      checkInDate.value = date;
-      checkOutDate.value = null;
-      totalDays.value = 0;
-    }
-    // If only check-in is selected and tapped date is after check-in
-    else if (date.isAfter(checkInDate.value!)) {
-      checkOutDate.value = date;
-      calculateTotalDays();
-    }
-    // If tapped date is before or same as check-in, update check-in
-    else {
-      checkInDate.value = date;
-      checkOutDate.value = null;
-      totalDays.value = 0;
-    }
-  }
-
-  // Handle range selection callback
+  // Handle range selection callback - this is the single source of truth
   void updateSelectedDateRange(DateTime? start, DateTime? end) {
-    if (start != null) {
-      checkInDate.value = start;
-    }
-    if (end != null) {
-      checkOutDate.value = end;
+    checkInDate.value = start;
+    checkOutDate.value = end;
+
+    if (start != null && end != null) {
       calculateTotalDays();
+    } else {
+      totalDays.value = 0;
     }
   }
 

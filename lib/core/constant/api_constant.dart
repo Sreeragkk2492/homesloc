@@ -12,11 +12,11 @@ class ApiConstant {
   static String Verify_OTP_URL="/api/v1/auth/verify-email-otp";
 
   //homescreen
-  static String HOME_SCREEN_URL="/api/v1/homepage/";
+  static String HOME_SCREEN_URL="/api/v1/mobile/homepage";
 
 
 
 
   //search
-  static String HOTEL_SEARCH_URL="/api/v1/search/hotels";
+  static String HOTEL_SEARCH_URL="/api/v1/mobile/search/hotels";
 }

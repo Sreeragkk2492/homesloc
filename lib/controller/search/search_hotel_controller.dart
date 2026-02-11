@@ -14,28 +14,53 @@ class SearchHotelController extends GetxController {
   final errorMessage = RxString('');
   final searchResult = Rx<SearchHotelModel?>(null);
 
+  // Filter observables
+  final location = "".obs;
+  final propertyType = "".obs;
+  final minPrice = Rx<int?>(null);
+  final maxPrice = Rx<int?>(null);
+  final sortBy = "created_at".obs;
+
+  // Use getters to sync with CalendarController
+  int get guestCountVal => calendarController.guestCount.value;
+  int get roomCountVal => calendarController.roomCount.value;
+
   // Search hotels with current parameters
-  Future<void> searchHotels() async {
+  Future<void> searchHotels({
+    String? location,
+    String? checkIn,
+    String? checkOut,
+    int? guestCount,
+    int? roomCount,
+    int? minPrice,
+    int? maxPrice,
+    String? propertyType,
+    String? sortBy,
+    int? limit,
+  }) async {
     isLoading.value = true;
     errorMessage.value = '';
 
     try {
       final result = await _searchService.searchHotels(
-        checkIn: DateFormat('yyyy-MM-dd')
-            .format(calendarController.checkInDate.value!),
-        checkOut: DateFormat('yyyy-MM-dd')
-            .format(calendarController.checkOutDate.value!),
-        // // Other parameters can be null or default values
-        // location: '',
-        // name: '',
-        // guestCount: 0,
-        // minPrice: 0,
-        // maxPrice: 0,
-        // starRating: 0,
-        // page: 1,
-        // pageSize: 10,
-        sortBy: 'created_at',
-        sortOrder: 'desc',
+        location: location ?? this.location.value,
+        checkIn: checkIn ??
+            (calendarController.checkInDate.value != null
+                ? DateFormat('yyyy-MM-dd')
+                    .format(calendarController.checkInDate.value!)
+                : null),
+        checkOut: checkOut ??
+            (calendarController.checkOutDate.value != null
+                ? DateFormat('yyyy-MM-dd')
+                    .format(calendarController.checkOutDate.value!)
+                : null),
+        guestCount: guestCount ?? guestCountVal,
+        roomCount: roomCount ?? roomCountVal,
+        minPrice: minPrice ?? this.minPrice.value,
+        maxPrice: maxPrice ?? this.maxPrice.value,
+        propertyType: propertyType ?? this.propertyType.value,
+        sortBy: sortBy ?? this.sortBy.value,
+        limit: limit,
       );
 
       if (result != null) {

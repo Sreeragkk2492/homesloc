@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/login/login_screen_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
+import 'package:homesloc/core/widgets/loader/app_loader.dart';
+
 import 'package:homesloc/core/widgets/auth_button/auth_button.dart';
 import 'package:homesloc/core/widgets/divider_up/divider_up.dart';
 import 'package:homesloc/core/widgets/my_form/name_form/name_form.dart';
@@ -90,7 +92,7 @@ class SignIn extends StatelessWidget {
               ),
               Obx(
                 () => controller.isLoading.value
-                    ? const Center(child: CircularProgressIndicator(color: blue,))
+                    ? const Center(child: AppLoader(size: 40))
                     : AuthButton(
                         name: 'Sign In',
                         onPressed: () async {

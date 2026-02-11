@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/login/login_screen_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
+import 'package:homesloc/core/widgets/loader/app_loader.dart';
+
 import 'package:homesloc/core/widgets/auth_button/auth_button.dart';
 import 'package:homesloc/screens/auth/sign_up.dart';
 import 'package:pinput/pinput.dart';
@@ -197,9 +199,8 @@ class _PinputExampleState extends State<PinputExample> {
                 Obx(
                   () => Get.find<LoginScreenController>().isOtpLoading.value
                       ? const Center(
-                          child: CircularProgressIndicator(
-                          color: blue,
-                        ))
+                          child: AppLoader(size: 40),
+                        )
                       : AuthButton(
                           name: 'Verify',
                           onPressed: () {

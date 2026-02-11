@@ -24,268 +24,33 @@ import 'package:homesloc/core/widgets/name_view/name_view.dart';
 import 'package:homesloc/core/widgets/search_form/search_form.dart';
 import 'package:scrollable_clean_calendar/scrollable_clean_calendar.dart';
 import 'package:scrollable_clean_calendar/utils/enums.dart';
+import 'package:homesloc/screens/home/widget/hero_section.dart';
 
 import '../../controller/calender_controller.dart';
 import '../../controller/home/home_screen_controller.dart';
+import '../../controller/search/search_hotel_controller.dart';
 import '../../core/controller/bottom_navigation_bar/bottom_bar_controller.dart';
 
-// class HomeScreen extends StatelessWidget {
-//   const HomeScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: white,
-//       appBar: AppBar(
-//         backgroundColor: blue,
-//         automaticallyImplyLeading: false,
-//         actions: [
-//           Container(
-//             margin: EdgeInsets.only(right: 15.w, top: 3.h),
-//             width: 21.w,
-//             height: 21.h,
-//             decoration: BoxDecoration(
-//               image: DecorationImage(
-//                   image: AssetImage('assets/images/notifications-outline.png'),
-//                   fit: BoxFit.cover),
-//             ),
-//           ),
-//         ],
-//         title: Logo(),
-//       ),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             Container(
-//               color: blue,
-//               width: double.infinity,
-//               height: 51.h,
-//               child: Column(
-//                 children: [
-//                   SearchForm(),
-//                 ],
-//               ),
-//             ),
-//             SingleChildScrollView(
-//               scrollDirection: Axis.vertical,
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Container(
-//                     height: 47.h,
-//                     width: MediaQuery.of(context).size.width,
-//                     color: blue,
-//                     child: Padding(
-//                       padding: EdgeInsets.only(left: 14.w, bottom: 9.h),
-//                       child: Row(
-//                         children: [
-//                           Container(
-//                             height: 30.h,
-//                             width: 221.w,
-//                             decoration: BoxDecoration(
-//                                 color: gblue,
-//                                 borderRadius: BorderRadius.circular(6.sp)),
-//                             child: InkWell(
-//                               onTap: () {
-//                                 Navigator.push(context,
-//                                     MaterialPageRoute(builder: (context) {
-//                                   return CalendarScreen();
-//                                 }));
-//                               },
-//                               child: Row(
-//                                 mainAxisAlignment:
-//                                     MainAxisAlignment.spaceEvenly,
-//                                 children: [
-//                                   Image(
-//                                     image:
-//                                         AssetImage('assets/images/Vector.png'),
-//                                     width: 15.w,
-//                                     height: 15.h,
-//                                   ),
-//                                   Text(
-//                                     "Check in",
-//                                     style: TextStyle(
-//                                         fontFamily: 'Poppins',
-//                                         color: poppinsFont,
-//                                         fontSize: 12.sp,
-//                                         fontWeight: FontWeight.w100),
-//                                   ),
-//                                   Text(
-//                                     "|",
-//                                     style: TextStyle(
-//                                         color: poppinsFont,
-//                                         fontSize: 12.sp,
-//                                         fontWeight: FontWeight.w500),
-//                                   ),
-//                                   Text(
-//                                     "Checkout",
-//                                     style: TextStyle(
-//                                         fontFamily: 'Poppins',
-//                                         color: poppinsFont,
-//                                         fontSize: 12.sp,
-//                                         fontWeight: FontWeight.w100),
-//                                   ),
-//                                 ],
-//                               ),
-//                             ),
-//                           ),
-//                           Container(
-//                             margin: EdgeInsets.only(left: 10.w),
-//                             width: 100.w,
-//                             height: 30.h,
-//                             decoration: BoxDecoration(
-//                               color: gblue,
-//                               borderRadius: BorderRadius.circular(6.sp),
-//                             ),
-//                             child: Row(
-//                               mainAxisAlignment: MainAxisAlignment.center,
-//                               children: [
-//                                 Image(
-//                                   image: AssetImage(
-//                                       'assets/images/Vector (1).png'),
-//                                   width: 16.w,
-//                                   height: 16.h,
-//                                 ),
-//                                 SizedBox(
-//                                   width: 6.w,
-//                                 ),
-//                                 Text(
-//                                   "Guests",
-//                                   style: TextStyle(
-//                                       fontFamily: 'Poppins',
-//                                       color: poppinsFont,
-//                                       fontSize: 12.sp,
-//                                       fontWeight: FontWeight.w100),
-//                                 )
-//                               ],
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-//                   Padding(
-//                     padding: EdgeInsets.only(
-//                       top: 30.h,
-//                       bottom: 15.h,
-//                     ),
-//                     child: Row(
-//                       children: [
-//                         SizedBox(
-//                           // color: black,
-//                           height: 105.h,
-//                           width: MediaQuery.of(context).size.width,
-//                           child: FirstHomeBuilder(),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   HomeDivider(),
-//                   NameView(
-//                     name: 'Best tour packages',
-//                     color: black,
-//                     secondName: 'View All',
-//                     secondColor: black,
-//                   ),
-//                   Padding(
-//                     padding: EdgeInsets.only(top: 10.h, bottom: 15.h),
-//                     child: SizedBox(
-//                       // color: yellow,
-//                       height: 130.h,
-//                       // width: MediaQuery.of(context).size.width,
-//                       child: SecondHomeBuilder(),
-//                     ),
-//                   ),
-//                   HomeDivider(),
-//                   NameView(
-//                     name: 'Best booking deals',
-//                     color: black,
-//                     secondName: 'View All',
-//                     secondColor: black,
-//                   ),
-//                   SizedBox(
-//                     width: MediaQuery.of(context).size.width,
-//                     height: 195.h,
-//                     // color: yellow,
-//                     child: ThirdHomeBuilder(),
-//                   ),
-//                   HomeDivider(),
-//                   Padding(
-//                     padding: EdgeInsets.symmetric(horizontal: 10.w),
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         Text(
-//                           "Popular",
-//                           style: TextStyle(
-//                               fontFamily: 'Poppins',
-//                               color: black,
-//                               fontSize: 18.sp,
-//                               fontWeight: FontWeight.bold),
-//                         ),
-//                         GestureDetector(
-//                           onTap: () {
-//                             // Get.toNamed('/categorie');
-//                             Navigator.push(context,
-//                                 MaterialPageRoute(builder: (context) {
-//                               return CategorieView();
-//                             }));
-//                           },
-//                           child: Container(
-//                             width: 38.w,
-//                             height: 33.h,
-//                             decoration: BoxDecoration(
-//                               borderRadius: BorderRadius.circular(10.sp),
-//                               color: gwhite,
-//                               image: DecorationImage(
-//                                 image:
-//                                     AssetImage('assets/images/Vector (3).png'),
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   SizedBox(
-//                     height: 10.h,
-//                   ),
-//                   Center(
-//                     child: SizedBox(
-//                       width: 339.w,
-//                       height: 230.h,
-//                       // color: yellow,
-//                       child: FourthHomeBuilder(),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+// HomeScreen implementation below
 
 class HomeScreen extends StatelessWidget {
-   HomeScreen({super.key});
+  HomeScreen({super.key});
 
   final calendarController = Get.put(CalendarController());
-   final TextEditingController locationController = TextEditingController();
-   final screenController = Get.put(HomeScreenController());
-   final bottomBarController = Get.put(BottomBarController());
+  final TextEditingController locationController = TextEditingController();
+  final screenController = Get.put(HomeScreenController());
+  final bottomBarController = Get.put(BottomBarController());
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             backgroundColor: blue,
+            elevation: 0,
             automaticallyImplyLeading: false,
-            pinned:
-            false,
+            pinned: false,
             // Change to true if you want the AppBar to remain visible at the top when scrolling
             floating: true,
             // Set true to make it appear when scrolling up
@@ -318,205 +83,25 @@ class HomeScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Column(
               children: [
-                Container(
-                  color: blue,
-                  width: double.infinity,
-                  height: 52.h,
-                  child: Column(
-                    children: [
-                      AnimatedContent(
-                          show: true,
-                          leftToRight: 0.0,
-                          topToBottom: 5.0,
-                          time: 1500,
-                          child: SearchForm()),
-                    ],
-                  ),
-                ),
+                //  SizedBox(height: 5.h),
+                const HeroSection(),
                 SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        height: 47.h,
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width,
-                        color: blue,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 14.w, bottom: 9.h),
-                          child: Row(
-                            children: [
-                              AnimatedContent(
-                                leftToRight: 5.5,
-                                topToBottom: 0.0,
-                                time: 1500,
-                                show: true,
-                                child: Container(
-                                  height: 30.h,
-                                  width: 221.w,
-                                  decoration: BoxDecoration(
-                                    color: gblue,
-                                    borderRadius: BorderRadius.circular(6.sp),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      _showCalendarBottomSheet(context);
-                                      // Navigator.push(context,
-                                      //     MaterialPageRoute(builder: (context) {
-                                      //   return CalendarScreen();
-                                      // }));
-                                    },
-                                    child: Obx(() => Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Image(
-                                          image: AssetImage('assets/images/Vector.png'),
-                                          width: 15.w,
-                                          height: 15.h,
-                                        ),
-                                        Text(
-                                          calendarController.checkInDate.value != null
-                                              ? calendarController.formatDateShort(calendarController.checkInDate.value)
-                                              : "Check in",
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: poppinsFont,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w100,
-                                          ),
-                                        ),
-                                        Text(
-                                          "|",
-                                          style: TextStyle(
-                                            color: poppinsFont,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        Text(
-                                          calendarController.checkOutDate.value != null
-                                              ? calendarController.formatDateShort(calendarController.checkOutDate.value)
-                                              : "Checkout",
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: poppinsFont,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w100,
-                                          ),
-                                        ),
-                                      ],
-                                    )),
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        Dialog(
-                                          child: BookingDialog(),
-                                        ),
-                                  );
-                                },
-                                child: AnimatedContent(
-                                  leftToRight: 0.0,
-                                  time: 1500,
-                                  topToBottom: 5.0,
-                                  show: true,
-                                  child: Container(
-                                    margin: EdgeInsets.only(left: 10.w),
-                                    width: 100.w,
-                                    height: 30.h,
-                                    decoration: BoxDecoration(
-                                      color: gblue,
-                                      borderRadius: BorderRadius.circular(6.sp),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment
-                                          .center,
-                                      children: [
-                                        Image(
-                                          image: AssetImage(
-                                              'assets/images/Vector (1).png'),
-                                          width: 16.w,
-                                          height: 16.h,
-                                        ),
-                                        SizedBox(
-                                          width: 6.w,
-                                        ),
-                                        Text(
-                                          "Guests",
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: poppinsFont,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w100,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 67.h,
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width,
-                        color: blue,
-                        child: Padding(
-                            padding: EdgeInsets.only(left: 14.w, bottom: 9.h),
-                            child: GestureDetector(
-                              onTap: (){
-                                // Only proceed if location is entered
-
-                                  // Set search data in controller
-                                  screenController.setSearchData(
-                                    locationValue: locationController.text,
-                                    checkIn: calendarController.checkInDate.value,
-                                    checkOut: calendarController.checkOutDate.value,
-                                    guests: 2, // Default or get from your guest dialog
-                                    rooms: 1, // Default or get from your guest dialog
-                                  );
-
-                                  // Navigate to search tab
-                                  bottomBarController.updateSelectedPageIndex(0);
-
-                              },
-                                child: SearchButton())
-                        ),
-                      ),
                       Padding(
                         padding: EdgeInsets.only(
                           top: 20.h,
                           // bottom: 10.h,
                         ),
-
                         child: Row(
                           children: [
-                            AnimatedContent(
-                              leftToRight: 0.0,
-                              time: 1500,
-                              topToBottom: 5.0,
-                              show: true,
-                              child: SizedBox(
-                                // color: black,
-                                height: 105.h,
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width,
-                                child: FirstHomeBuilder(),
-                              ),
+                            SizedBox(
+                              // color: black,
+                              height: 105.h,
+                              width: MediaQuery.of(context).size.width,
+                              child: FirstHomeBuilder(),
                             ),
                           ],
                         ),
@@ -539,16 +124,13 @@ class HomeScreen extends StatelessWidget {
                       ),
                       HomeDivider(),
                       NameView(
-                        name: 'Best booking deals',
+                        name: 'Best wedding deals',
                         color: black,
                         secondName: 'View All',
                         secondColor: black,
                       ),
                       SizedBox(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width,
+                        width: MediaQuery.of(context).size.width,
                         height: 195.h,
                         // color: yellow,
                         child: ThirdHomeBuilder(),
@@ -615,228 +197,225 @@ class HomeScreen extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) =>
-          Container(
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.75,
-            decoration: BoxDecoration(
-              color: scaffoldColor,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.r),
-                topRight: Radius.circular(20.r),
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.8,
+        decoration: BoxDecoration(
+          color: scaffoldColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30.r),
+            topRight: Radius.circular(30.r),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: EdgeInsets.only(top: 12.h),
+              width: 50.w,
+              height: 5.h,
+              decoration: BoxDecoration(
+                color: grey.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(10.r),
               ),
             ),
-            child: Column(
-              children: [
-                // Handle bar at top of bottom sheet
-                Container(
-                  margin: EdgeInsets.only(top: 10.h),
-                  width: 40.w,
-                  height: 5.h,
-                  decoration: BoxDecoration(
-                  //  color: grey,
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
+
+            // Calendar title
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              child: Text(
+                "Select Dates",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  color: blue,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+            ),
 
-                // Calendar title
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15.h),
-                  child: Text(
-                    "Calendar",
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: blue,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
+            // Only the calendar is scrollable
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: ScrollableCleanCalendar(
+                  daySelectedBackgroundColor: yellow,
+                  daySelectedBackgroundColorBetween: blue.withOpacity(0.1),
+                  dayTextStyle: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 14.sp,
+                    color: black,
                   ),
-                ),
-
-                // Calendar first row - fixed
-                // Container(
-                //     width: MediaQuery
-                //         .of(context)
-                //         .size
-                //         .width,
-                //     height: 100.h,
-                //     child: CalenderFirstRow()
-                // ),
-
-                // Only the calendar is scrollable
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.r),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: blue),
-                       // color: white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: ScrollableCleanCalendar(
-                        daySelectedBackgroundColor: yellow,
-                        daySelectedBackgroundColorBetween: grey,
-                        monthTextStyle: TextStyle(
-                            color: blue,
-                            fontSize: 22.sp,
-                            fontWeight: FontWeight.bold
-                        ),
-                        scrollController: calenderScroll,
-                        calendarController: calendarController
-                            .calendarController,
-                        layout: Layout.BEAUTY,
-                        calendarCrossAxisSpacing: 0,
-                      ),
-                    ),
+                  monthTextStyle: TextStyle(
+                    color: blue,
+                    fontFamily: 'Poppins',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
                   ),
+                  weekdayTextStyle: TextStyle(
+                    color: fontColor,
+                    fontFamily: 'Poppins',
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  scrollController: calenderScroll,
+                  calendarController: calendarController.calendarController,
+                  layout: Layout.BEAUTY,
+                  calendarCrossAxisSpacing: 0,
                 ),
+              ),
+            ),
 
-                // Date display section - fixed
-                Padding(
-                  padding: EdgeInsets.only(top: 15.h),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            // Date display section
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+              decoration: BoxDecoration(
+                color: white,
+                boxShadow: [
+                  BoxShadow(
+                    color: black.withOpacity(0.05),
+                    offset: const Offset(0, -5),
+                    blurRadius: 15,
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Check-in date display
-                      Obx(() =>
-                          Container(
-                            padding: EdgeInsets.all(8.r),
-                            decoration: BoxDecoration(
-                              color: white,
-                              borderRadius: BorderRadius.circular(10.r),
-                              border: Border.all(color: blue),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  "Check-In-Date",
-                                  style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontFamily: "Poppins",
-                                      fontWeight: FontWeight.w500
-                                  ),
-                                ),
-                                Text(
-                                  calendarController.checkInDate.value != null
-                                      ? calendarController.formatDate(
+                      // Check-in date card
+                      Expanded(
+                        child: Obx(() => _buildDateCard(
+                              title: "CHECK-IN",
+                              date: calendarController.checkInDate.value != null
+                                  ? calendarController.formatDate(
                                       calendarController.checkInDate.value)
-                                      : "Select Date",
-                                  style: TextStyle(
-                                      fontSize: 12.sp,
-                                      fontFamily: "Poppins",
-                                      fontWeight: FontWeight.w500
-                                  ),
-                                )
-                              ],
+                                  : "Select Date",
+                              isSelected:
+                                  calendarController.checkInDate.value != null,
+                            )),
+                      ),
+
+                      // Total days indicator
+                      Obx(() => Container(
+                            margin: EdgeInsets.symmetric(horizontal: 5.w),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8.w, vertical: 4.h),
+                            decoration: BoxDecoration(
+                              color: yellow.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            child: Text(
+                              "${calendarController.totalDays.value} Days",
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: blue,
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           )),
 
-                      // Total days display
-                      Obx(() =>
-                          Container(
-                            padding: EdgeInsets.only(
-                                left: 5.w, right: 5.w, top: 5.h, bottom: 5.h
-                            ),
-                            decoration: BoxDecoration(
-                              color: grey,
-                              borderRadius: BorderRadius.circular(10.r),
-                              border: Border.all(color: blue),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  "${calendarController.totalDays.value}",
-                                  style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontFamily: "Poppins",
-                                      fontWeight: FontWeight.w500
-                                  ),
-                                ),
-                                Text(
-                                  "Days",
-                                  style: TextStyle(
-                                      fontSize: 12.sp,
-                                      fontFamily: "Poppins",
-                                      fontWeight: FontWeight.w500
-                                  ),
-                                )
-                              ],
-                            ),
-                          )),
-
-                      // Check-out date display
-                      Obx(() =>
-                          Container(
-                            padding: EdgeInsets.all(8.r),
-                            decoration: BoxDecoration(
-                              color: white,
-                              borderRadius: BorderRadius.circular(10.r),
-                              border: Border.all(color: blue),
-                            ),
-                            child: Column(
-                              children: [
-                                Text(
-                                  "Check-Out-Date",
-                                  style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontFamily: "Poppins",
-                                      fontWeight: FontWeight.w500
-                                  ),
-                                ),
-                                Text(
+                      // Check-out date card
+                      Expanded(
+                        child: Obx(() => _buildDateCard(
+                              title: "CHECK-OUT",
+                              date:
                                   calendarController.checkOutDate.value != null
                                       ? calendarController.formatDate(
-                                      calendarController.checkOutDate.value)
+                                          calendarController.checkOutDate.value)
                                       : "Select Date",
-                                  style: TextStyle(
-                                      fontSize: 12.sp,
-                                      fontFamily: "Poppins",
-                                      fontWeight: FontWeight.w500
-                                  ),
-                                )
-                              ],
-                            ),
-                          )),
+                              isSelected:
+                                  calendarController.checkOutDate.value != null,
+                            )),
+                      ),
                     ],
                   ),
-                ),
-
-                // Done button - fixed at bottom
-                Padding(
-                  padding: EdgeInsets.only(top: 20.h, bottom: 20.h),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width - 50,
-                      height: 43.h,
-                      decoration: BoxDecoration(
-                        color: yellow,
-                        borderRadius: BorderRadius.circular(28.sp),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Apply",
-                          style: TextStyle(
-                              color: black,
+                  SizedBox(height: 20.h),
+                  // Apply button
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      borderRadius: BorderRadius.circular(15.sp),
+                      child: Ink(
+                        width: double.infinity,
+                        height: 50.h,
+                        decoration: BoxDecoration(
+                          color: blue,
+                          borderRadius: BorderRadius.circular(15.sp),
+                          boxShadow: [
+                            BoxShadow(
+                              color: blue.withOpacity(0.3),
+                              offset: const Offset(0, 4),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Confirm & Continue",
+                            style: TextStyle(
+                              color: white,
                               fontSize: 16.sp,
                               fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateCard(
+      {required String title, required String date, required bool isSelected}) {
+    return Container(
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: scaffoldColor,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: isSelected ? blue.withOpacity(0.2) : border.withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 10.sp,
+              fontFamily: "Poppins",
+              color: fontColor,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
             ),
           ),
+          SizedBox(height: 4.h),
+          Text(
+            date,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontFamily: "Poppins",
+              color: blue,
+              fontWeight: FontWeight.w600,
+            ),
+          )
+        ],
+      ),
     );
   }
 }

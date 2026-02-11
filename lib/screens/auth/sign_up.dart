@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:homesloc/controller/login/login_screen_controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
+import 'package:homesloc/core/widgets/loader/app_loader.dart';
+
 import 'package:homesloc/core/widgets/auth_button/auth_button.dart';
 import 'package:homesloc/screens/auth/sign_in.dart';
 import 'package:homesloc/widgets/custom_snackbar.dart';
@@ -73,8 +75,7 @@ class SignUp extends StatelessWidget {
                               ? SizedBox(
                                   width: 15,
                                   height: 15,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2))
+                                  child: const AppLoader(size: 20))
                               : Text(
                                   'Verify',
                                   style: TextStyle(
@@ -142,7 +143,7 @@ class SignUp extends StatelessWidget {
                 onSaved: (value) {},
                 hintText: '',
               ),
-               SizedBox(
+              SizedBox(
                 height: 8.h,
               ),
               PasswordForm(
@@ -198,7 +199,7 @@ class SignUp extends StatelessWidget {
               ),
               Obx(
                 () => controller.isRegisterLoading.value
-                    ? const Center(child: CircularProgressIndicator(color: blue,))
+                    ? const Center(child: AppLoader(size: 40))
                     : AuthButton(
                         name: 'Sign Up',
                         onPressed: () async {

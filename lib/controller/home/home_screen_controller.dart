@@ -10,10 +10,19 @@ class HomeScreenController extends GetxController {
   var guestCount = 1.obs;
   var roomCount = 1.obs;
 
-
   var homeScreenData = HomescreenModel().obs;
   var isLoading = true.obs;
   var errorMessage = ''.obs;
+
+  List<BestHotel> get bestHotels => homeScreenData.value.bestHotels ?? [];
+  List<TourPackage> get tourPackages => homeScreenData.value.tourPackages ?? [];
+  List<WeddingPackage> get weddingPackages =>
+      homeScreenData.value.weddingPackages ?? [];
+  List<BanquetHall> get banquetHalls => homeScreenData.value.banquetHalls ?? [];
+  List<PopularDestination> get popularDestinations =>
+      homeScreenData.value.popularDestinations ?? [];
+  List<LatestReview> get latestReviews =>
+      homeScreenData.value.latestReviews ?? [];
 
   final HomeScreenService _homeScreenService = HomeScreenService();
 
@@ -27,8 +36,18 @@ class HomeScreenController extends GetxController {
   String formatDateShort(DateTime? date) {
     if (date == null) return "";
     List<String> months = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
     ];
     return "${date.day} ${months[date.month - 1]}";
   }

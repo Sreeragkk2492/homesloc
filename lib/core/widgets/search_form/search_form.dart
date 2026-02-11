@@ -4,8 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 
+import 'package:homesloc/controller/search/search_hotel_controller.dart';
+import 'package:get/get.dart';
+
 class SearchForm extends StatelessWidget {
-  const SearchForm({super.key});
+  SearchForm({super.key});
+
+  final SearchHotelController searchHotelController =
+      Get.find<SearchHotelController>();
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +19,10 @@ class SearchForm extends StatelessWidget {
       width: 334.w,
       // height: 40.h,
       child: TextFormField(
-        onChanged: (value) {},
+        onChanged: (value) {
+          searchHotelController.location.value = value;
+        },
+        initialValue: searchHotelController.location.value,
         style: TextStyle(
           fontSize: 14.sp,
           fontWeight: FontWeight.w500,
