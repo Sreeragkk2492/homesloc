@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/myBooking/my_booking_controller.dart';
+import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/models/booking/booking_model.dart';
 import 'package:homesloc/screens/payment_screen/booking_successful/booking_successful.dart';
@@ -24,201 +25,169 @@ class PayNow extends StatelessWidget {
     required this.checkOutDate,
   });
 
-  final screenController = Get.put(TripController());
+  final calendarController = Get.find<CalendarController>();
+  final tripController = Get.put(TripController());
 
   @override
   Widget build(BuildContext context) {
-    // Logical data
-    final double nightlyRate = price;
-    final int numberOfNights =
-        30; // This should ideally come from CalendarController too
-    final double discount = 50.0;
-    final double taxesAndFees = 15.0;
+    return Obx(() {
+      // Dynamic data from CalendarController
+      final int numberOfNights = calendarController.totalDays.value > 0
+          ? calendarController.totalDays.value
+          : 1;
+      final int numberOfRooms = calendarController.roomCount.value;
 
-    // Calculations
-    final double subtotal = nightlyRate * numberOfNights;
-    final double totalDiscount = discount;
-    final double totalTaxesAndFees = taxesAndFees;
-    final double grandTotal = subtotal - totalDiscount + totalTaxesAndFees;
+      // Base calculation
+      final double nightlyRate = price;
+      final double subtotal = nightlyRate * numberOfNights * numberOfRooms;
 
-    return Container(
-      margin: EdgeInsets.only(top: 15, right: 10.w, left: 10.w, bottom: 20.h),
-      decoration: BoxDecoration(
-        color: blue,
-        borderRadius: BorderRadius.circular(23.sp),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 20.h,
-            ),
-            Text(
-              'Price Details',
-              style: TextStyle(
-                  color: const Color.fromARGB(255, 190, 190, 190),
-                  fontFamily: 'Poppins',
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10.h,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '₹$nightlyRate x $numberOfNights Nights',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 190, 190, 190),
-                      fontFamily: 'Poppins',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w100),
-                ),
-                Text(
-                  '₹${subtotal.toStringAsFixed(2)}',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 190, 190, 190),
-                      fontFamily: 'Poppins',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w100),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 6.h,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Discount',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 190, 190, 190),
-                      fontFamily: 'Poppins',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w100),
-                ),
-                Text(
-                  '-₹${totalDiscount.toStringAsFixed(2)}',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 190, 190, 190),
-                      fontFamily: 'Poppins',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w100),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 6.h,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Occupancy taxes and fees',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 190, 190, 190),
-                      fontFamily: 'Poppins',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w100),
-                ),
-                Text(
-                  '₹${totalTaxesAndFees.toStringAsFixed(2)}',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 190, 190, 190),
-                      fontFamily: 'Poppins',
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w100),
-                ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.h),
-              child: Divider(
-                color: const Color.fromARGB(255, 190, 190, 190),
+      // Placeholder calculations (can be refined with real API data later)
+      final double taxesAndFees = subtotal * 0.12; // 12% GST/Fees
+      final double discount =
+          subtotal > 5000 ? 500.0 : 0.0; // Sample discount logic
+
+      final double grandTotal = subtotal - discount + taxesAndFees;
+
+      return Container(
+        margin: EdgeInsets.only(top: 15, right: 10.w, left: 10.w, bottom: 20.h),
+        decoration: BoxDecoration(
+          color: blue,
+          borderRadius: BorderRadius.circular(23.sp),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20.h),
+              Text(
+                'Price Details',
+                style: TextStyle(
+                    color: const Color.fromARGB(255, 190, 190, 190),
+                    fontFamily: 'Poppins',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold),
               ),
-            ),
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Grand Total',
-                      style: TextStyle(
-                          color: const Color.fromARGB(255, 190, 190, 190),
-                          fontFamily: 'Poppins',
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      "₹${grandTotal.toStringAsFixed(2)}",
-                      style: TextStyle(
-                          color: white,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 23.sp),
-                    ),
-                  ],
+              SizedBox(height: 10.h),
+              _buildPriceRow(
+                '₹${nightlyRate.toStringAsFixed(0)} x $numberOfNights Nights (${numberOfRooms} Room)',
+                '₹${subtotal.toStringAsFixed(2)}',
+              ),
+              if (discount > 0) ...[
+                SizedBox(height: 6.h),
+                _buildPriceRow(
+                  'Discount',
+                  '-₹${discount.toStringAsFixed(2)}',
                 ),
-                SizedBox(
-                  height: 10.h,
+              ],
+              SizedBox(height: 6.h),
+              _buildPriceRow(
+                'Occupancy taxes and fees',
+                '₹${taxesAndFees.toStringAsFixed(2)}',
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                child: Divider(
+                  color: const Color.fromARGB(255, 190, 190, 190),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 12.h),
-                  child: InkWell(
-                    onTap: () {
-                      final booking = BookingModel(
-                        hotelName: hotelName,
-                        totalAmount: grandTotal,
-                        numberOfNights: numberOfNights,
-                        checkInDate:
-                            DateTime.now(), // Replace with actual check-in date
-                        checkOutDate:
-                            DateTime.now().add(Duration(days: numberOfNights)),
-                      );
-                      screenController.addBooking(booking);
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Grand Total',
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 190, 190, 190),
+                        fontFamily: 'Poppins',
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    "₹${grandTotal.toStringAsFixed(2)}",
+                    style: TextStyle(
+                        color: white,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 23.sp),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.h),
+              Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: InkWell(
+                  onTap: () {
+                    final booking = BookingModel(
+                      hotelName: hotelName,
+                      totalAmount: grandTotal,
+                      numberOfNights: numberOfNights,
+                      checkInDate: calendarController.checkInDate.value ??
+                          DateTime.now(),
+                      checkOutDate: calendarController.checkOutDate.value ??
+                          DateTime.now().add(const Duration(days: 1)),
+                    );
+                    tripController.addBooking(booking);
 
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return BookingSuccessful(
-                          hotelName: hotelName,
-                          location: location,
-                          price: grandTotal.toStringAsFixed(0),
-                          checkInDate: checkInDate,
-                          checkOutDate: checkOutDate,
-                          coverImage: coverImage,
-                        );
-                      }));
-                    },
-                    child: Container(
-                      width: 300.w,
-                      height: 43.h,
-                      decoration: BoxDecoration(
-                        color: yellow,
-                        borderRadius: BorderRadius.circular(28.sp),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Pay Now",
-                          style: TextStyle(
-                              color: black,
-                              fontSize: 16.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500),
-                        ),
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return BookingSuccessful(
+                        hotelName: hotelName,
+                        location: location,
+                        price: grandTotal.toStringAsFixed(0),
+                        checkInDate: checkInDate,
+                        checkOutDate: checkOutDate,
+                        coverImage: coverImage,
+                      );
+                    }));
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      color: yellow,
+                      borderRadius: BorderRadius.circular(28.sp),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Pay Now",
+                        style: TextStyle(
+                            color: black,
+                            fontSize: 16.sp,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
-      ),
+      );
+    });
+  }
+
+  Widget _buildPriceRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+              color: const Color.fromARGB(255, 190, 190, 190),
+              fontFamily: 'Poppins',
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w300),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+              color: const Color.fromARGB(255, 190, 190, 190),
+              fontFamily: 'Poppins',
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500),
+        ),
+      ],
     );
   }
 }

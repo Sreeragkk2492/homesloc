@@ -90,7 +90,7 @@ class BookNow extends StatelessWidget {
               InkWell(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return PaymentSreen(
+                    return PaymentScreen(
                       hotelName: _getName(),
                       location: _getLocation(),
                       price: double.tryParse(_getPrice()) ?? 0.0,
