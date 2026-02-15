@@ -2,29 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
-import 'package:homesloc/models/home/hotel_detail_model.dart';
-import 'package:homesloc/models/search/search_hotel_model.dart';
+import 'package:homesloc/models/home/hall_detail_model.dart';
 
-class AmenitieRow extends StatelessWidget {
-  final dynamic hotel;
-  const AmenitieRow({super.key, this.hotel});
+class HallAmenitieRow extends StatelessWidget {
+  final HallDetailModel? hall;
+  const HallAmenitieRow({super.key, this.hall});
 
   @override
   Widget build(BuildContext context) {
-    List<String> amenities = [];
-
-    if (hotel is HotelDetailModel) {
-      amenities = hotel.amenities ?? [];
-    } else if (hotel is Hotel) {
-      amenities = hotel.amenities ?? [];
-      // Fallback to freshup details if root amenities is empty
-      if (amenities.isEmpty && hotel.freshupDetails?.amenities != null) {
-        amenities = hotel.freshupDetails!.amenities!
-            .map((e) => e.name ?? "")
-            .where((e) => e.isNotEmpty)
-            .toList();
-      }
-    }
+    List<String> amenities = hall?.amenities ?? [];
 
     if (amenities.isEmpty) {
       return Padding(
@@ -90,6 +76,7 @@ class AmenitieRow extends StatelessWidget {
     if (a.contains('pool')) return Icons.pool;
     if (a.contains('gym') || a.contains('fitness')) return Icons.fitness_center;
     if (a.contains('restaurant') || a.contains('food')) return Icons.restaurant;
+    if (a.contains('chair') || a.contains('seating')) return Icons.chair;
     return Icons.check_circle_outline;
   }
 }

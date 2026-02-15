@@ -1,137 +1,93 @@
 // ignore_for_file: file_names, avoid_print, unused_import
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
-import 'package:homesloc/screens/detailed_view_screen/amenitie_row/amenitie_row.dart';
-import 'package:homesloc/screens/detailed_view_screen/property_row/property_first_row.dart';
-import 'package:homesloc/screens/detailed_view_screen/rating_row/rating_first_row.dart';
-import 'package:homesloc/screens/detailed_view_screen/rating_row/rating_second_row.dart';
-import 'package:homesloc/screens/detailed_view_screen/rating_row/rating_third_row.dart';
+import 'package:homesloc/core/widgets/book_now/freshup_book_now.dart';
+import 'package:homesloc/core/widgets/gallery/full_screen_image_viewer.dart';
+import 'package:homesloc/models/search/search_hotel_model.dart';
+import 'package:homesloc/apis/home/hotel_detail_service.dart';
+import 'package:homesloc/models/freshup/freshup_availability_model.dart';
+import 'package:intl/intl.dart';
+import 'package:homesloc/screens/detailed_view_screen/amenitie_row/freshup_amenitie_row.dart';
+import 'package:homesloc/screens/detailed_view_screen/slot_row/freshup_slot_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/transportation_row/transportations_first_row.dart';
-import 'package:homesloc/core/widgets/yellow_star/yellow_star.dart';
-import 'package:homesloc/core/widgets/book_now/book_now.dart';
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/first_detailed_view_builder.dart';
-import 'package:homesloc/core/widgets/builder/detailed_view_builder/second_detailed_view_builder.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
-import 'package:homesloc/models/home/hotel_detail_model.dart';
-import 'package:homesloc/apis/home/hotel_detail_service.dart';
 
-import 'package:homesloc/core/widgets/loader/app_loader.dart';
-import 'package:homesloc/core/widgets/gallery/full_screen_image_viewer.dart';
-
-import 'package:homesloc/models/search/search_hotel_model.dart';
-import 'package:intl/intl.dart';
-
-class DetailedViewScreen extends StatefulWidget {
-  final dynamic hotel;
+class FreshupDetailedViewScreen extends StatefulWidget {
+  final Hotel freshup;
   final String? startDate;
   final String? endDate;
 
-  const DetailedViewScreen({
+  const FreshupDetailedViewScreen({
     super.key,
-    this.hotel,
+    required this.freshup,
     this.startDate,
     this.endDate,
   });
 
   @override
-  State<DetailedViewScreen> createState() => _DetailedViewScreenState();
+  State<FreshupDetailedViewScreen> createState() =>
+      _FreshupDetailedViewScreenState();
 }
 
-class _DetailedViewScreenState extends State<DetailedViewScreen> {
-  final HotelDetailService _hotelDetailService = HotelDetailService();
-  HotelDetailModel? _hotelDetails;
-  bool _isLoading = true;
-  int _carouselIndex = 0;
+class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
+  late final CalendarController calendarController;
   final PageController _pageController = PageController();
-
-  bool _isFullProperty = false; // Add this flag
+  final HotelDetailService _hotelDetailService = HotelDetailService();
+  int _carouselIndex = 0;
+  bool _isLoading = false;
+  FreshupAvailabilityModel? _availabilityModel;
+  List<String> _selectedSlotIds = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchDetails();
+    if (Get.isRegistered<CalendarController>()) {
+      calendarController = Get.find<CalendarController>();
+    } else {
+      calendarController = Get.put(CalendarController());
+    }
+
+    if (widget.startDate != null) {
+      calendarController.checkInDate.value = DateTime.parse(widget.startDate!);
+    }
+
+    _fetchFreshupDetails();
   }
 
-  Future<void> _fetchDetails() async {
+  Future<void> _fetchFreshupDetails() async {
+    if (widget.freshup.freshupDetails?.freshupId == null ||
+        widget.freshup.freshupDetails?.priceMethod == null) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final hotel = widget.hotel;
+      final dateFormat = DateFormat('yyyy-MM-dd');
+      final date = dateFormat
+          .format(calendarController.checkInDate.value ?? DateTime.now());
 
-      // Check if it's a Room type from search results
-      if (hotel is Hotel &&
-          hotel.accommodationType == "ROOM" &&
-          hotel.id != null) {
-        // ... (room logic)
-        final start =
-            widget.startDate ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
-        final end = widget.endDate ??
-            DateFormat('yyyy-MM-dd')
-                .format(DateTime.now().add(const Duration(days: 1)));
+      final result = await _hotelDetailService.checkFreshupAvailability(
+        freshupRoomId: widget.freshup.freshupDetails!.freshupId!,
+        priceMethod: widget.freshup.freshupDetails!.priceMethod!,
+        date: date,
+      );
 
-        final details = await _hotelDetailService.fetchRoomDetails(
-          roomId: hotel.id!,
-          startDate: start,
-          endDate: end,
-        );
-
-        if (mounted) {
-          setState(() {
-            _hotelDetails = details;
-            _isFullProperty = false; // Explicitly false
-            _isLoading = false;
-          });
-        }
-        return;
-      }
-
-      // Check if it's a Full Property type from search results
-      if (hotel is Hotel &&
-          hotel.accommodationType == "FULL_PROPERTY" &&
-          hotel.id != null) {
-        final start =
-            widget.startDate ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
-        final end = widget.endDate ??
-            DateFormat('yyyy-MM-dd')
-                .format(DateTime.now().add(const Duration(days: 1)));
-
-        final details = await _hotelDetailService.fetchFullPropertyDetails(
-          propertyId: hotel.id!,
-          startDate: start,
-          endDate: end,
-        );
-
-        if (mounted) {
-          setState(() {
-            _hotelDetails = details;
-            _isFullProperty = true; // Set to true
-            _isLoading = false;
-          });
-        }
-        return;
-      }
-
-      final hotelId = hotel is String
-          ? hotel
-          : (hotel is Hotel
-              ? hotel.id
-              : (hotel is HotelDetailModel ? hotel.id : null));
-
-      if (hotelId != null) {
-        final details = await _hotelDetailService.fetchHotelDetails(hotelId);
-        if (mounted) {
-          setState(() {
-            _hotelDetails = details;
-            _isLoading = false;
-          });
-        }
-      } else {
+      if (mounted) {
         setState(() {
+          _availabilityModel = result;
           _isLoading = false;
         });
       }
     } catch (e) {
-      print('Error fetching hotel details: $e');
+      print("Error fetching freshup details: $e");
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -156,6 +112,18 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
         ),
       ),
     );
+  }
+
+  List<String> _getGalleryImages() {
+    List<String> images = [];
+    if (widget.freshup.coverImageUrl != null &&
+        widget.freshup.coverImageUrl!.isNotEmpty) {
+      images.add(widget.freshup.coverImageUrl!);
+    }
+    if (widget.freshup.galleryImages != null) {
+      images.addAll(widget.freshup.galleryImages!);
+    }
+    return images.isEmpty ? ['assets/images/l1.png'] : images;
   }
 
   Widget _buildPolicyHighlight({
@@ -224,21 +192,12 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        backgroundColor: white,
-        body: const Center(
-          child: AppLoader(size: 50),
-        ),
-      );
-    }
-
-    final hotelData = _hotelDetails ?? widget.hotel;
+    final images = _getGalleryImages();
+    final hotelData = widget.freshup;
 
     return Scaffold(
       backgroundColor: white,
       body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -254,12 +213,11 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                         _carouselIndex = index;
                       });
                     },
-                    itemCount: _getGalleryImages(hotelData).length,
+                    itemCount: images.length,
                     itemBuilder: (context, index) {
-                      final imageUrl = _getGalleryImages(hotelData)[index];
+                      final imageUrl = images[index];
                       return GestureDetector(
-                        onTap: () => _openFullScreenPreview(
-                            _getGalleryImages(hotelData), index),
+                        onTap: () => _openFullScreenPreview(images, index),
                         child: Container(
                           decoration: BoxDecoration(
                             image: DecorationImage(
@@ -274,7 +232,6 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                     },
                   ),
                 ),
-                // Bottom Gradient Scrim
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -293,7 +250,6 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                     ),
                   ),
                 ),
-                // Floating Back Button
                 Positioned(
                   top: 40.h,
                   left: 15.w,
@@ -320,7 +276,6 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                     ),
                   ),
                 ),
-                // Floating Favorite Button
                 Positioned(
                   top: 40.h,
                   right: 15.w,
@@ -340,7 +295,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                         ],
                       ),
                       child: Icon(
-                        hotelData?.isFavorite == true
+                        hotelData.isFavorite == true
                             ? Icons.favorite_rounded
                             : Icons.favorite_outline_rounded,
                         color: blue,
@@ -349,15 +304,14 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                     ),
                   ),
                 ),
-                // Expanding Dots Indicator
-                if (_getGalleryImages(hotelData).length > 1)
+                if (images.length > 1)
                   Positioned(
                     bottom: 20.h,
                     left: 20.w,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        _getGalleryImages(hotelData).length,
+                        images.length,
                         (index) => AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           margin: EdgeInsets.symmetric(horizontal: 3.w),
@@ -373,7 +327,6 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                       ),
                     ),
                   ),
-                // Glassmorphic Image Count Overlay
                 Positioned(
                   bottom: 15.h,
                   right: 15.w,
@@ -392,7 +345,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                         Icon(Icons.image_outlined, color: white, size: 12.sp),
                         SizedBox(width: 5.w),
                         Text(
-                          '${_carouselIndex + 1}/${_getGalleryImages(hotelData).length}',
+                          '${_carouselIndex + 1}/${images.length}',
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             color: white,
@@ -416,7 +369,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _getName(hotelData),
+                          hotelData.name ?? 'Freshup Name',
                           style: TextStyle(
                             fontFamily: 'Poppins',
                             color: blue,
@@ -425,24 +378,32 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                           ),
                         ),
                         SizedBox(height: 5.h),
-                        Row(
-                          children: [
-                            ...List.generate(
-                              int.parse(_getStarRating(hotelData)),
-                              (index) => Icon(Icons.star_rounded,
-                                  color: yellow, size: 18.sp),
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              '(${_getReviewCount(hotelData)} Reviews)',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: fontColor,
-                                fontSize: 12.sp,
+                        if (hotelData.rating != null)
+                          Row(
+                            children: [
+                              ...List.generate(
+                                5, // Defaulting to 5 or mapping rating
+                                (index) => Icon(Icons.star_rounded,
+                                    color: index <
+                                            (num.tryParse(hotelData.rating
+                                                        .toString()) ??
+                                                    5)
+                                                .floor()
+                                        ? yellow
+                                        : grey,
+                                    size: 18.sp),
                               ),
-                            ),
-                          ],
-                        ),
+                              SizedBox(width: 8.w),
+                              Text(
+                                '(${hotelData.reviewCount ?? 0} Reviews)',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: fontColor,
+                                  fontSize: 12.sp,
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ),
@@ -486,7 +447,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                         ),
                         SizedBox(width: 4.w),
                         Text(
-                          'Map View', // More standard label
+                          'Map View',
                           style: TextStyle(
                               fontFamily: 'Poppins',
                               color: blue,
@@ -510,27 +471,10 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                   ),
                   Expanded(
                     child: Text(
-                      _getLocation(hotelData),
+                      hotelData.location ?? "Location",
                       style: TextStyle(
                           fontFamily: 'Poppins', color: black, fontSize: 13.sp),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 12.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(right: 10.w),
-                    child: Icon(Icons.phone, color: blue, size: 18.sp),
-                  ),
-                  Text(
-                    _getPhoneNumber(hotelData),
-                    style: TextStyle(
-                        fontFamily: 'Poppins', color: black, fontSize: 13.sp),
                   ),
                 ],
               ),
@@ -543,111 +487,52 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
               secondColor: blue,
             ),
             SizedBox(height: 10.h),
-            AmenitieRow(
-                hotel:
-                    hotelData), // Reusing AmenitieRow as it now handles lists well
+            _isLoading
+                ? Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.r),
+                      child: CircularProgressIndicator(color: blue),
+                    ),
+                  )
+                : FreshupAmenitieRow(
+                    freshup: hotelData,
+                    amenities: (_availabilityModel
+                                ?.accommodations?.isNotEmpty ??
+                            false)
+                        ? _availabilityModel!.accommodations!.first.amenities
+                        : null,
+                  ),
             SizedBox(height: 15.h),
-            BookNow(
-              hotel: hotelData,
-              isFullProperty: _isFullProperty,
+            NameView(
+              name: "Available Slots",
+              color: blue,
+              secondName: '',
+              secondColor: blue,
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 18.h, left: 10.w, bottom: 10.h),
-              child: Text(
-                'Rating & Reviews',
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: blue,
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                    decoration: BoxDecoration(
-                      color: blue,
-                      borderRadius: BorderRadius.circular(3.sp),
+            _isLoading
+                ? Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.r),
+                      child: CircularProgressIndicator(color: blue),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${_getStarRating(hotelData)}",
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: white,
-                              fontSize: 11.sp),
-                        ),
-                        SizedBox(width: 4.w),
-                        Icon(
-                          Icons.star,
-                          color: yellow,
-                          size: 14.sp,
-                        )
-                      ],
-                    ),
+                  )
+                : FreshupSlotRow(
+                    slots: (_availabilityModel?.accommodations?.isNotEmpty ??
+                            false)
+                        ? _availabilityModel!.accommodations!.first.slots
+                        : null,
+                    initialSelectedSlotIds: _selectedSlotIds,
+                    onSlotsSelected: (ids) {
+                      setState(() {
+                        _selectedSlotIds = ids;
+                      });
+                    },
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(right: 20.w),
-                    child: Text(
-                      "${_getReviewCount(hotelData)} Reviews",
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: fontColor,
-                          fontSize: 11.sp),
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: gwhite,
-                      borderRadius: BorderRadius.circular(21.sp),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.face, size: 14.sp, color: blue),
-                        SizedBox(width: 5.w),
-                        Text(
-                          'Excellent',
-                          style: TextStyle(
-                              color: black,
-                              fontFamily: 'Poppins',
-                              fontSize: 10.sp),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
             SizedBox(height: 15.h),
-            // We can keep these or simplify them if review data is missing
-            if (_getReviewCount(hotelData) != "0") ...[
-              RatingFirstRow(),
-              RatingSecondRow(),
-              RatingThirdRow(),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 120.h,
-                child: SecondDetailedViewBuilder(),
-              ),
-            ] else
-              Padding(
-                padding: EdgeInsets.all(20.r),
-                child: Center(
-                    child: Text("No reviews yet",
-                        style: TextStyle(
-                            fontFamily: 'Poppins', color: fontColor))),
-              ),
+            FreshupBookNow(
+              freshup: hotelData,
+              selectedSlotIds: _selectedSlotIds,
+            ),
             const HomeDivider(),
             Padding(
               padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
@@ -665,7 +550,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
             Padding(
               padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
               child: Text(
-                'About ${_getName(hotelData)}',
+                'About ${hotelData.name ?? "Freshup"}',
                 style: TextStyle(
                     fontFamily: 'Poppins',
                     color: blue,
@@ -680,17 +565,17 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.r),
                 image: DecorationImage(
-                    image: _getCoverImage(hotelData).startsWith('http')
-                        ? NetworkImage(_getCoverImage(hotelData))
-                        : AssetImage(_getCoverImage(hotelData))
-                            as ImageProvider,
+                    image: (hotelData.coverImageUrl ?? "").startsWith('http')
+                        ? NetworkImage(hotelData.coverImageUrl!)
+                        : AssetImage(hotelData.coverImageUrl ??
+                            'assets/images/l1.png') as ImageProvider,
                     fit: BoxFit.cover),
               ),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               child: Text(
-                _getDescription(hotelData),
+                hotelData.freshupDetails?.freshupDescription ?? "",
                 style: TextStyle(
                     fontFamily: 'Poppins',
                     color: black,
@@ -704,165 +589,31 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                 color: blue,
                 secondName: 'View All',
                 secondColor: blue),
-            _buildPolicyHighlight(
-              icon: Icons.access_time_rounded,
-              title: 'Check in & Check out',
-              content:
-                  'Check In: ${_getCheckInTime(hotelData)}\nCheck Out: ${_getCheckOutTime(hotelData)}',
-            ),
+            if (hotelData.freshupDetails?.smokingAllowed != null)
+              _buildPolicyHighlight(
+                icon: Icons.smoke_free_rounded,
+                title: 'Smoking Policy',
+                content: hotelData.freshupDetails!.smokingAllowed!
+                    ? "Smoking Allowed"
+                    : "Smoking Not Allowed",
+              ),
+            if (hotelData.freshupDetails?.bathroomAttached != null)
+              _buildPolicyHighlight(
+                icon: Icons.bathroom_outlined,
+                title: 'Bathroom',
+                content: hotelData.freshupDetails!.bathroomAttached!
+                    ? "Bathroom Attached"
+                    : "Shared Bathroom",
+              ),
             _buildPolicyHighlight(
               icon: Icons.assignment_return_rounded,
               title: 'Cancellations & Refunds',
-              content: _getCancellationPolicy(hotelData),
+              content: 'Standard Freshup cancellation policies apply.',
             ),
-            if (_getPetPolicy(hotelData).isNotEmpty)
-              _buildPolicyHighlight(
-                icon: Icons.pets_rounded,
-                title: 'Pet Policy',
-                content: _getPetPolicy(hotelData),
-              ),
-            if (_getChildPolicy(hotelData).isNotEmpty)
-              _buildPolicyHighlight(
-                icon: Icons.child_care_rounded,
-                title: 'Child Policy',
-                content: _getChildPolicy(hotelData),
-              ),
             SizedBox(height: 40.h),
           ],
         ),
       ),
     );
-  }
-
-  String _getName(dynamic hotel) {
-    if (hotel is HotelDetailModel) return hotel.name ?? 'Hotel Name';
-    try {
-      return hotel.name ?? 'Hotel Name';
-    } catch (e) {
-      return 'Hotel Name';
-    }
-  }
-
-  String _getLocation(dynamic hotel) {
-    if (hotel is HotelDetailModel) return hotel.location ?? 'Location';
-    try {
-      if (hotel.runtimeType.toString() == 'BestHotel') {
-        return hotel.location ?? 'Location';
-      } else {
-        return hotel.locationInfo?.city ??
-            hotel.locationInfo?.address ??
-            hotel.location ??
-            'Location';
-      }
-    } catch (e) {
-      return 'Location';
-    }
-  }
-
-  String _getCoverImage(dynamic hotel) {
-    if (hotel is HotelDetailModel)
-      return hotel.coverImageUrl ?? 'assets/images/l1.png';
-    try {
-      return hotel.coverImageUrl ?? 'assets/images/l1.png';
-    } catch (e) {
-      return 'assets/images/l1.png';
-    }
-  }
-
-  List<String> _getGalleryImages(dynamic hotel) {
-    List<String> images = [];
-    if (hotel is HotelDetailModel) {
-      if (hotel.coverImageUrl != null) images.add(hotel.coverImageUrl!);
-      if (hotel.galleryImages != null) images.addAll(hotel.galleryImages!);
-    } else {
-      try {
-        if (hotel.coverImageUrl != null) images.add(hotel.coverImageUrl);
-        if (hotel.galleryImages != null) {
-          images.addAll(List<String>.from(hotel.galleryImages));
-        }
-      } catch (e) {
-        images.add('assets/images/l1.png');
-      }
-    }
-    return images.isEmpty ? ['assets/images/l1.png'] : images;
-  }
-
-  String _getPhoneNumber(dynamic hotel) {
-    if (hotel is HotelDetailModel) return hotel.phoneNumber ?? '+91 9876543210';
-    try {
-      return hotel.phoneNumber ?? '+91 9876543210';
-    } catch (e) {
-      return '+91 9876543210';
-    }
-  }
-
-  String _getStarRating(dynamic hotel) {
-    if (hotel is HotelDetailModel) return (hotel.starRating ?? 5).toString();
-    try {
-      final rating = hotel.starRating;
-      if (rating == null || rating == 0) return '5';
-      return rating.toString();
-    } catch (e) {
-      return '5';
-    }
-  }
-
-  String _getReviewCount(dynamic hotel) {
-    if (hotel is HotelDetailModel) return (hotel.reviewCount ?? 0).toString();
-    try {
-      final count = hotel.reviewCount;
-      if (count == null) return '0';
-      return count.toString();
-    } catch (e) {
-      return '0';
-    }
-  }
-
-  String _getDescription(dynamic hotel) {
-    if (hotel is HotelDetailModel) return hotel.description ?? '';
-    try {
-      return hotel.description ?? '';
-    } catch (e) {
-      return '';
-    }
-  }
-
-  String _getCheckInTime(dynamic hotel) {
-    if (hotel is HotelDetailModel)
-      return hotel.policies?.checkInTime ?? '2:00 PM';
-    return '2:00 PM';
-  }
-
-  String _getCheckOutTime(dynamic hotel) {
-    if (hotel is HotelDetailModel)
-      return hotel.policies?.checkOutTime ?? '11:00 AM';
-    return '11:00 AM';
-  }
-
-  String _getCancellationPolicy(dynamic hotel) {
-    if (hotel is HotelDetailModel) {
-      final policy = hotel.policies?.cancellationPolicy;
-      if (policy != null) {
-        if (policy.toLowerCase().contains('nonrefundable')) {
-          return 'This booking is non-refundable.';
-        }
-        if (policy.startsWith('freeUpTo:')) {
-          final days = policy.split(':')[1];
-          return 'Free cancellation up to $days days before check-in.';
-        }
-        return policy;
-      }
-    }
-    return 'Standard cancellation policies apply.';
-  }
-
-  String _getPetPolicy(dynamic hotel) {
-    // Note: Pet policy not currently in model, returning empty for now
-    return '';
-  }
-
-  String _getChildPolicy(dynamic hotel) {
-    // Note: Child policy not currently in model, returning empty for now
-    return '';
   }
 }

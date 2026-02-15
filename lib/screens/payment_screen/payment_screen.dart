@@ -9,11 +9,14 @@ import 'package:homesloc/core/utils/bottom_sheet_utils.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/calender_controller.dart';
 
+import 'package:homesloc/models/booking/room_availability_model.dart';
+
 class PaymentScreen extends StatelessWidget {
   final String hotelName;
   final String location;
   final double price;
   final String coverImage;
+  final BookingDetails? bookingDetails;
 
   PaymentScreen({
     super.key,
@@ -21,6 +24,7 @@ class PaymentScreen extends StatelessWidget {
     this.location = "Location",
     this.price = 0.0,
     this.coverImage = "https://via.placeholder.com/150",
+    this.bookingDetails,
   });
 
   final calendarController = Get.find<CalendarController>();
@@ -232,6 +236,85 @@ class PaymentScreen extends StatelessWidget {
                               fontSize: 13.sp),
                         )),
                   ),
+                  if (bookingDetails?.dateDetails != null &&
+                      bookingDetails!.dateDetails!.any((d) =>
+                          d.checkinTime != null && d.checkoutTime != null))
+                    Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          child: Divider(
+                              color: border.withOpacity(0.5), height: 1),
+                        ),
+                        _buildBillingItem(
+                          icon: Icons.access_time_filled_rounded,
+                          title: "Stay Slots",
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: bookingDetails!.dateDetails!
+                                .where((d) =>
+                                    d.checkinTime != null &&
+                                    d.checkoutTime != null)
+                                .map((d) => Text(
+                                      "${d.checkinTime} - ${d.checkoutTime}",
+                                      style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          color: blue,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13.sp),
+                                    ))
+                                .toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  if (bookingDetails?.priceSummary != null)
+                    Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          child: Divider(
+                              color: border.withOpacity(0.5), height: 1),
+                        ),
+                        _buildBillingItem(
+                          icon: Icons.receipt_long_rounded,
+                          title: "Price Details",
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: bookingDetails!.priceSummary!.entries
+                                .map((e) => Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 1.h),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            e.key
+                                                .replaceAll('_', ' ')
+                                                .capitalizeFirst!,
+                                            style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                color: fontColor,
+                                                fontSize: 11.sp),
+                                          ),
+                                          SizedBox(width: 20.w),
+                                          Text(
+                                            "₹${e.value}",
+                                            style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                color: blue,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 12.sp),
+                                          ),
+                                        ],
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -332,6 +415,7 @@ class PaymentScreen extends StatelessWidget {
                       ? calendarController
                           .formatDate(calendarController.checkOutDate.value)
                       : "N/A",
+                  bookingDetails: bookingDetails,
                 )),
           ],
         ),

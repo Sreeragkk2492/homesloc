@@ -5,7 +5,7 @@ import 'package:homesloc/controller/myBooking/my_booking_controller.dart';
 import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/models/booking/booking_model.dart';
-import 'package:homesloc/screens/payment_screen/booking_successful/booking_successful.dart';
+import 'package:homesloc/models/booking/room_availability_model.dart';
 
 class PayNow extends StatelessWidget {
   final double price;
@@ -14,6 +14,7 @@ class PayNow extends StatelessWidget {
   final String coverImage;
   final String checkInDate;
   final String checkOutDate;
+  final BookingDetails? bookingDetails;
 
   PayNow({
     super.key,
@@ -23,6 +24,7 @@ class PayNow extends StatelessWidget {
     required this.coverImage,
     required this.checkInDate,
     required this.checkOutDate,
+    this.bookingDetails,
   });
 
   final calendarController = Get.find<CalendarController>();
@@ -30,8 +32,114 @@ class PayNow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // If we have API booking details, use them
+    if (bookingDetails != null) {
+      final double grandTotal =
+          (bookingDetails!.offerPrice ?? bookingDetails!.price ?? 0).toDouble();
+
+      return Container(
+        margin: EdgeInsets.only(top: 15, right: 10.w, left: 10.w, bottom: 20.h),
+        decoration: BoxDecoration(
+          color: blue,
+          borderRadius: BorderRadius.circular(23.sp),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20.h),
+              Text(
+                'Price Details',
+                style: TextStyle(
+                    color: const Color.fromARGB(255, 190, 190, 190),
+                    fontFamily: 'Poppins',
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10.h),
+
+              // Show summary from API if available
+              if (bookingDetails!.priceSummary != null) ...[
+                if (bookingDetails!.priceSummary!["nights_price"] != null)
+                  _buildPriceRow(
+                    "Price (Nights)",
+                    "₹${bookingDetails!.priceSummary!["nights_price"].toString().split('=').last.trim()}",
+                  ),
+                if (bookingDetails!.priceSummary!["room_price"] != null)
+                  _buildPriceRow(
+                    "Price (Rooms)",
+                    "₹${bookingDetails!.priceSummary!["room_price"].toString().split('=').last.trim()}",
+                  ),
+              ] else ...[
+                _buildPriceRow(
+                  'Total Price',
+                  '₹${bookingDetails!.price}',
+                ),
+              ],
+
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.h),
+                child: Divider(
+                  color: const Color.fromARGB(255, 190, 190, 190),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Grand Total',
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 190, 190, 190),
+                        fontFamily: 'Poppins',
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    "₹${grandTotal.toStringAsFixed(2)}",
+                    style: TextStyle(
+                        color: white,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 23.sp),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.h),
+              Padding(
+                padding: EdgeInsets.only(bottom: 12.h),
+                child: InkWell(
+                  onTap: () {
+                    _proceedToPay(context, grandTotal);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 50.h,
+                    decoration: BoxDecoration(
+                      color: yellow,
+                      borderRadius: BorderRadius.circular(28.sp),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Pay Now",
+                        style: TextStyle(
+                            color: black,
+                            fontSize: 16.sp,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // FALLBACK TO OLD LOGIC
     return Obx(() {
-      // Dynamic data from CalendarController
       final int numberOfNights = calendarController.totalDays.value > 0
           ? calendarController.totalDays.value
           : 1;
@@ -117,28 +225,7 @@ class PayNow extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 12.h),
                 child: InkWell(
                   onTap: () {
-                    final booking = BookingModel(
-                      hotelName: hotelName,
-                      totalAmount: grandTotal,
-                      numberOfNights: numberOfNights,
-                      checkInDate: calendarController.checkInDate.value ??
-                          DateTime.now(),
-                      checkOutDate: calendarController.checkOutDate.value ??
-                          DateTime.now().add(const Duration(days: 1)),
-                    );
-                    tripController.addBooking(booking);
-
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return BookingSuccessful(
-                        hotelName: hotelName,
-                        location: location,
-                        price: grandTotal.toStringAsFixed(0),
-                        checkInDate: checkInDate,
-                        checkOutDate: checkOutDate,
-                        coverImage: coverImage,
-                      );
-                    }));
+                    _proceedToPay(context, grandTotal);
                   },
                   child: Container(
                     width: double.infinity,
@@ -165,6 +252,34 @@ class PayNow extends StatelessWidget {
         ),
       );
     });
+  }
+
+  void _proceedToPay(BuildContext context, double grandTotal) {
+    final int numberOfNights = bookingDetails?.nights ??
+        (calendarController.totalDays.value > 0
+            ? calendarController.totalDays.value
+            : 1);
+
+    final booking = BookingModel(
+      hotelName: hotelName,
+      totalAmount: grandTotal,
+      numberOfNights: numberOfNights,
+      checkInDate: calendarController.checkInDate.value ?? DateTime.now(),
+      checkOutDate: calendarController.checkOutDate.value ??
+          DateTime.now().add(const Duration(days: 1)),
+    );
+    tripController.addBooking(booking);
+
+    // Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //   return BookingSuccessful(
+    //     hotelName: hotelName,
+    //     location: location,
+    //     price: grandTotal.toStringAsFixed(0),
+    //     checkInDate: checkInDate,
+    //     checkOutDate: checkOutDate,
+    //     coverImage: coverImage,
+    //   );
+    // }));
   }
 
   Widget _buildPriceRow(String label, String value) {

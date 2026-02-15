@@ -4,10 +4,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/payment_screen/payment_screen.dart';
 import 'package:homesloc/models/home/hotel_detail_model.dart';
+import 'package:homesloc/models/search/search_hotel_model.dart';
+import 'package:homesloc/models/home/hall_detail_model.dart';
+import 'package:homesloc/apis/home/hotel_detail_service.dart';
+import 'package:get/get.dart';
+import 'package:homesloc/controller/calender_controller.dart';
+import 'package:intl/intl.dart';
 
 class BookNow extends StatelessWidget {
   final dynamic hotel;
-  const BookNow({super.key, this.hotel});
+  final bool isFullProperty;
+
+  const BookNow({
+    super.key,
+    this.hotel,
+    this.isFullProperty = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -88,15 +100,98 @@ class BookNow extends StatelessWidget {
                 ],
               ),
               InkWell(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return PaymentScreen(
-                      hotelName: _getName(),
-                      location: _getLocation(),
-                      price: double.tryParse(_getPrice()) ?? 0.0,
-                      coverImage: _getCoverImage(),
+                onTap: () async {
+                  final calendarController = Get.find<CalendarController>();
+                  final HotelDetailService hotelDetailService =
+                      HotelDetailService();
+
+                  if (calendarController.checkInDate.value == null ||
+                      calendarController.checkOutDate.value == null) {
+                    Get.snackbar(
+                      "Dates Required",
+                      "Please select check-in and check-out dates",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.red.withOpacity(0.8),
+                      colorText: white,
                     );
-                  }));
+                    return;
+                  }
+
+                  // Get ID (Room ID or Property ID)
+                  String? id;
+                  if (hotel is HotelDetailModel) {
+                    id = hotel.id;
+                  } else if (hotel is HallDetailModel) {
+                    id = hotel.id;
+                  } else if (hotel is Hotel) {
+                    // From search model
+                    id = hotel.id;
+                  }
+
+                  if (id != null) {
+                    final dateFormat = DateFormat('yyyy-MM-dd');
+                    final checkIn = dateFormat
+                        .format(calendarController.checkInDate.value!);
+                    final checkOut = dateFormat
+                        .format(calendarController.checkOutDate.value!);
+
+                    dynamic result;
+
+                    if (isFullProperty) {
+                      // Perform Full Property Availability Check
+                      result = await hotelDetailService
+                          .checkFullPropertyAvailability(
+                        propertyId: id,
+                        checkIn: checkIn,
+                        checkOut: checkOut,
+                        adults: calendarController.guestCount.value,
+                        children: 0, // Default 0
+                      );
+                    } else {
+                      // Perform Room Availability Check
+                      result = await hotelDetailService.checkRoomAvailability(
+                        roomId: id,
+                        checkIn: checkIn,
+                        checkOut: checkOut,
+                        adults: calendarController.guestCount.value,
+                        children: 0, // Default 0
+                        rooms: calendarController.roomCount.value,
+                      );
+                    }
+
+                    if (result != null && result.bookingDetails != null) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return PaymentScreen(
+                          hotelName: _getName(),
+                          location: _getLocation(),
+                          price:
+                              result.bookingDetails?.price?.toDouble() ?? 0.0,
+                          coverImage: _getCoverImage(),
+                          bookingDetails: result.bookingDetails,
+                        );
+                      }));
+                    } else {
+                      Get.snackbar(
+                        "Not Available",
+                        "Accommodation is not available for selected dates",
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.red.withOpacity(0.8),
+                        colorText: white,
+                      );
+                    }
+                  } else {
+                    // Fallback
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return PaymentScreen(
+                        hotelName: _getName(),
+                        location: _getLocation(),
+                        price: double.tryParse(_getPrice()) ?? 0.0,
+                        coverImage: _getCoverImage(),
+                      );
+                    }));
+                  }
                 },
                 child: Container(
                   width: 140.w,
@@ -125,6 +220,9 @@ class BookNow extends StatelessWidget {
   }
 
   String _getPrice() {
+    if (hotel is HallDetailModel) {
+      return hotel.bestPrice ?? '0';
+    }
     if (hotel is HotelDetailModel) {
       final p = hotel.pricing;
       if (p == null) return '0';
@@ -143,6 +241,10 @@ class BookNow extends StatelessWidget {
   }
 
   String _getOriginalPrice() {
+    if (hotel is HallDetailModel) {
+      return hotel.bestPrice ??
+          '0'; // Halls might not have separate original price
+    }
     if (hotel is HotelDetailModel) {
       return (hotel.pricing?.bestPrice ?? '0').toString();
     }
@@ -158,6 +260,9 @@ class BookNow extends StatelessWidget {
   }
 
   String _getTaxInfo() {
+    if (hotel is HallDetailModel) {
+      return "+ Taxes & Fees";
+    }
     if (hotel is HotelDetailModel) {
       return hotel.pricing?.taxInfo ?? "+ Taxes & Fees";
     }

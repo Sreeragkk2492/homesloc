@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/detailed_view_screen/amenitie_row/amenitie_row.dart';
+import 'package:homesloc/screens/detailed_view_screen/amenitie_row/hall_amenitie_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/property_row/property_first_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/rating_row/rating_first_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/rating_row/rating_second_row.dart';
@@ -10,11 +11,13 @@ import 'package:homesloc/screens/detailed_view_screen/rating_row/rating_third_ro
 import 'package:homesloc/screens/detailed_view_screen/transportation_row/transportations_first_row.dart';
 import 'package:homesloc/core/widgets/yellow_star/yellow_star.dart';
 import 'package:homesloc/core/widgets/book_now/book_now.dart';
+import 'package:homesloc/core/widgets/book_now/hall_book_now.dart';
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/first_detailed_view_builder.dart';
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/second_detailed_view_builder.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
 import 'package:homesloc/models/home/hotel_detail_model.dart';
+import 'package:homesloc/models/home/hall_detail_model.dart';
 import 'package:homesloc/apis/home/hotel_detail_service.dart';
 
 import 'package:homesloc/core/widgets/loader/app_loader.dart';
@@ -23,12 +26,12 @@ import 'package:homesloc/core/widgets/gallery/full_screen_image_viewer.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
 import 'package:intl/intl.dart';
 
-class DetailedViewScreen extends StatefulWidget {
+class HallDetailedViewScreen extends StatefulWidget {
   final dynamic hotel;
   final String? startDate;
   final String? endDate;
 
-  const DetailedViewScreen({
+  const HallDetailedViewScreen({
     super.key,
     this.hotel,
     this.startDate,
@@ -36,17 +39,17 @@ class DetailedViewScreen extends StatefulWidget {
   });
 
   @override
-  State<DetailedViewScreen> createState() => _DetailedViewScreenState();
+  State<HallDetailedViewScreen> createState() => _HallDetailedViewScreenState();
 }
 
-class _DetailedViewScreenState extends State<DetailedViewScreen> {
+class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
   final HotelDetailService _hotelDetailService = HotelDetailService();
-  HotelDetailModel? _hotelDetails;
+  HallDetailModel? _hallDetails;
   bool _isLoading = true;
   int _carouselIndex = 0;
   final PageController _pageController = PageController();
 
-  bool _isFullProperty = false; // Add this flag
+  final bool _isFullProperty = true; // Halls are always full property/venue
 
   @override
   void initState() {
@@ -57,71 +60,22 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   Future<void> _fetchDetails() async {
     try {
       final hotel = widget.hotel;
+      String? hotelId;
 
-      // Check if it's a Room type from search results
-      if (hotel is Hotel &&
-          hotel.accommodationType == "ROOM" &&
-          hotel.id != null) {
-        // ... (room logic)
-        final start =
-            widget.startDate ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
-        final end = widget.endDate ??
-            DateFormat('yyyy-MM-dd')
-                .format(DateTime.now().add(const Duration(days: 1)));
-
-        final details = await _hotelDetailService.fetchRoomDetails(
-          roomId: hotel.id!,
-          startDate: start,
-          endDate: end,
-        );
-
-        if (mounted) {
-          setState(() {
-            _hotelDetails = details;
-            _isFullProperty = false; // Explicitly false
-            _isLoading = false;
-          });
-        }
-        return;
+      if (hotel is String) {
+        hotelId = hotel;
+      } else if (hotel is Hotel) {
+        hotelId = hotel.id;
+      } else if (hotel is HotelDetailModel) {
+        hotelId = hotel.id;
       }
-
-      // Check if it's a Full Property type from search results
-      if (hotel is Hotel &&
-          hotel.accommodationType == "FULL_PROPERTY" &&
-          hotel.id != null) {
-        final start =
-            widget.startDate ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
-        final end = widget.endDate ??
-            DateFormat('yyyy-MM-dd')
-                .format(DateTime.now().add(const Duration(days: 1)));
-
-        final details = await _hotelDetailService.fetchFullPropertyDetails(
-          propertyId: hotel.id!,
-          startDate: start,
-          endDate: end,
-        );
-
-        if (mounted) {
-          setState(() {
-            _hotelDetails = details;
-            _isFullProperty = true; // Set to true
-            _isLoading = false;
-          });
-        }
-        return;
-      }
-
-      final hotelId = hotel is String
-          ? hotel
-          : (hotel is Hotel
-              ? hotel.id
-              : (hotel is HotelDetailModel ? hotel.id : null));
 
       if (hotelId != null) {
-        final details = await _hotelDetailService.fetchHotelDetails(hotelId);
+        // Explicitly fetch Hall details
+        final details = await _hotelDetailService.fetchHallDetails(hotelId);
         if (mounted) {
           setState(() {
-            _hotelDetails = details;
+            _hallDetails = details;
             _isLoading = false;
           });
         }
@@ -131,7 +85,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
         });
       }
     } catch (e) {
-      print('Error fetching hotel details: $e');
+      print('Error fetching hall details: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -222,6 +176,101 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
     );
   }
 
+  Widget _buildEventAreaCard(dynamic area) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+      padding: EdgeInsets.all(15.r),
+      decoration: BoxDecoration(
+        color: white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: border, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  area.eventName ?? "Event Area",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: blue,
+                  ),
+                ),
+              ),
+              if (area.price != null)
+                Text(
+                  "₹${area.price}",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: black,
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            children: [
+              Icon(Icons.people_outline, size: 16.sp, color: fontColor),
+              SizedBox(width: 5.w),
+              Text(
+                "Capacity: ${area.seatingCapacity} (Seats) / ${area.floatingCapacity} (Floating)",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 12.sp,
+                  color: fontColor,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 5.h),
+          if (area.spaceType != null)
+            Row(
+              children: [
+                Icon(Icons.crop_square, size: 16.sp, color: fontColor),
+                SizedBox(width: 5.w),
+                Text(
+                  "Type: ${area.spaceType}",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12.sp,
+                    color: fontColor,
+                  ),
+                ),
+              ],
+            ),
+          if (area.description != null && area.description!.isNotEmpty) ...[
+            SizedBox(height: 8.h),
+            Text(
+              area.description!,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 12.sp,
+                color: black,
+                height: 1.4,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -233,7 +282,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
       );
     }
 
-    final hotelData = _hotelDetails ?? widget.hotel;
+    final hotelData = _hallDetails ?? widget.hotel;
 
     return Scaffold(
       backgroundColor: white,
@@ -340,9 +389,15 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                         ],
                       ),
                       child: Icon(
-                        hotelData?.isFavorite == true
-                            ? Icons.favorite_rounded
-                            : Icons.favorite_outline_rounded,
+                        hotelData is Hotel
+                            ? (hotelData.isFavorite == true
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_outline_rounded)
+                            : (hotelData is HotelDetailModel
+                                ? (hotelData.isFavorite == true
+                                    ? Icons.favorite_rounded
+                                    : Icons.favorite_outline_rounded)
+                                : Icons.favorite_outline_rounded),
                         color: blue,
                         size: 20.sp,
                       ),
@@ -536,6 +591,34 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
               ),
             ),
             const HomeDivider(),
+
+            // Event Areas Section (For Halls)
+            if (hotelData is HallDetailModel &&
+                hotelData.eventAreas != null &&
+                hotelData.eventAreas!.isNotEmpty) ...[
+              NameView(
+                name: "Event Areas",
+                color: blue,
+                secondName: '',
+                secondColor: blue,
+              ),
+              SizedBox(height: 10.h),
+              ...hotelData.eventAreas!.map((area) => _buildEventAreaCard(area)),
+              SizedBox(height: 15.h),
+            ] else if (hotelData is HotelDetailModel &&
+                hotelData.eventAreas != null &&
+                hotelData.eventAreas!.isNotEmpty) ...[
+              NameView(
+                name: "Event Areas",
+                color: blue,
+                secondName: '',
+                secondColor: blue,
+              ),
+              SizedBox(height: 10.h),
+              ...hotelData.eventAreas!.map((area) => _buildEventAreaCard(area)),
+              SizedBox(height: 15.h),
+            ],
+
             NameView(
               name: "Highlights",
               color: blue,
@@ -543,14 +626,18 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
               secondColor: blue,
             ),
             SizedBox(height: 10.h),
-            AmenitieRow(
-                hotel:
-                    hotelData), // Reusing AmenitieRow as it now handles lists well
+            if (hotelData is HallDetailModel)
+              HallAmenitieRow(hall: hotelData)
+            else
+              AmenitieRow(hotel: hotelData),
             SizedBox(height: 15.h),
-            BookNow(
-              hotel: hotelData,
-              isFullProperty: _isFullProperty,
-            ),
+            if (hotelData is HallDetailModel)
+              HallBookNow(hall: hotelData)
+            else
+              BookNow(
+                hotel: hotelData,
+                isFullProperty: _isFullProperty,
+              ),
             Padding(
               padding: EdgeInsets.only(top: 18.h, left: 10.w, bottom: 10.h),
               child: Text(
@@ -700,7 +787,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
             ),
             const HomeDivider(),
             NameView(
-                name: 'Accommodation Policies',
+                name: 'Venue Policies',
                 color: blue,
                 secondName: 'View All',
                 secondColor: blue),
@@ -721,12 +808,6 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                 title: 'Pet Policy',
                 content: _getPetPolicy(hotelData),
               ),
-            if (_getChildPolicy(hotelData).isNotEmpty)
-              _buildPolicyHighlight(
-                icon: Icons.child_care_rounded,
-                title: 'Child Policy',
-                content: _getChildPolicy(hotelData),
-              ),
             SizedBox(height: 40.h),
           ],
         ),
@@ -735,15 +816,17 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   }
 
   String _getName(dynamic hotel) {
-    if (hotel is HotelDetailModel) return hotel.name ?? 'Hotel Name';
+    if (hotel is HallDetailModel) return hotel.name;
+    if (hotel is HotelDetailModel) return hotel.name ?? 'Hall Name';
     try {
-      return hotel.name ?? 'Hotel Name';
+      return hotel.name ?? 'Hall Name';
     } catch (e) {
-      return 'Hotel Name';
+      return 'Hall Name';
     }
   }
 
   String _getLocation(dynamic hotel) {
+    if (hotel is HallDetailModel) return hotel.location;
     if (hotel is HotelDetailModel) return hotel.location ?? 'Location';
     try {
       if (hotel.runtimeType.toString() == 'BestHotel') {
@@ -760,6 +843,8 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   }
 
   String _getCoverImage(dynamic hotel) {
+    if (hotel is HallDetailModel)
+      return hotel.coverImageUrl ?? 'assets/images/l1.png';
     if (hotel is HotelDetailModel)
       return hotel.coverImageUrl ?? 'assets/images/l1.png';
     try {
@@ -771,6 +856,9 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
 
   List<String> _getGalleryImages(dynamic hotel) {
     List<String> images = [];
+    if (hotel is HallDetailModel) {
+      return hotel.galleryImages;
+    }
     if (hotel is HotelDetailModel) {
       if (hotel.coverImageUrl != null) images.add(hotel.coverImageUrl!);
       if (hotel.galleryImages != null) images.addAll(hotel.galleryImages!);
@@ -788,6 +876,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   }
 
   String _getPhoneNumber(dynamic hotel) {
+    if (hotel is HallDetailModel) return '+91 9876543210'; // Phone not in JSON
     if (hotel is HotelDetailModel) return hotel.phoneNumber ?? '+91 9876543210';
     try {
       return hotel.phoneNumber ?? '+91 9876543210';
@@ -797,6 +886,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   }
 
   String _getStarRating(dynamic hotel) {
+    if (hotel is HallDetailModel) return '5'; // Valid default for now
     if (hotel is HotelDetailModel) return (hotel.starRating ?? 5).toString();
     try {
       final rating = hotel.starRating;
@@ -808,6 +898,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   }
 
   String _getReviewCount(dynamic hotel) {
+    if (hotel is HallDetailModel) return '0';
     if (hotel is HotelDetailModel) return (hotel.reviewCount ?? 0).toString();
     try {
       final count = hotel.reviewCount;
@@ -819,6 +910,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   }
 
   String _getDescription(dynamic hotel) {
+    if (hotel is HallDetailModel) return hotel.description ?? '';
     if (hotel is HotelDetailModel) return hotel.description ?? '';
     try {
       return hotel.description ?? '';
@@ -828,18 +920,33 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   }
 
   String _getCheckInTime(dynamic hotel) {
+    if (hotel is HallDetailModel)
+      return hotel.banquetPolicies?.checkInTime ?? '09:00:00';
     if (hotel is HotelDetailModel)
       return hotel.policies?.checkInTime ?? '2:00 PM';
     return '2:00 PM';
   }
 
   String _getCheckOutTime(dynamic hotel) {
+    if (hotel is HallDetailModel)
+      return hotel.banquetPolicies?.checkOutTime ?? '05:00:00';
     if (hotel is HotelDetailModel)
       return hotel.policies?.checkOutTime ?? '11:00 AM';
     return '11:00 AM';
   }
 
   String _getCancellationPolicy(dynamic hotel) {
+    if (hotel is HallDetailModel) {
+      final policy = hotel.banquetPolicies?.cancellationPolicy;
+      if (policy != null) {
+        if (policy.startsWith('freeUpTo:')) {
+          final days = policy.split(':')[1];
+          return 'Free cancellation up to $days days before check-in.';
+        }
+        return policy;
+      }
+      return 'Terms apply.';
+    }
     if (hotel is HotelDetailModel) {
       final policy = hotel.policies?.cancellationPolicy;
       if (policy != null) {
@@ -861,8 +968,21 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
     return '';
   }
 
-  String _getChildPolicy(dynamic hotel) {
-    // Note: Child policy not currently in model, returning empty for now
-    return '';
+  String? _getBestPrice(dynamic hotel) {
+    if (hotel is HallDetailModel) return hotel.bestPrice;
+    if (hotel is HotelDetailModel) {
+      // Prioritize pricing object
+      if (hotel.pricing?.bestPrice != null) {
+        return hotel.pricing!.bestPrice;
+      }
+      return hotel.pricing?.offerPrice?.toString();
+    }
+    try {
+      if (hotel.originalPrice != null) return hotel.originalPrice;
+      if (hotel.offerPrice != null) return hotel.offerPrice.toString();
+    } catch (e) {
+      return null;
+    }
+    return null;
   }
 }

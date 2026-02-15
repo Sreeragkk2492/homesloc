@@ -25,6 +25,11 @@ class SearchHotelController extends GetxController {
   int get guestCountVal => calendarController.guestCount.value;
   int get roomCountVal => calendarController.roomCount.value;
 
+  // Flag to toggle between normal search, grouped hotel, and grouped hall
+  final isGroupedByHotel = false.obs;
+  final isGroupedByHall = false.obs;
+  final isFreshup = false.obs;
+
   // Search hotels with current parameters
   Future<void> searchHotels({
     String? location,
@@ -42,31 +47,78 @@ class SearchHotelController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final result = await _searchService.searchHotels(
-        location: location ?? this.location.value,
-        checkIn: checkIn ??
-            (calendarController.checkInDate.value != null
-                ? DateFormat('yyyy-MM-dd')
-                    .format(calendarController.checkInDate.value!)
-                : null),
-        checkOut: checkOut ??
-            (calendarController.checkOutDate.value != null
-                ? DateFormat('yyyy-MM-dd')
-                    .format(calendarController.checkOutDate.value!)
-                : null),
-        guestCount: guestCount ?? guestCountVal,
-        roomCount: roomCount ?? roomCountVal,
-        minPrice: minPrice ?? this.minPrice.value,
-        maxPrice: maxPrice ?? this.maxPrice.value,
-        propertyType: propertyType ?? this.propertyType.value,
-        sortBy: sortBy ?? this.sortBy.value,
-        limit: limit,
-      );
+      SearchHotelModel? result;
+
+      if (isFreshup.value) {
+        // Call Freshup Search API
+        result = await _searchService.searchFreshup(
+          location: location ?? this.location.value,
+          checkIn: checkIn ??
+              (calendarController.checkInDate.value != null
+                  ? DateFormat('yyyy-MM-dd')
+                      .format(calendarController.checkInDate.value!)
+                  : null),
+          checkOut: checkOut ??
+              (calendarController.checkOutDate.value != null
+                  ? DateFormat('yyyy-MM-dd')
+                      .format(calendarController.checkOutDate.value!)
+                  : null),
+          guestCount: guestCount ?? guestCountVal,
+          roomCount: roomCount ?? roomCountVal,
+        );
+      } else if (isGroupedByHall.value) {
+        // Call the Hall search API
+        result = await _searchService.searchAccommodationsGroupedByHall(
+          sortBy: sortBy ?? this.sortBy.value,
+        );
+      } else if (isGroupedByHotel.value) {
+        // Call the new grouped search API
+        result = await _searchService.searchAccommodationsGroupedByHotel(
+          startDate: checkIn ??
+              (calendarController.checkInDate.value != null
+                  ? DateFormat('yyyy-MM-dd')
+                      .format(calendarController.checkInDate.value!)
+                  : null),
+          endDate: checkOut ??
+              (calendarController.checkOutDate.value != null
+                  ? DateFormat('yyyy-MM-dd')
+                      .format(calendarController.checkOutDate.value!)
+                  : null),
+          // Map other parameters as needed
+          minPrice: minPrice ?? this.minPrice.value,
+          maxPrice: maxPrice ?? this.maxPrice.value,
+          sortBy: sortBy ?? this.sortBy.value,
+          search: location ??
+              this.location.value, // Using location as search term if needed
+        );
+      } else {
+        // Call the existing normal search API
+        result = await _searchService.searchHotels(
+          location: location ?? this.location.value,
+          checkIn: checkIn ??
+              (calendarController.checkInDate.value != null
+                  ? DateFormat('yyyy-MM-dd')
+                      .format(calendarController.checkInDate.value!)
+                  : null),
+          checkOut: checkOut ??
+              (calendarController.checkOutDate.value != null
+                  ? DateFormat('yyyy-MM-dd')
+                      .format(calendarController.checkOutDate.value!)
+                  : null),
+          guestCount: guestCount ?? guestCountVal,
+          roomCount: roomCount ?? roomCountVal,
+          minPrice: minPrice ?? this.minPrice.value,
+          maxPrice: maxPrice ?? this.maxPrice.value,
+          propertyType: propertyType ?? this.propertyType.value,
+          sortBy: sortBy ?? this.sortBy.value,
+          limit: limit,
+        );
+      }
 
       if (result != null) {
         searchResult.value = result;
       } else {
-        errorMessage.value = 'Failed to fetch hotel data';
+        errorMessage.value = 'Failed to fetch data';
       }
     } catch (e) {
       errorMessage.value = 'Error: ${e.toString()}';

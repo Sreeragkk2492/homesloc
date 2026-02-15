@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/categorie_screen/categorie_screen.dart';
 import 'package:homesloc/screens/detailed_view_screen/detailed_view_screen.dart';
+import 'package:homesloc/screens/detailed_view_screen/freshup_detailed_view_screen.dart';
+import 'package:homesloc/screens/detailed_view_screen/hall_detailed_view_screen.dart';
 import 'package:homesloc/screens/home/home_screen.dart';
 import 'package:homesloc/core/controller/bottom_navigation_bar/new_navigation.dart';
 import 'package:homesloc/core/widgets/logo.dart/second_logo.dart';
@@ -25,6 +27,7 @@ import 'package:scrollable_clean_calendar/scrollable_clean_calendar.dart';
 import 'package:scrollable_clean_calendar/utils/enums.dart';
 import 'package:homesloc/controller/search/search_hotel_controller.dart';
 import '../../controller/home/home_screen_controller.dart';
+import 'package:intl/intl.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -281,7 +284,55 @@ class _SearchScreenState extends State<SearchScreen> {
                     return GestureDetector(
                       onTap: () {
                         // Navigate to detail view
-                        Get.to(() => DetailedViewScreen(hotel: hotel));
+                        if (hotel.accommodationType == "HALL") {
+                          Get.to(() => HallDetailedViewScreen(
+                                hotel: hotel,
+                                startDate: calendarController
+                                            .checkInDate.value !=
+                                        null
+                                    ? DateFormat('yyyy-MM-dd').format(
+                                        calendarController.checkInDate.value!)
+                                    : null,
+                                endDate: calendarController
+                                            .checkOutDate.value !=
+                                        null
+                                    ? DateFormat('yyyy-MM-dd').format(
+                                        calendarController.checkOutDate.value!)
+                                    : null,
+                              ));
+                        } else if (hotel.accommodationType == "FRESHUP") {
+                          Get.to(() => FreshupDetailedViewScreen(
+                                freshup: hotel,
+                                startDate: calendarController
+                                            .checkInDate.value !=
+                                        null
+                                    ? DateFormat('yyyy-MM-dd').format(
+                                        calendarController.checkInDate.value!)
+                                    : null,
+                                endDate: calendarController
+                                            .checkOutDate.value !=
+                                        null
+                                    ? DateFormat('yyyy-MM-dd').format(
+                                        calendarController.checkOutDate.value!)
+                                    : null,
+                              ));
+                        } else {
+                          Get.to(() => DetailedViewScreen(
+                                hotel: hotel,
+                                startDate: calendarController
+                                            .checkInDate.value !=
+                                        null
+                                    ? DateFormat('yyyy-MM-dd').format(
+                                        calendarController.checkInDate.value!)
+                                    : null,
+                                endDate: calendarController
+                                            .checkOutDate.value !=
+                                        null
+                                    ? DateFormat('yyyy-MM-dd').format(
+                                        calendarController.checkOutDate.value!)
+                                    : null,
+                              ));
+                        }
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(
