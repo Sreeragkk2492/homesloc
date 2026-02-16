@@ -4,6 +4,8 @@ import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
 import 'package:intl/intl.dart';
 
+import 'package:homesloc/models/search/tourism_search_model.dart';
+
 class SearchHotelController extends GetxController {
   final SearchHotelService _searchService = SearchHotelService();
 
@@ -13,6 +15,7 @@ class SearchHotelController extends GetxController {
   final isLoading = false.obs;
   final errorMessage = RxString('');
   final searchResult = Rx<SearchHotelModel?>(null);
+  final tourismResult = Rx<TourismSearchModel?>(null);
 
   // Filter observables
   final location = "".obs;
@@ -29,6 +32,7 @@ class SearchHotelController extends GetxController {
   final isGroupedByHotel = false.obs;
   final isGroupedByHall = false.obs;
   final isFreshup = false.obs;
+  final isTourism = false.obs;
 
   // Search hotels with current parameters
   Future<void> searchHotels({
@@ -47,6 +51,16 @@ class SearchHotelController extends GetxController {
     errorMessage.value = '';
 
     try {
+      if (isTourism.value) {
+        tourismResult.value = await _searchService.searchTourism(
+          sortBy: sortBy ?? this.sortBy.value,
+        );
+        if (tourismResult.value == null) {
+          errorMessage.value = 'Failed to fetch tourism data';
+        }
+        return;
+      }
+
       SearchHotelModel? result;
 
       if (isFreshup.value) {

@@ -31,17 +31,25 @@ class FirstHomeBuilder extends StatelessWidget {
                     searchHotelController.isGroupedByHotel.value = true;
                     searchHotelController.isGroupedByHall.value = false;
                     searchHotelController.isFreshup.value = false;
+                    searchHotelController.isTourism.value = false;
                   } else if (category == "Banquet Hall") {
                     searchHotelController.isGroupedByHall.value = true;
                     searchHotelController.isGroupedByHotel.value = false;
                     searchHotelController.isFreshup.value = false;
+                    searchHotelController.isTourism.value = false;
                   } else if (category == "Fresh Up") {
                     searchHotelController.isFreshup.value = true;
                     searchHotelController.isGroupedByHall.value = false;
                     searchHotelController.isGroupedByHotel.value = false;
+                    searchHotelController.isTourism.value = false;
+                  } else if (category == "Tourism Package") {
+                    searchHotelController.isTourism.value = true;
+                    searchHotelController.isFreshup.value = false;
+                    searchHotelController.isGroupedByHall.value = false;
+                    searchHotelController.isGroupedByHotel.value = false;
                   }
 
-                  if (["Hotels", "Banquet Hall", "Fresh Up"]
+                  if (["Hotels", "Banquet Hall", "Fresh Up", "Tourism Package"]
                       .contains(category)) {
                     searchHotelController.searchHotels();
                     bottomBarController.updateSelectedPageIndex(1);

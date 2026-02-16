@@ -150,6 +150,8 @@ class HallBookNow extends StatelessWidget {
                               hall.coverImageUrl ??
                               "",
                           bookingDetails: roomBookingDetails,
+                          propertyId: eventId,
+                          propertyType: "HALL",
                         );
                       }));
                     } else {

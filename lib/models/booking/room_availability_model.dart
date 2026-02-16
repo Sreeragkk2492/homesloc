@@ -59,12 +59,14 @@ class PropertyDetails {
 
   factory PropertyDetails.fromJson(Map<String, dynamic> json) =>
       PropertyDetails(
-        id: json["id"],
-        basePropertyPrice: json["base_property_price"],
-        maxPropertyPrice: json["max_property_price"],
-        offerPrice: json["offer_price"],
+        id: json["id"]?.toString(),
+        basePropertyPrice:
+            num.tryParse(json["base_property_price"]?.toString() ?? ''),
+        maxPropertyPrice:
+            num.tryParse(json["max_property_price"]?.toString() ?? ''),
+        offerPrice: num.tryParse(json["offer_price"]?.toString() ?? ''),
         smokingAllowed: json["smoking_allowed"],
-        maxPerson: json["max_person"],
+        maxPerson: int.tryParse(json["max_person"]?.toString() ?? ''),
         mealOption: json["meal_option"],
         rooms: json["rooms"] == null ? [] : List<dynamic>.from(json["rooms"]),
         amenities: json["amenities"] == null
@@ -156,13 +158,13 @@ class BookingDetails {
   factory BookingDetails.fromJson(Map<String, dynamic> json) => BookingDetails(
         checkin: json["checkin"],
         checkout: json["checkout"],
-        nights: json["nights"],
-        days: json["days"],
-        adults: json["adults"],
-        children: json["children"],
-        roomsRequested: json["rooms_requested"],
-        price: json["price"],
-        offerPrice: json["offer_price"],
+        nights: int.tryParse(json["nights"]?.toString() ?? ''),
+        days: int.tryParse(json["days"]?.toString() ?? ''),
+        adults: int.tryParse(json["adults"]?.toString() ?? ''),
+        children: int.tryParse(json["children"]?.toString() ?? ''),
+        roomsRequested: int.tryParse(json["rooms_requested"]?.toString() ?? ''),
+        price: num.tryParse(json["price"]?.toString() ?? ''),
+        offerPrice: num.tryParse(json["offer_price"]?.toString() ?? ''),
         priceSummary: json["price_summary"],
         dateDetails: json["date_details"] == null
             ? []
@@ -192,9 +194,10 @@ class DateDetail {
 
   factory DateDetail.fromJson(Map<String, dynamic> json) => DateDetail(
         date: json["date"],
-        basePrice: json["base_price"],
-        offerPrice: json["offer_price"],
-        availableQuantity: json["available_quantity"],
+        basePrice: num.tryParse(json["base_price"]?.toString() ?? ''),
+        offerPrice: num.tryParse(json["offer_price"]?.toString() ?? ''),
+        availableQuantity:
+            int.tryParse(json["available_quantity"]?.toString() ?? ''),
         isAvailable: json["is_available"],
         checkinTime: json["checkin_time"],
         checkoutTime: json["checkout_time"],

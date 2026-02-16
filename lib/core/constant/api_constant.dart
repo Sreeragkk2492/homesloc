@@ -30,6 +30,13 @@ class ApiConstant {
   static String FRESHUP_DETAILS_URL = "/api/v1/search/freshup-room/";
   static String FRESHUP_AVAILABILITY_URL = "/api/v1/search/freshup-search";
 
+  static String TOURISM_SEARCH_URL = "/api/v1/search/tourism-accommodations";
+   static String TOURISM_DETAILS_URL = "/api/v1/search/tourism-packages/";
+   static String TOURISM_AVAILABILITY_URL = "/api/v1/search/tourism-package-search";
+
   //hotel details
   static String HOTEL_DETAILS_URL = "/api/v1/mobile/hotel";
+
+  //booking
+  static String BOOKING_URL = "/api/v1/bookings/new";
 }

@@ -266,14 +266,14 @@ class HotelDetailService {
   }) async {
     try {
       final queryParams = {
-        'freshup_room_id': freshupRoomId,
+        // 'freshup_room_id': freshupRoomId,
         'price_method': priceMethod,
         'date': date,
       };
 
-      final uri =
-          Uri.parse("${ApiConstant.BASE_URL}${ApiConstant.FRESHUP_DETAILS_URL}")
-              .replace(queryParameters: queryParams);
+      final uri = Uri.parse(
+              "${ApiConstant.BASE_URL}${ApiConstant.FRESHUP_DETAILS_URL}$freshupRoomId")
+          .replace(queryParameters: queryParams);
 
       String? token = await _storage.read(key: 'access_token');
       print('Checking Freshup availability: $uri');
@@ -338,6 +338,7 @@ class HotelDetailService {
       print('Freshup Search Availability Response: ${response.statusCode}');
 
       if (response.statusCode == 200) {
+        print('Freshup Search Availability Body: ${response.body}');
         final Map<String, dynamic> data = json.decode(response.body);
         return FreshupBookingAvailabilityModel.fromJson(data);
       } else {
@@ -347,6 +348,43 @@ class HotelDetailService {
     } catch (e) {
       print('Error searching Freshup availability: $e');
       return null;
+    }
+  }
+
+  Future<bool> createNewBooking(List<dynamic> bookings) async {
+    try {
+      final uri =
+          Uri.parse("${ApiConstant.BASE_URL}${ApiConstant.BOOKING_URL}");
+
+      String? token = await _storage.read(key: 'access_token');
+
+      // Serialize bookings to JSON
+      final body = jsonEncode(bookings.map((b) => b.toJson()).toList());
+
+      print('Creating new booking: $uri');
+      print('Request Body: $body');
+
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: body,
+      );
+
+      print('Booking Response Code: ${response.statusCode}');
+      print('Booking Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error creating booking: $e');
+      return false;
     }
   }
 }

@@ -2,38 +2,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
-import 'package:homesloc/core/widgets/book_now/book_now.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/pay_now/pay_now.dart';
+import 'package:homesloc/core/widgets/pay_now/freshup_pay_now.dart';
 import 'package:homesloc/core/utils/bottom_sheet_utils.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/calender_controller.dart';
-import 'package:homesloc/models/booking/room_availability_model.dart';
-import 'package:homesloc/models/hotel/hotel_booking_request_model.dart';
-import 'package:homesloc/models/hall/hall_booking_request_model.dart';
-import 'package:homesloc/apis/home/hotel_detail_service.dart';
-import 'package:homesloc/screens/payment_screen/booking_successful/booking_successful.dart';
-import 'package:homesloc/core/widgets/loader/app_loader.dart';
-import 'package:intl/intl.dart';
+import 'package:homesloc/models/freshup/freshup_booking_details_model.dart';
+import 'package:homesloc/models/freshup/freshup_availability_model.dart';
+import 'package:homesloc/controller/freshup/freshup_detail_controller.dart';
 
-class PaymentScreen extends StatelessWidget {
+class FreshupPaymentScreen extends StatelessWidget {
   final String hotelName;
   final String location;
   final double price;
   final String coverImage;
-  final BookingDetails? bookingDetails;
-  final String? propertyId;
-  final String? propertyType; // "ROOM", "FULL_PROPERTY", or "HALL"
+  final FreshupBookingDetails? bookingDetails;
+  final List<FreshupSlot>? selectedSlots;
+  final String? freshupId;
 
-  PaymentScreen({
+  FreshupPaymentScreen({
     super.key,
-    this.hotelName = "Hotel Name",
+    this.hotelName = "Freshup Name",
     this.location = "Location",
     this.price = 0.0,
-    this.coverImage = "https://via.placeholder.com/150",
+    this.coverImage = "",
     this.bookingDetails,
-    this.propertyId,
-    this.propertyType,
+    this.selectedSlots,
+    this.freshupId,
   });
 
   final calendarController = Get.find<CalendarController>();
@@ -69,7 +65,7 @@ class PaymentScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hotel Summary Card
+            // Freshup Summary Card
             Container(
               margin: EdgeInsets.all(12.r),
               padding: EdgeInsets.all(10.r),
@@ -88,7 +84,7 @@ class PaymentScreen extends StatelessWidget {
               child: Row(
                 children: [
                   Hero(
-                    tag: 'hotel_image',
+                    tag: 'freshup_image',
                     child: Container(
                       width: 120.w,
                       height: 100.h,
@@ -97,7 +93,9 @@ class PaymentScreen extends StatelessWidget {
                         image: DecorationImage(
                           image: coverImage.startsWith('http')
                               ? NetworkImage(coverImage)
-                              : AssetImage(coverImage) as ImageProvider,
+                              : AssetImage(coverImage.isNotEmpty
+                                  ? coverImage
+                                  : 'assets/images/l1.png') as ImageProvider,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -213,14 +211,12 @@ class PaymentScreen extends StatelessWidget {
                 children: [
                   _buildBillingItem(
                     icon: Icons.calendar_month_rounded,
-                    title: "Stay Dates",
-                    onTap: () =>
-                        BottomSheetUtils.showCalendarBottomSheet(context),
+                    title: "Stay Date",
                     subtitle: Obx(() => Text(
-                          calendarController.checkInDate.value != null &&
-                                  calendarController.checkOutDate.value != null
-                              ? "${calendarController.formatDate(calendarController.checkInDate.value)} - ${calendarController.formatDate(calendarController.checkOutDate.value)}"
-                              : "Select Dates",
+                          calendarController.checkInDate.value != null
+                              ? calendarController.formatDate(
+                                  calendarController.checkInDate.value)
+                              : "Select Date",
                           style: TextStyle(
                               fontFamily: 'Poppins',
                               color: blue,
@@ -233,11 +229,43 @@ class PaymentScreen extends StatelessWidget {
                     child: Divider(color: border.withOpacity(0.5), height: 1),
                   ),
                   _buildBillingItem(
+                    icon: Icons.access_time_filled_rounded,
+                    title: "Stay Slots",
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children:
+                          (selectedSlots != null && selectedSlots!.isNotEmpty)
+                              ? selectedSlots!
+                                  .map((s) => Text(
+                                        "${s.checkIn} - ${s.checkOut}",
+                                        style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            color: blue,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13.sp),
+                                      ))
+                                  .toList()
+                              : [
+                                  Text(
+                                    "No slots selected",
+                                    style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        color: grey,
+                                        fontSize: 13.sp),
+                                  )
+                                ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    child: Divider(color: border.withOpacity(0.5), height: 1),
+                  ),
+                  _buildBillingItem(
                     icon: Icons.people_alt_rounded,
-                    title: "Guests & Rooms",
+                    title: "Guests",
                     onTap: () => BottomSheetUtils.showGuestBottomSheet(context),
                     subtitle: Obx(() => Text(
-                          "${calendarController.guestCount.value} Guests | ${calendarController.roomCount.value} Rooms",
+                          "${calendarController.guestCount.value} Guests",
                           style: TextStyle(
                               fontFamily: 'Poppins',
                               color: blue,
@@ -245,85 +273,6 @@ class PaymentScreen extends StatelessWidget {
                               fontSize: 13.sp),
                         )),
                   ),
-                  if (bookingDetails?.dateDetails != null &&
-                      bookingDetails!.dateDetails!.any((d) =>
-                          d.checkinTime != null && d.checkoutTime != null))
-                    Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          child: Divider(
-                              color: border.withOpacity(0.5), height: 1),
-                        ),
-                        _buildBillingItem(
-                          icon: Icons.access_time_filled_rounded,
-                          title: "Stay Slots",
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: bookingDetails!.dateDetails!
-                                .where((d) =>
-                                    d.checkinTime != null &&
-                                    d.checkoutTime != null)
-                                .map((d) => Text(
-                                      "${d.checkinTime} - ${d.checkoutTime}",
-                                      style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          color: blue,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13.sp),
-                                    ))
-                                .toList(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  if (bookingDetails?.priceSummary != null)
-                    Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12.h),
-                          child: Divider(
-                              color: border.withOpacity(0.5), height: 1),
-                        ),
-                        // _buildBillingItem(
-                        //   icon: Icons.receipt_long_rounded,
-                        //   title: "Price Details",
-                        //   subtitle: Column(
-                        //     crossAxisAlignment: CrossAxisAlignment.start,
-                        //     children: bookingDetails!.priceSummary!.entries
-                        //         .map((e) => Padding(
-                        //               padding:
-                        //                   EdgeInsets.symmetric(vertical: 1.h),
-                        //               child: Row(
-                        //                 mainAxisAlignment:
-                        //                     MainAxisAlignment.spaceBetween,
-                        //                 children: [
-                        //                   Text(
-                        //                     e.key
-                        //                         .replaceAll('_', ' ')
-                        //                         .capitalizeFirst!,
-                        //                     style: TextStyle(
-                        //                         fontFamily: 'Poppins',
-                        //                         color: fontColor,
-                        //                         fontSize: 11.sp),
-                        //                   ),
-                        //                   SizedBox(width: 20.w),
-                        //                   Text(
-                        //                     "₹${e.value}",
-                        //                     style: TextStyle(
-                        //                         fontFamily: 'Poppins',
-                        //                         color: blue,
-                        //                         fontWeight: FontWeight.w600,
-                        //                         fontSize: 12.sp),
-                        //                   ),
-                        //                 ],
-                        //               ),
-                        //             ))
-                        //         .toList(),
-                        //   ),
-                        // ),
-                      ],
-                    ),
                 ],
               ),
             ),
@@ -411,128 +360,28 @@ class PaymentScreen extends StatelessWidget {
               ),
             ),
 
-            Obx(() => PayNow(
-                  price: price,
+            Builder(builder: (context) {
+              final controller =
+                  Get.find<FreshupDetailController>(tag: freshupId);
+
+              if (bookingDetails == null) {
+                return const SizedBox.shrink();
+              }
+
+              return FreshupPayNow(
+                bookingDetails: bookingDetails!,
+                onPayNow: () => controller.confirmFreshupBooking(
                   hotelName: hotelName,
                   location: location,
                   coverImage: coverImage,
-                  checkInDate: calendarController.checkInDate.value != null
-                      ? calendarController
-                          .formatDate(calendarController.checkInDate.value)
-                      : "N/A",
-                  checkOutDate: calendarController.checkOutDate.value != null
-                      ? calendarController
-                          .formatDate(calendarController.checkOutDate.value)
-                      : "N/A",
-                  bookingDetails: bookingDetails,
-                  onPayNow: propertyId != null && propertyType != null
-                      ? () => _confirmBooking()
-                      : null,
-                )),
+                  totalAmount: bookingDetails?.price?.toDouble() ?? price,
+                ),
+              );
+            }),
           ],
         ),
       ),
     );
-  }
-
-  Future<void> _confirmBooking() async {
-    final HotelDetailService hotelDetailService = HotelDetailService();
-
-    // Show loading
-    Get.dialog(
-      const Center(child: AppLoader(size: 50)),
-      barrierDismissible: false,
-    );
-
-    try {
-      final dateFormat = DateFormat('yyyy-MM-dd');
-      final checkInStr = dateFormat
-          .format(calendarController.checkInDate.value ?? DateTime.now());
-      final checkOutStr = dateFormat
-          .format(calendarController.checkOutDate.value ?? DateTime.now());
-
-      final totalAmount =
-          bookingDetails?.offerPrice ?? bookingDetails?.price ?? price;
-
-      dynamic booking;
-
-      // Create appropriate booking request based on property type
-      if (propertyType == "ROOM" || propertyType == "FULL_PROPERTY") {
-        booking = HotelBookingRequestModel(
-          propertyId: propertyId,
-          propertyType: propertyType,
-          userName: "User", // Placeholder
-          primaryEmail: "user@example.com", // Placeholder
-          primaryMobile: "1234567890", // Placeholder
-          checkIn: checkInStr,
-          checkOut: checkOutStr,
-          totalAmount: totalAmount,
-          paymentId: "PAY-${DateTime.now().millisecondsSinceEpoch}",
-          paymentMethod: "Online",
-          paymentStatus: "Pending",
-          bookingStatus: "Booked",
-        );
-      } else if (propertyType == "HALL") {
-        booking = HallBookingRequestModel(
-          propertyId: propertyId,
-          propertyType: propertyType,
-          userName: "User", // Placeholder
-          primaryEmail: "user@example.com", // Placeholder
-          primaryMobile: "1234567890", // Placeholder
-          checkIn: checkInStr,
-          checkOut: checkOutStr,
-          totalAmount: totalAmount,
-          paymentId: "PAY-${DateTime.now().millisecondsSinceEpoch}",
-          paymentMethod: "Online",
-          paymentStatus: "Pending",
-          bookingStatus: "Booked",
-        );
-      }
-
-      if (booking != null) {
-        final success = await hotelDetailService.createNewBooking([booking]);
-
-        Get.back(); // Hide loading
-
-        if (success) {
-          Get.offAll(() => BookingSuccessful(
-                hotelName: hotelName,
-                location: location,
-                price: totalAmount.toStringAsFixed(0),
-                checkInDate: checkInStr,
-                checkOutDate: checkOutStr,
-                coverImage: coverImage,
-              ));
-        } else {
-          Get.snackbar(
-            "Booking Failed",
-            "Could not complete the booking. Please try again.",
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red.withOpacity(0.8),
-            colorText: white,
-          );
-        }
-      } else {
-        Get.back();
-        Get.snackbar(
-          "Error",
-          "Invalid property type.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withOpacity(0.8),
-          colorText: white,
-        );
-      }
-    } catch (e) {
-      Get.back();
-      debugPrint("Error confirming booking: $e");
-      Get.snackbar(
-        "Error",
-        "An unexpected error occurred.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.8),
-        colorText: white,
-      );
-    }
   }
 
   Widget _buildBillingItem(
@@ -556,19 +405,21 @@ class PaymentScreen extends StatelessWidget {
               child: Icon(icon, color: yellow, size: 20.sp),
             ),
             SizedBox(width: 12.w),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: fontColor,
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w500),
-                ),
-                subtitle,
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: fontColor,
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500),
+                  ),
+                  subtitle,
+                ],
+              ),
             ),
           ],
         ),

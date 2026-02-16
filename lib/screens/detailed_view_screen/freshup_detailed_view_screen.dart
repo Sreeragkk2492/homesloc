@@ -1,5 +1,6 @@
 // ignore_for_file: file_names, avoid_print, unused_import
 import 'package:flutter/material.dart';
+import 'package:homesloc/core/widgets/loader/app_loader.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/calender_controller.dart';
@@ -10,6 +11,7 @@ import 'package:homesloc/models/search/search_hotel_model.dart';
 import 'package:homesloc/apis/home/hotel_detail_service.dart';
 import 'package:homesloc/models/freshup/freshup_availability_model.dart';
 import 'package:intl/intl.dart';
+import 'package:homesloc/controller/freshup/freshup_detail_controller.dart';
 import 'package:homesloc/screens/detailed_view_screen/amenitie_row/freshup_amenitie_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/slot_row/freshup_slot_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/transportation_row/transportations_first_row.dart';
@@ -35,70 +37,25 @@ class FreshupDetailedViewScreen extends StatefulWidget {
 }
 
 class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
-  late final CalendarController calendarController;
+  late final FreshupDetailController controller;
   final PageController _pageController = PageController();
-  final HotelDetailService _hotelDetailService = HotelDetailService();
-  int _carouselIndex = 0;
-  bool _isLoading = false;
-  FreshupAvailabilityModel? _availabilityModel;
-  List<String> _selectedSlotIds = [];
 
   @override
   void initState() {
     super.initState();
-    if (Get.isRegistered<CalendarController>()) {
-      calendarController = Get.find<CalendarController>();
-    } else {
-      calendarController = Get.put(CalendarController());
-    }
-
-    if (widget.startDate != null) {
-      calendarController.checkInDate.value = DateTime.parse(widget.startDate!);
-    }
-
-    _fetchFreshupDetails();
-  }
-
-  Future<void> _fetchFreshupDetails() async {
-    if (widget.freshup.freshupDetails?.freshupId == null ||
-        widget.freshup.freshupDetails?.priceMethod == null) {
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final dateFormat = DateFormat('yyyy-MM-dd');
-      final date = dateFormat
-          .format(calendarController.checkInDate.value ?? DateTime.now());
-
-      final result = await _hotelDetailService.checkFreshupAvailability(
-        freshupRoomId: widget.freshup.freshupDetails!.freshupId!,
-        priceMethod: widget.freshup.freshupDetails!.priceMethod!,
-        date: date,
-      );
-
-      if (mounted) {
-        setState(() {
-          _availabilityModel = result;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Error fetching freshup details: $e");
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
+    controller = Get.put(
+      FreshupDetailController(
+        freshup: widget.freshup,
+        initialStartDate: widget.startDate,
+      ),
+      tag: widget.freshup.id, // Use unique tag if multiple screens can coexist
+    );
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    // Get.delete<FreshupDetailController>(tag: widget.freshup.id);
     super.dispose();
   }
 
@@ -209,9 +166,7 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                   child: PageView.builder(
                     controller: _pageController,
                     onPageChanged: (index) {
-                      setState(() {
-                        _carouselIndex = index;
-                      });
+                      controller.updateCarouselIndex(index);
                     },
                     itemCount: images.length,
                     itemBuilder: (context, index) {
@@ -304,56 +259,63 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                     ),
                   ),
                 ),
-                if (images.length > 1)
-                  Positioned(
-                    bottom: 20.h,
-                    left: 20.w,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        images.length,
-                        (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: EdgeInsets.symmetric(horizontal: 3.w),
-                          width: _carouselIndex == index ? 20.w : 6.w,
-                          height: 6.h,
-                          decoration: BoxDecoration(
-                            color: _carouselIndex == index
-                                ? yellow
-                                : white.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(3.r),
+                Obx(
+                  () => images.length > 1
+                      ? Positioned(
+                          bottom: 20.h,
+                          left: 20.w,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              images.length,
+                              (index) => AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin: EdgeInsets.symmetric(horizontal: 3.w),
+                                width: controller.carouselIndex.value == index
+                                    ? 20.w
+                                    : 6.w,
+                                height: 6.h,
+                                decoration: BoxDecoration(
+                                  color: controller.carouselIndex.value == index
+                                      ? yellow
+                                      : white.withOpacity(0.7),
+                                  borderRadius: BorderRadius.circular(3.r),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                Obx(
+                  () => Positioned(
+                    bottom: 15.h,
+                    right: 15.w,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(20.r),
+                        border:
+                            Border.all(color: white.withOpacity(0.2), width: 1),
                       ),
-                    ),
-                  ),
-                Positioned(
-                  bottom: 15.h,
-                  right: 15.w,
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(20.r),
-                      border:
-                          Border.all(color: white.withOpacity(0.2), width: 1),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.image_outlined, color: white, size: 12.sp),
-                        SizedBox(width: 5.w),
-                        Text(
-                          '${_carouselIndex + 1}/${images.length}',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: white,
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.bold,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.image_outlined, color: white, size: 12.sp),
+                          SizedBox(width: 5.w),
+                          Text(
+                            '${controller.carouselIndex.value + 1}/${images.length}',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: white,
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -487,21 +449,24 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
               secondColor: blue,
             ),
             SizedBox(height: 10.h),
-            _isLoading
-                ? Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20.r),
-                      child: CircularProgressIndicator(color: blue),
+            Obx(
+              () => controller.isLoading.value
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: AppLoader(size: 50),
+                      ),
+                    )
+                  : FreshupAmenitieRow(
+                      freshup: hotelData,
+                      amenities: (controller.availabilityModel.value
+                                  ?.accommodations?.isNotEmpty ??
+                              false)
+                          ? controller.availabilityModel.value!.accommodations!
+                              .first.amenities
+                          : null,
                     ),
-                  )
-                : FreshupAmenitieRow(
-                    freshup: hotelData,
-                    amenities: (_availabilityModel
-                                ?.accommodations?.isNotEmpty ??
-                            false)
-                        ? _availabilityModel!.accommodations!.first.amenities
-                        : null,
-                  ),
+            ),
             SizedBox(height: 15.h),
             NameView(
               name: "Available Slots",
@@ -509,29 +474,33 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
               secondName: '',
               secondColor: blue,
             ),
-            _isLoading
-                ? Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(20.r),
-                      child: CircularProgressIndicator(color: blue),
+            Obx(
+              () => controller.isLoading.value
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: AppLoader(size: 50),
+                      ),
+                    )
+                  : FreshupSlotRow(
+                      slots: (controller.availabilityModel.value?.accommodations
+                                  ?.isNotEmpty ??
+                              false)
+                          ? controller.availabilityModel.value!.accommodations!
+                              .first.slots
+                          : null,
+                      initialSelectedSlotIds: controller.selectedSlotIds,
+                      onSlotsSelected: (ids) {
+                        controller.selectedSlotIds.assignAll(ids);
+                      },
                     ),
-                  )
-                : FreshupSlotRow(
-                    slots: (_availabilityModel?.accommodations?.isNotEmpty ??
-                            false)
-                        ? _availabilityModel!.accommodations!.first.slots
-                        : null,
-                    initialSelectedSlotIds: _selectedSlotIds,
-                    onSlotsSelected: (ids) {
-                      setState(() {
-                        _selectedSlotIds = ids;
-                      });
-                    },
-                  ),
+            ),
             SizedBox(height: 15.h),
-            FreshupBookNow(
-              freshup: hotelData,
-              selectedSlotIds: _selectedSlotIds,
+            Obx(
+              () => FreshupBookNow(
+                freshup: hotelData,
+                selectedSlotIds: controller.selectedSlotIds.toList(),
+              ),
             ),
             const HomeDivider(),
             Padding(

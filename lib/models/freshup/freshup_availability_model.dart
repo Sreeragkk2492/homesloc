@@ -86,8 +86,9 @@ class FreshupAccommodation {
       name: json['name'] ?? json['freshup_name'],
       city: json['city'],
       coverImageUrl: json['cover_image_url'],
-      price: (json['price'] as num?)?.toDouble(),
-      offerPrice: (json['offer_price'] as num?)?.toDouble(),
+      price: num.tryParse(json['price']?.toString() ?? '')?.toDouble(),
+      offerPrice:
+          num.tryParse(json['offer_price']?.toString() ?? '')?.toDouble(),
       amenities: json['amenities'] != null
           ? List<FreshupAmenity>.from(
               json['amenities'].map((x) => FreshupAmenity.fromJson(x)))
@@ -148,9 +149,9 @@ class FreshupSlot {
 
   factory FreshupSlot.fromJson(Map<String, dynamic> json) {
     return FreshupSlot(
-      id: json['id'],
-      checkIn: json['check_in'],
-      checkOut: json['check_out'],
+      id: json['id']?.toString() ?? json['slot_id']?.toString(),
+      checkIn: json['check_in'] ?? json['checkin'],
+      checkOut: json['check_out'] ?? json['checkout'],
     );
   }
 

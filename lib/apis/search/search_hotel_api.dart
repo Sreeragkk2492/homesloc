@@ -5,8 +5,61 @@ import 'package:homesloc/core/constant/api_constant.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:homesloc/models/search/tourism_search_model.dart';
+import 'package:homesloc/models/tourism/tourism_detail_model.dart';
+import 'package:homesloc/models/tourism/tourism_availability_model.dart';
+
 class SearchHotelService {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  Future<TourismSearchModel?> searchTourism({
+    int page = 1,
+    int pageSize = 10,
+    String sortBy = 'created_at',
+    String sortOrder = 'desc',
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'page_size': pageSize.toString(),
+        'sort_by': sortBy,
+        'sort_order': sortOrder,
+      };
+
+      final uri =
+          Uri.parse(ApiConstant.BASE_URL + ApiConstant.TOURISM_SEARCH_URL)
+              .replace(queryParameters: queryParams);
+
+      print('Tourism Search URL: $uri');
+
+      String? token = accessToken;
+      if (token.isEmpty) {
+        token = await _storage.read(key: 'access_token');
+      }
+
+      final response = await http.get(
+        uri,
+        headers: {
+          'accept': 'application/json',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Tourism Search Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        return TourismSearchModel.fromJson(jsonResponse);
+      } else {
+        print('Failed to search tourism: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error searching tourism: $e');
+      return null;
+    }
+  }
 
   Future<SearchHotelModel?> searchHotels({
     String? location,
@@ -241,6 +294,68 @@ class SearchHotelService {
       }
     } catch (e) {
       print('Error searching freshups: $e');
+      return null;
+    }
+  }
+
+  Future<TourismDetailModel?> fetchTourismDetails({
+    required String packageId,
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'start_date': startDate,
+        'end_date': endDate,
+      };
+
+      final uri = Uri.parse(ApiConstant.BASE_URL +
+              ApiConstant.TOURISM_DETAILS_URL +
+              packageId)
+          .replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: {
+        'Accept': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        return TourismDetailModel.fromJson(json.decode(response.body));
+      } else {
+        print('Failed to fetch tourism details: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching tourism details: $e');
+      return null;
+    }
+  }
+
+  Future<TourismAvailabilityModel?> checkTourismAvailability({
+    required String packageId,
+    required String checkin,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'package_id': packageId,
+        'checkin': checkin,
+      };
+
+      final uri =
+          Uri.parse(ApiConstant.BASE_URL + ApiConstant.TOURISM_AVAILABILITY_URL)
+              .replace(queryParameters: queryParams);
+
+      final response = await http.get(uri, headers: {
+        'Accept': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        return TourismAvailabilityModel.fromJson(json.decode(response.body));
+      } else {
+        print('Failed to check tourism availability: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error checking tourism availability: $e');
       return null;
     }
   }

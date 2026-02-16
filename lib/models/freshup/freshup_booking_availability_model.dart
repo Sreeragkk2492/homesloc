@@ -1,11 +1,11 @@
 import 'package:homesloc/models/freshup/freshup_availability_model.dart';
-import 'package:homesloc/models/booking/room_availability_model.dart';
+import 'package:homesloc/models/freshup/freshup_booking_details_model.dart';
 
 class FreshupBookingAvailabilityModel {
   FreshupSearchDetails? freshupDetails;
   List<FreshupSlot>? slotDetails;
   FreshupServiceDetails? serviceDetails;
-  BookingDetails? bookingDetails;
+  FreshupBookingDetails? bookingDetails;
   bool? isAvailable;
   List<dynamic>? filterErrors;
 
@@ -19,10 +19,49 @@ class FreshupBookingAvailabilityModel {
   });
 
   factory FreshupBookingAvailabilityModel.fromJson(Map<String, dynamic> json) {
+    // Parse freshup_details first
+    FreshupSearchDetails? freshupDetails = json['freshup_details'] != null
+        ? FreshupSearchDetails.fromJson(json['freshup_details'])
+        : null;
+
+    // Parse booking_details or create from freshup_details if missing
+    FreshupBookingDetails? bookingDetails;
+    if (json['booking_details'] != null) {
+      bookingDetails = FreshupBookingDetails.fromJson(json['booking_details']);
+
+      // If booking_details has zero or null price, use freshup_details price as fallback
+      if ((bookingDetails.price == null || bookingDetails.price == 0) &&
+          freshupDetails != null) {
+        bookingDetails = FreshupBookingDetails(
+          checkin: bookingDetails.checkin,
+          slots: bookingDetails.slots,
+          days: bookingDetails.days,
+          adults: bookingDetails.adults,
+          children: bookingDetails.children,
+          totalGuests: bookingDetails.totalGuests,
+          price: freshupDetails.offerPrice ?? freshupDetails.baseRoomPrice,
+          offerPrice: freshupDetails.offerPrice,
+          priceSummary: bookingDetails.priceSummary,
+          dateDetails: bookingDetails.dateDetails,
+        );
+        print(
+            '📊 Using freshup_details price as fallback: price=${bookingDetails.price}, offerPrice=${bookingDetails.offerPrice}');
+      } else {
+        print(
+            '📊 Parsed booking_details from API: price=${bookingDetails.price}, offerPrice=${bookingDetails.offerPrice}');
+      }
+    } else if (freshupDetails != null) {
+      // Create BookingDetails from freshup_details when API doesn't provide booking_details
+      bookingDetails = FreshupBookingDetails(
+        price: freshupDetails.offerPrice ?? freshupDetails.baseRoomPrice,
+        offerPrice: freshupDetails.offerPrice,
+      );
+      print(
+          '📊 Created booking_details from freshup_details: price=${bookingDetails.price}, offerPrice=${bookingDetails.offerPrice}');
+    }
+
     return FreshupBookingAvailabilityModel(
-      freshupDetails: json['freshup_details'] != null
-          ? FreshupSearchDetails.fromJson(json['freshup_details'])
-          : null,
+      freshupDetails: freshupDetails,
       slotDetails: json['slot_details'] != null
           ? List<FreshupSlot>.from(
               json['slot_details'].map((x) => FreshupSlot.fromJson(x)))
@@ -30,9 +69,7 @@ class FreshupBookingAvailabilityModel {
       serviceDetails: json['service_details'] != null
           ? FreshupServiceDetails.fromJson(json['service_details'])
           : null,
-      bookingDetails: json['booking_details'] != null
-          ? BookingDetails.fromJson(json['booking_details'])
-          : null,
+      bookingDetails: bookingDetails,
       isAvailable: json['is_available'],
       filterErrors: json['filter_errors'] ?? [],
     );
@@ -66,15 +103,15 @@ class FreshupSearchDetails {
 
   factory FreshupSearchDetails.fromJson(Map<String, dynamic> json) {
     return FreshupSearchDetails(
-      id: json['id'],
+      id: json['id']?.toString(),
       freshupName: json['freshup_name'],
       freshupDescription: json['freshup_description'],
       priceMethod: json['price_method'],
-      baseRoomPrice: json['base_room_price'],
-      perHeadPrice: json['per_head_price'],
-      offerPrice: json['offer_price'],
-      maxPersons: json['max_persons'],
-      availableRooms: json['available_rooms'],
+      baseRoomPrice: num.tryParse(json['base_room_price']?.toString() ?? ''),
+      perHeadPrice: num.tryParse(json['per_head_price']?.toString() ?? ''),
+      offerPrice: num.tryParse(json['offer_price']?.toString() ?? ''),
+      maxPersons: int.tryParse(json['max_persons']?.toString() ?? ''),
+      availableRooms: int.tryParse(json['available_rooms']?.toString() ?? ''),
       amenities: json['amenities'] != null
           ? List<FreshupAmenity>.from(
               json['amenities'].map((x) => FreshupAmenity.fromJson(x)))
@@ -140,16 +177,17 @@ class FreshupPolicies {
 
   factory FreshupPolicies.fromJson(Map<String, dynamic> json) {
     return FreshupPolicies(
-      id: json['id'],
+      id: json['id']?.toString(),
       acceptableIdentityProof: json['acceptableIdentityProof'] != null
           ? List<String>.from(json['acceptableIdentityProof'])
           : null,
-      acceptedtimeslots: json['acceptedtimeslots'],
-      cancellationPolicy: json['cancellationPolicy'],
-      cancellationDays: json['cancellationDays'],
-      extraBedPolicy: json['extraBedPolicy'],
-      propertyrules: json['propertyrules'],
-      extraBedPrice: json['extra_bed_price'],
+      acceptedtimeslots: json['acceptedtimeslots']?.toString(),
+      cancellationPolicy: json['cancellationPolicy']?.toString(),
+      cancellationDays:
+          int.tryParse(json['cancellationDays']?.toString() ?? ''),
+      extraBedPolicy: json['extraBedPolicy']?.toString(),
+      propertyrules: json['propertyrules']?.toString(),
+      extraBedPrice: num.tryParse(json['extra_bed_price']?.toString() ?? ''),
     );
   }
 }

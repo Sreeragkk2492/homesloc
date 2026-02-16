@@ -15,6 +15,7 @@ class PayNow extends StatelessWidget {
   final String checkInDate;
   final String checkOutDate;
   final BookingDetails? bookingDetails;
+  final VoidCallback? onPayNow;
 
   PayNow({
     super.key,
@@ -25,6 +26,7 @@ class PayNow extends StatelessWidget {
     required this.checkInDate,
     required this.checkOutDate,
     this.bookingDetails,
+    this.onPayNow,
   });
 
   final calendarController = Get.find<CalendarController>();
@@ -34,6 +36,12 @@ class PayNow extends StatelessWidget {
   Widget build(BuildContext context) {
     // If we have API booking details, use them
     if (bookingDetails != null) {
+      debugPrint(
+          "PayNow building with bookingDetails: price=${bookingDetails!.price}, offerPrice=${bookingDetails!.offerPrice}, hasSummary=${bookingDetails!.priceSummary != null}");
+      if (bookingDetails!.priceSummary != null) {
+        debugPrint("Price Summary Keys: ${bookingDetails!.priceSummary!.keys}");
+      }
+
       final double grandTotal =
           (bookingDetails!.offerPrice ?? bookingDetails!.price ?? 0).toDouble();
 
@@ -60,23 +68,29 @@ class PayNow extends StatelessWidget {
               SizedBox(height: 10.h),
 
               // Show summary from API if available
-              if (bookingDetails!.priceSummary != null) ...[
-                if (bookingDetails!.priceSummary!["nights_price"] != null)
-                  _buildPriceRow(
-                    "Price (Nights)",
-                    "₹${bookingDetails!.priceSummary!["nights_price"].toString().split('=').last.trim()}",
-                  ),
-                if (bookingDetails!.priceSummary!["room_price"] != null)
-                  _buildPriceRow(
-                    "Price (Rooms)",
-                    "₹${bookingDetails!.priceSummary!["room_price"].toString().split('=').last.trim()}",
-                  ),
-              ] else ...[
-                _buildPriceRow(
-                  'Total Price',
-                  '₹${bookingDetails!.price}',
-                ),
-              ],
+              // if (bookingDetails!.priceSummary != null &&
+              //     bookingDetails!.priceSummary!.isNotEmpty) ...[
+              //   ...bookingDetails!.priceSummary!.entries.map((entry) {
+              //     final String label = entry.key
+              //         .replaceAll('_', ' ')
+              //         .split(' ')
+              //         .map((s) => s.capitalizeFirst)
+              //         .join(' ');
+              //     final String value = entry.value.toString().contains('=')
+              //         ? entry.value.toString().split('=').last.trim()
+              //         : entry.value.toString();
+
+              //     return Padding(
+              //       padding: EdgeInsets.only(bottom: 6.h),
+              //       child: _buildPriceRow(label, "₹$value"),
+              //     );
+              //   }),
+              // ] else ...[
+              //   _buildPriceRow(
+              //     'Total Price',
+              //     '₹${bookingDetails!.price}',
+              //   ),
+              // ],
 
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.h),
@@ -110,7 +124,11 @@ class PayNow extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 12.h),
                 child: InkWell(
                   onTap: () {
-                    _proceedToPay(context, grandTotal);
+                    if (onPayNow != null) {
+                      onPayNow!();
+                    } else {
+                      _proceedToPay(context, grandTotal);
+                    }
                   },
                   child: Container(
                     width: double.infinity,

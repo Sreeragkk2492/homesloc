@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:homesloc/controller/freshup/freshup_detail_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
-import 'package:homesloc/models/search/search_hotel_model.dart';
+import 'package:homesloc/models/tourism/tourism_detail_model.dart';
+import 'package:get/get.dart';
+import 'package:homesloc/controller/tourism/tourism_detail_controller.dart';
 
-class FreshupBookNow extends StatelessWidget {
-  final Hotel freshup;
-  final List<String> selectedSlotIds;
-  const FreshupBookNow({
+class TourismBookNow extends StatelessWidget {
+  final TourismDetailModel data;
+
+  const TourismBookNow({
     super.key,
-    required this.freshup,
-    this.selectedSlotIds = const [],
+    required this.data,
   });
 
   @override
@@ -28,7 +27,7 @@ class FreshupBookNow extends StatelessWidget {
         children: [
           SizedBox(height: 10.h),
           Text(
-            'Book Short Stay',
+            'Book Your Tour Now',
             style: TextStyle(
                 color: const Color.fromARGB(255, 230, 230, 230),
                 fontFamily: 'Poppins',
@@ -37,7 +36,7 @@ class FreshupBookNow extends StatelessWidget {
           ),
           SizedBox(height: 5.h),
           Text(
-            'Refresh and recharge with our short stay options.',
+            'Secure your spot for an amazing journey! Simple and instant booking.',
             style: TextStyle(
                 color: const Color.fromARGB(255, 200, 200, 200),
                 fontFamily: 'Poppins',
@@ -46,8 +45,8 @@ class FreshupBookNow extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8.h),
-            child: Divider(
-              color: const Color.fromARGB(255, 150, 150, 150),
+            child: const Divider(
+              color: Color.fromARGB(255, 150, 150, 150),
             ),
           ),
           Row(
@@ -60,13 +59,27 @@ class FreshupBookNow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        "₹${freshup.originalPrice ?? '0'}",
+                        "₹${data.priceWithoutFlight}",
                         style: TextStyle(
                             color: white,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
                             fontSize: 23.sp),
                       ),
+                      if (data.offerPrice != null &&
+                          data.offerPrice != data.priceWithoutFlight) ...[
+                        SizedBox(width: 8.w),
+                        Text(
+                          "₹${data.offerPrice}",
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 190, 190, 190),
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.lineThrough,
+                              decorationColor: white,
+                              fontSize: 12.sp),
+                        ),
+                      ],
                     ],
                   ),
                   Text(
@@ -81,9 +94,9 @@ class FreshupBookNow extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
-                  final controller =
-                      Get.find<FreshupDetailController>(tag: freshup.id);
-                  controller.bookNow();
+                  final TourismDetailController controller =
+                      Get.find<TourismDetailController>();
+                  controller.checkAvailabilityAndBook();
                 },
                 child: Container(
                   width: 140.w,

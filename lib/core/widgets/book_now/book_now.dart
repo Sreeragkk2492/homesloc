@@ -169,6 +169,9 @@ class BookNow extends StatelessWidget {
                               result.bookingDetails?.price?.toDouble() ?? 0.0,
                           coverImage: _getCoverImage(),
                           bookingDetails: result.bookingDetails,
+                          propertyId: id,
+                          propertyType:
+                              isFullProperty ? "FULL_PROPERTY" : "ROOM",
                         );
                       }));
                     } else {
@@ -181,7 +184,7 @@ class BookNow extends StatelessWidget {
                       );
                     }
                   } else {
-                    // Fallback
+                    // Fallback - no property info available
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return PaymentScreen(
@@ -189,6 +192,7 @@ class BookNow extends StatelessWidget {
                         location: _getLocation(),
                         price: double.tryParse(_getPrice()) ?? 0.0,
                         coverImage: _getCoverImage(),
+                        // No propertyId/propertyType - booking won't work
                       );
                     }));
                   }

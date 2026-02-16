@@ -8,6 +8,7 @@ import 'package:homesloc/screens/categorie_screen/categorie_screen.dart';
 import 'package:homesloc/screens/detailed_view_screen/detailed_view_screen.dart';
 import 'package:homesloc/screens/detailed_view_screen/freshup_detailed_view_screen.dart';
 import 'package:homesloc/screens/detailed_view_screen/hall_detailed_view_screen.dart';
+import 'package:homesloc/screens/detailed_view_screen/tourism_detailed_view_screen.dart';
 import 'package:homesloc/screens/home/home_screen.dart';
 import 'package:homesloc/core/controller/bottom_navigation_bar/new_navigation.dart';
 import 'package:homesloc/core/widgets/logo.dart/second_logo.dart';
@@ -272,6 +273,164 @@ class _SearchScreenState extends State<SearchScreen> {
                     padding: EdgeInsets.all(20.0),
                     child: Text(searchHotelController.errorMessage.value),
                   ),
+                ),
+              )
+            else if (searchHotelController.isTourism.value &&
+                searchHotelController.tourismResult.value != null &&
+                searchHotelController.tourismResult.value!.packages != null)
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final package = searchHotelController
+                        .tourismResult.value!.packages![index];
+                    return GestureDetector(
+                      onTap: () {
+                        Get.to(() => TourismDetailedViewScreen(
+                              packageId: package.id!,
+                              startDate:
+                                  calendarController.checkInDate.value != null
+                                      ? DateFormat('yyyy-MM-dd').format(
+                                          calendarController.checkInDate.value!)
+                                      : null,
+                              endDate: calendarController.checkOutDate.value !=
+                                      null
+                                  ? DateFormat('yyyy-MM-dd').format(
+                                      calendarController.checkOutDate.value!)
+                                  : null,
+                            ));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 10.w, vertical: 5.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15.sp),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (package.galleryImages != null &&
+                                package.galleryImages!.isNotEmpty)
+                              ClipRRect(
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(15.sp)),
+                                child: Image.network(
+                                  package.galleryImages!.first,
+                                  height: 150.h,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                          height: 150.h,
+                                          color: Colors.grey[300]),
+                                ),
+                              ),
+                            Padding(
+                              padding: EdgeInsets.all(12.w),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          package.packageName ?? 'Package Name',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.sp,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 8.w, vertical: 4.h),
+                                        decoration: BoxDecoration(
+                                          color: blue.withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(5.r),
+                                        ),
+                                        child: Text(
+                                          package.packageType ?? '',
+                                          style: TextStyle(
+                                            color: blue,
+                                            fontSize: 10.sp,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 4.h),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.location_on_outlined,
+                                          size: 14.sp, color: Colors.grey),
+                                      SizedBox(width: 4.w),
+                                      Text(
+                                        "${package.startLocation} to ${package.destination}",
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "₹${package.priceWithoutFlight ?? '0'}",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18.sp,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Text(
+                                            "Per Person",
+                                            style: TextStyle(
+                                              fontSize: 10.sp,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.timer_outlined,
+                                              size: 14.sp, color: Colors.grey),
+                                          SizedBox(width: 4.w),
+                                          Text(
+                                            "${package.durationDays}D / ${package.durationNights}N",
+                                            style: TextStyle(
+                                              fontSize: 12.sp,
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  childCount: searchHotelController
+                      .tourismResult.value!.packages!.length,
                 ),
               )
             else if (searchHotelController.searchResult.value != null &&
