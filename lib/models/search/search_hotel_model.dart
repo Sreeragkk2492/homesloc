@@ -83,8 +83,20 @@ class Hotel {
       }
     }
 
+    // Determine type
+    String? type = json["accommodation_type"];
+
     // Handle price mapping
-    String? price = json["original_price"]?.toString();
+    String? price;
+
+    if (type == "FULL_PROPERTY") {
+      price = json["base_property_price"]?.toString();
+    }
+
+    if (price == null) {
+      price = json["original_price"]?.toString();
+    }
+
     if (price == null && json["price"] != null) {
       price = json["price"].toString();
     }
@@ -124,8 +136,7 @@ class Hotel {
       }
     }
 
-    // Determine type
-    String? type = json["accommodation_type"];
+    // Determine type (already determined above)
     if (type == null && json["events"] != null) {
       type = "HALL";
     }
