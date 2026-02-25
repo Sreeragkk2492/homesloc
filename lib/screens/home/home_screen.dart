@@ -104,14 +104,14 @@ class HomeScreen extends StatelessWidget {
                         padding: EdgeInsets.only(top: 10.h, bottom: 15.h),
                         child: SizedBox(
                           // color: yellow,
-                          height: 130.h,
+                          height: 195.h,
                           // width: MediaQuery.of(context).size.width,
                           child: SecondHomeBuilder(),
                         ),
                       ),
                       HomeDivider(),
                       NameView(
-                        name: 'Best wedding deals',
+                        name: 'Best banquet hall deals',
                         color: black,
                         secondName: 'View All',
                         secondColor: black,

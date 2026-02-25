@@ -6,6 +6,7 @@ import 'package:homesloc/screens/payment_screen/payment_screen.dart';
 import 'package:homesloc/models/home/hotel_detail_model.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
 import 'package:homesloc/models/home/hall_detail_model.dart';
+import 'package:homesloc/models/home/homescreen_model.dart';
 import 'package:homesloc/apis/home/hotel_detail_service.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/calender_controller.dart';
@@ -126,6 +127,10 @@ class BookNow extends StatelessWidget {
                   } else if (hotel is Hotel) {
                     // From search model
                     id = hotel.id;
+                  } else if (hotel is BestHotel) {
+                    id = hotel.id;
+                  } else if (hotel is BanquetHall) {
+                    id = hotel.id;
                   }
 
                   if (id != null) {
@@ -227,6 +232,9 @@ class BookNow extends StatelessWidget {
     if (hotel is HallDetailModel) {
       return hotel.bestPrice ?? '0';
     }
+    if (hotel is BanquetHall) {
+      return '0'; // Pricing is fetched on details load
+    }
     if (hotel is HotelDetailModel) {
       final p = hotel.pricing;
       if (p == null) return '0';
@@ -249,6 +257,7 @@ class BookNow extends StatelessWidget {
       return hotel.bestPrice ??
           '0'; // Halls might not have separate original price
     }
+    if (hotel is BanquetHall) return '0';
     if (hotel is HotelDetailModel) {
       return (hotel.pricing?.bestPrice ?? '0').toString();
     }
@@ -274,6 +283,7 @@ class BookNow extends StatelessWidget {
   }
 
   String _getName() {
+    if (hotel is BanquetHall) return hotel.title ?? 'Hotel Name';
     try {
       return hotel.name ?? 'Hotel Name';
     } catch (e) {
@@ -282,6 +292,7 @@ class BookNow extends StatelessWidget {
   }
 
   String _getLocation() {
+    if (hotel is BanquetHall) return hotel.location ?? 'Location';
     try {
       if (hotel is HotelDetailModel) return hotel.location ?? 'Location';
       if (hotel.runtimeType.toString() == 'BestHotel') {
@@ -297,6 +308,8 @@ class BookNow extends StatelessWidget {
   }
 
   String _getCoverImage() {
+    if (hotel is BanquetHall)
+      return hotel.imageUrl ?? 'https://via.placeholder.com/150';
     try {
       return hotel.coverImageUrl ?? 'https://via.placeholder.com/150';
     } catch (e) {

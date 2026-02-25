@@ -14,6 +14,7 @@ import 'package:homesloc/core/widgets/builder/detailed_view_builder/first_detail
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/second_detailed_view_builder.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
+import 'package:homesloc/models/home/homescreen_model.dart';
 import 'package:homesloc/models/home/hotel_detail_model.dart';
 import 'package:homesloc/apis/home/hotel_detail_service.dart';
 
@@ -115,7 +116,9 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
           ? hotel
           : (hotel is Hotel
               ? hotel.id
-              : (hotel is HotelDetailModel ? hotel.id : null));
+              : (hotel is HotelDetailModel
+                  ? hotel.id
+                  : (hotel is BestHotel ? hotel.id : null)));
 
       if (hotelId != null) {
         final details = await _hotelDetailService.fetchHotelDetails(hotelId);

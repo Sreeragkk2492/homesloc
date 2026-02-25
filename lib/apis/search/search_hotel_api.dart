@@ -62,6 +62,8 @@ class SearchHotelService {
   }
 
   Future<SearchHotelModel?> searchHotels({
+    int page = 1,
+    int pageSize = 10,
     String? location,
     String? checkIn,
     String? checkOut,
@@ -74,7 +76,10 @@ class SearchHotelService {
     int? limit,
   }) async {
     try {
-      final queryParams = <String, String>{};
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'page_size': pageSize.toString(),
+      };
       if (location != null && location.isNotEmpty) {
         queryParams['location'] = location;
       }
@@ -194,6 +199,8 @@ class SearchHotelService {
     String sortBy = 'created_at',
     String sortOrder = 'desc',
     bool isActive = true,
+    String? startDate,
+    String? endDate,
   }) async {
     try {
       final queryParams = <String, String>{
@@ -203,6 +210,9 @@ class SearchHotelService {
         'sort_order': sortOrder,
         'is_active': isActive.toString(),
       };
+
+      if (startDate != null) queryParams['check_in_date'] = startDate;
+      if (endDate != null) queryParams['check_out_date'] = endDate;
 
       final uri = Uri.parse(ApiConstant.BASE_URL + ApiConstant.HALL_SEARCH_URL)
           .replace(queryParameters: queryParams);

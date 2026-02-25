@@ -16,6 +16,7 @@ import 'package:homesloc/core/widgets/builder/detailed_view_builder/first_detail
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/second_detailed_view_builder.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
+import 'package:homesloc/models/home/homescreen_model.dart';
 import 'package:homesloc/models/home/hotel_detail_model.dart';
 import 'package:homesloc/models/home/hall_detail_model.dart';
 import 'package:homesloc/apis/home/hotel_detail_service.dart';
@@ -67,6 +68,8 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
       } else if (hotel is Hotel) {
         hotelId = hotel.id;
       } else if (hotel is HotelDetailModel) {
+        hotelId = hotel.id;
+      } else if (hotel is BanquetHall) {
         hotelId = hotel.id;
       }
 
@@ -818,6 +821,7 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
   String _getName(dynamic hotel) {
     if (hotel is HallDetailModel) return hotel.name;
     if (hotel is HotelDetailModel) return hotel.name ?? 'Hall Name';
+    if (hotel is BanquetHall) return hotel.title ?? 'Hall Name';
     try {
       return hotel.name ?? 'Hall Name';
     } catch (e) {
@@ -828,6 +832,7 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
   String _getLocation(dynamic hotel) {
     if (hotel is HallDetailModel) return hotel.location;
     if (hotel is HotelDetailModel) return hotel.location ?? 'Location';
+    if (hotel is BanquetHall) return hotel.location ?? 'Location';
     try {
       if (hotel.runtimeType.toString() == 'BestHotel') {
         return hotel.location ?? 'Location';
@@ -847,6 +852,7 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
       return hotel.coverImageUrl ?? 'assets/images/l1.png';
     if (hotel is HotelDetailModel)
       return hotel.coverImageUrl ?? 'assets/images/l1.png';
+    if (hotel is BanquetHall) return hotel.imageUrl ?? 'assets/images/l1.png';
     try {
       return hotel.coverImageUrl ?? 'assets/images/l1.png';
     } catch (e) {
@@ -862,6 +868,8 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
     if (hotel is HotelDetailModel) {
       if (hotel.coverImageUrl != null) images.add(hotel.coverImageUrl!);
       if (hotel.galleryImages != null) images.addAll(hotel.galleryImages!);
+    } else if (hotel is BanquetHall) {
+      if (hotel.imageUrl != null) images.add(hotel.imageUrl!);
     } else {
       try {
         if (hotel.coverImageUrl != null) images.add(hotel.coverImageUrl);

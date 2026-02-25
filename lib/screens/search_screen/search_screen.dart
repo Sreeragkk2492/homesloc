@@ -47,11 +47,42 @@ class _SearchScreenState extends State<SearchScreen> {
   final calendarController = Get.put(CalendarController());
   final bottomBarController = Get.put(BottomBarController());
   final searchHotelController = Get.put(SearchHotelController());
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (!searchHotelController.isLoadMore.value &&
+          searchHotelController.hasMore.value) {
+        bool hasResults =
+            (searchHotelController.searchResult.value?.searchResults != null) ||
+                (searchHotelController.tourismResult.value?.packages != null);
+        if (hasResults && !searchHotelController.isLoading.value) {
+          searchHotelController.searchHotels(isLoadMoreAction: true);
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() {
         return CustomScrollView(
+          controller: _scrollController,
           slivers: [
             SliverAppBar(
               backgroundColor: blue,
@@ -108,20 +139,41 @@ class _SearchScreenState extends State<SearchScreen> {
                             topToBottom: 0.0,
                             time: 1500,
                             show: true,
-                            child: Container(
-                              height: 30.h,
-                              width: 221.w,
-                              decoration: BoxDecoration(
-                                color: gblue,
-                                borderRadius: BorderRadius.circular(6.sp),
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  _showCalendarBottomSheet(context);
-                                },
-                                child: Obx(() => Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                            child: Obx(() {
+                              final isHall =
+                                  searchHotelController.isGroupedByHall.value;
+                              final isTourism =
+                                  searchHotelController.isTourism.value;
+                              final expandDateBlock = isHall || isTourism;
+
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                height: 30.h,
+                                width: expandDateBlock
+                                    ? 331.w
+                                    : 221.w, // Expand dynamically
+                                decoration: BoxDecoration(
+                                  color: gblue,
+                                  borderRadius: BorderRadius.circular(6.sp),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    _showCalendarBottomSheet(context);
+                                  },
+                                  child: Obx(() {
+                                    final isHall = searchHotelController
+                                        .isGroupedByHall.value;
+                                    final isFreshup =
+                                        searchHotelController.isFreshup.value;
+                                    final isTourism =
+                                        searchHotelController.isTourism.value;
+                                    final isSingleDate =
+                                        isHall || isFreshup || isTourism;
+
+                                    return Row(
+                                      mainAxisAlignment: isSingleDate
+                                          ? MainAxisAlignment.center
+                                          : MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Image(
                                           image: AssetImage(
@@ -129,6 +181,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                           width: 15.w,
                                           height: 15.h,
                                         ),
+                                        if (isSingleDate)
+                                          SizedBox(
+                                              width: 10
+                                                  .w), // Added space after icon explicitly for single date modes
                                         Text(
                                           calendarController
                                                       .checkInDate.value !=
@@ -137,7 +193,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                                   .formatDateShort(
                                                       calendarController
                                                           .checkInDate.value)
-                                              : "Check in",
+                                              : ((isHall || isTourism)
+                                                  ? "Select Event Date"
+                                                  : "Check in"),
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             color: poppinsFont,
@@ -145,83 +203,96 @@ class _SearchScreenState extends State<SearchScreen> {
                                             fontWeight: FontWeight.w100,
                                           ),
                                         ),
-                                        Text(
-                                          "|",
-                                          style: TextStyle(
-                                            color: poppinsFont,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w500,
+                                        if (!isSingleDate) ...[
+                                          Text(
+                                            "|",
+                                            style: TextStyle(
+                                              color: poppinsFont,
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          calendarController
-                                                      .checkOutDate.value !=
-                                                  null
-                                              ? calendarController
-                                                  .formatDateShort(
-                                                      calendarController
-                                                          .checkOutDate.value)
-                                              : "Checkout",
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: poppinsFont,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w100,
+                                          Text(
+                                            calendarController
+                                                        .checkOutDate.value !=
+                                                    null
+                                                ? calendarController
+                                                    .formatDateShort(
+                                                        calendarController
+                                                            .checkOutDate.value)
+                                                : "Checkout",
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              color: poppinsFont,
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.w100,
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ],
-                                    )),
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => Dialog(
-                                  child: BookingDialog(),
+                                    );
+                                  }),
                                 ),
                               );
-                            },
-                            child: AnimatedContent(
-                              leftToRight: 0.0,
-                              time: 1500,
-                              topToBottom: 5.0,
-                              show: true,
-                              child: Container(
-                                margin: EdgeInsets.only(left: 10.w),
-                                width: 100.w,
-                                height: 30.h,
-                                decoration: BoxDecoration(
-                                  color: gblue,
-                                  borderRadius: BorderRadius.circular(6.sp),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image(
-                                      image: AssetImage(
-                                          'assets/images/Vector (1).png'),
-                                      width: 16.w,
-                                      height: 16.h,
-                                    ),
-                                    SizedBox(
-                                      width: 6.w,
-                                    ),
-                                    Obx(() => Text(
-                                          "${searchHotelController.guestCountVal} Guests",
-                                          style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: poppinsFont,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w100,
-                                          ),
-                                        )),
-                                  ],
+                            }),
+                          ),
+                          Obx(() {
+                            final isHall =
+                                searchHotelController.isGroupedByHall.value;
+                            final isTourism =
+                                searchHotelController.isTourism.value;
+                            final hideGuests = isHall || isTourism;
+                            if (hideGuests)
+                              return const SizedBox
+                                  .shrink(); // Hide guests for Halls and Tourism
+
+                            return GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => Dialog(
+                                    child: BookingDialog(),
+                                  ),
+                                );
+                              },
+                              child: AnimatedContent(
+                                leftToRight: 0.0,
+                                time: 1500,
+                                topToBottom: 5.0,
+                                show: true,
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 10.w),
+                                  width: 100.w,
+                                  height: 30.h,
+                                  decoration: BoxDecoration(
+                                    color: gblue,
+                                    borderRadius: BorderRadius.circular(6.sp),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image(
+                                        image: AssetImage(
+                                            'assets/images/Vector (1).png'),
+                                        width: 16.w,
+                                        height: 16.h,
+                                      ),
+                                      SizedBox(width: 6.w),
+                                      Obx(() => Text(
+                                            "${searchHotelController.guestCountVal} Guests",
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              color: poppinsFont,
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.w100,
+                                            ),
+                                          )),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -369,11 +440,15 @@ class _SearchScreenState extends State<SearchScreen> {
                                       Icon(Icons.location_on_outlined,
                                           size: 14.sp, color: Colors.grey),
                                       SizedBox(width: 4.w),
-                                      Text(
-                                        "${package.startLocation} to ${package.destination}",
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 12.sp,
+                                      Expanded(
+                                        child: Text(
+                                          "${package.startLocation} to ${package.destination}",
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 12.sp,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],
@@ -652,7 +727,15 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ]
-          ],
+          ]..addAll([
+              if (searchHotelController.isLoadMore.value)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20.h),
+                    child: Center(child: AppLoader(size: 30)),
+                  ),
+                ),
+            ]),
         );
       }),
     );
@@ -998,8 +1081,51 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   // Add this function to your SearchScreen class
-  void _showCalendarBottomSheet(BuildContext context) {
+  void _showCalendarBottomSheet(BuildContext context) async {
+    final searchHotelController = Get.find<SearchHotelController>();
     final calendarController = Get.put(CalendarController());
+
+    if (searchHotelController.isGroupedByHall.value ||
+        searchHotelController.isFreshup.value ||
+        searchHotelController.isTourism.value) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      DateTime initDate = calendarController.checkInDate.value ?? today;
+      if (initDate.isBefore(today)) {
+        initDate = today;
+      }
+
+      final selectedDate = await showDatePicker(
+        context: context,
+        initialDate: initDate,
+        firstDate: today,
+        lastDate: today.add(const Duration(days: 365)),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: blue,
+                onPrimary: white,
+                onSurface: black,
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(foregroundColor: blue),
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (selectedDate != null) {
+        calendarController.checkInDate.value = selectedDate;
+        calendarController.checkOutDate.value = selectedDate;
+        calendarController.totalDays.value = 1;
+      }
+      return;
+    }
+
     final ScrollController calenderScroll = ScrollController();
 
     showModalBottomSheet(

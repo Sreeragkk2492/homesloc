@@ -107,6 +107,7 @@ class BestHotel {
   dynamic rating;
   int? reviewCount;
   String? uniqueId;
+  bool? isFavorite;
 
   BestHotel({
     this.id,
@@ -150,6 +151,7 @@ class BestHotel {
     this.rating,
     this.reviewCount,
     this.uniqueId,
+    this.isFavorite,
   });
 
   factory BestHotel.fromJson(Map<String, dynamic> json) => BestHotel(
@@ -213,6 +215,7 @@ class BestHotel {
         rating: json["rating"],
         reviewCount: _safeParseInt(json["review_count"]),
         uniqueId: json["unique_id"],
+        isFavorite: json["is_favorite"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -265,6 +268,7 @@ class BestHotel {
         "rating": rating,
         "review_count": reviewCount,
         "unique_id": uniqueId,
+        "is_favorite": isFavorite,
       };
 
   // Helper method to safely parse integers

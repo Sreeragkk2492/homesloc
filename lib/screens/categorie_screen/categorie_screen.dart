@@ -196,26 +196,6 @@ class CategorieSreen extends StatelessWidget {
                                 fontSize: 19.sp,
                                 fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(
-                            width: 100.w,
-                          ),
-                          Container(
-                            width: 55.w,
-                            height: 22.h,
-                            decoration: BoxDecoration(
-                                color: gwhite,
-                                borderRadius: BorderRadius.circular(4.sp)),
-                            child: Center(
-                              child: Text(
-                                "View All",
-                                style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: black,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -318,26 +298,6 @@ class CategorieSreen extends StatelessWidget {
                                 fontSize: 19.sp,
                                 fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(
-                            width: 80.w,
-                          ),
-                          Container(
-                            width: 55.w,
-                            height: 22.h,
-                            decoration: BoxDecoration(
-                                color: gwhite,
-                                borderRadius: BorderRadius.circular(4.sp)),
-                            child: Center(
-                              child: Text(
-                                "View All",
-                                style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: black,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -393,26 +353,6 @@ class CategorieSreen extends StatelessWidget {
                                 color: blue,
                                 fontSize: 17.sp,
                                 fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            width: 30.w,
-                          ),
-                          Container(
-                            width: 55.w,
-                            height: 22.h,
-                            decoration: BoxDecoration(
-                                color: gwhite,
-                                borderRadius: BorderRadius.circular(4.sp)),
-                            child: Center(
-                              child: Text(
-                                "View All",
-                                style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: black,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
                           ),
                         ],
                       ),

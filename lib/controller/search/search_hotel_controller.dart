@@ -17,6 +17,12 @@ class SearchHotelController extends GetxController {
   final searchResult = Rx<SearchHotelModel?>(null);
   final tourismResult = Rx<TourismSearchModel?>(null);
 
+  // Pagination observables
+  final currentPage = 1.obs;
+  final pageSize = 10;
+  final hasMore = true.obs;
+  final isLoadMore = false.obs;
+
   // Filter observables
   final location = "".obs;
   final propertyType = "".obs;
@@ -36,6 +42,7 @@ class SearchHotelController extends GetxController {
 
   // Search hotels with current parameters
   Future<void> searchHotels({
+    bool isLoadMoreAction = false,
     String? location,
     String? checkIn,
     String? checkOut,
@@ -47,15 +54,42 @@ class SearchHotelController extends GetxController {
     String? sortBy,
     int? limit,
   }) async {
-    isLoading.value = true;
+    if (!isLoadMoreAction) {
+      isLoading.value = true;
+      currentPage.value = 1;
+      hasMore.value = true;
+      searchResult.value = null;
+      tourismResult.value = null;
+    } else {
+      if (!hasMore.value || isLoadMore.value) return;
+      isLoadMore.value = true;
+      currentPage.value++;
+    }
     errorMessage.value = '';
 
     try {
       if (isTourism.value) {
-        tourismResult.value = await _searchService.searchTourism(
+        final newResult = await _searchService.searchTourism(
+          page: currentPage.value,
+          pageSize: limit ?? pageSize,
           sortBy: sortBy ?? this.sortBy.value,
         );
-        if (tourismResult.value == null) {
+        if (newResult != null) {
+          if (!isLoadMoreAction) {
+            tourismResult.value = newResult;
+          } else {
+            if (newResult.packages != null && newResult.packages!.isNotEmpty) {
+              if (tourismResult.value?.packages != null) {
+                tourismResult.value!.packages!.addAll(newResult.packages!);
+                tourismResult.refresh();
+              }
+            }
+          }
+          if (newResult.packages == null ||
+              newResult.packages!.length < (limit ?? pageSize)) {
+            hasMore.value = false;
+          }
+        } else if (!isLoadMoreAction) {
           errorMessage.value = 'Failed to fetch tourism data';
         }
         return;
@@ -66,6 +100,8 @@ class SearchHotelController extends GetxController {
       if (isFreshup.value) {
         // Call Freshup Search API
         result = await _searchService.searchFreshup(
+          page: currentPage.value,
+          pageSize: limit ?? pageSize,
           location: location ?? this.location.value,
           checkIn: checkIn ??
               (calendarController.checkInDate.value != null
@@ -83,11 +119,25 @@ class SearchHotelController extends GetxController {
       } else if (isGroupedByHall.value) {
         // Call the Hall search API
         result = await _searchService.searchAccommodationsGroupedByHall(
+          page: currentPage.value,
+          pageSize: limit ?? pageSize,
           sortBy: sortBy ?? this.sortBy.value,
+          startDate: checkIn ??
+              (calendarController.checkInDate.value != null
+                  ? DateFormat('yyyy-MM-dd')
+                      .format(calendarController.checkInDate.value!)
+                  : null),
+          endDate: checkOut ??
+              (calendarController.checkOutDate.value != null
+                  ? DateFormat('yyyy-MM-dd')
+                      .format(calendarController.checkOutDate.value!)
+                  : null),
         );
       } else if (isGroupedByHotel.value) {
         // Call the new grouped search API
         result = await _searchService.searchAccommodationsGroupedByHotel(
+          page: currentPage.value,
+          pageSize: limit ?? pageSize,
           startDate: checkIn ??
               (calendarController.checkInDate.value != null
                   ? DateFormat('yyyy-MM-dd')
@@ -108,6 +158,8 @@ class SearchHotelController extends GetxController {
       } else {
         // Call the existing normal search API
         result = await _searchService.searchHotels(
+          page: currentPage.value,
+          pageSize: limit ?? pageSize,
           location: location ?? this.location.value,
           checkIn: checkIn ??
               (calendarController.checkInDate.value != null
@@ -130,14 +182,32 @@ class SearchHotelController extends GetxController {
       }
 
       if (result != null) {
-        searchResult.value = result;
-      } else {
+        if (!isLoadMoreAction) {
+          searchResult.value = result;
+        } else {
+          if (result.searchResults != null &&
+              result.searchResults!.isNotEmpty) {
+            if (searchResult.value?.searchResults != null) {
+              searchResult.value!.searchResults!.addAll(result.searchResults!);
+              searchResult.refresh();
+            }
+          }
+        }
+        if (result.searchResults == null ||
+            result.searchResults!.length < (limit ?? pageSize)) {
+          hasMore.value = false;
+        }
+      } else if (!isLoadMoreAction) {
         errorMessage.value = 'Failed to fetch data';
       }
     } catch (e) {
       errorMessage.value = 'Error: ${e.toString()}';
     } finally {
-      isLoading.value = false;
+      if (!isLoadMoreAction) {
+        isLoading.value = false;
+      } else {
+        isLoadMore.value = false;
+      }
     }
   }
 }

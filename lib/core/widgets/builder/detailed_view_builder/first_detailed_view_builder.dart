@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/models/home/hotel_detail_model.dart';
+import 'package:homesloc/models/home/homescreen_model.dart';
 import 'package:homesloc/core/widgets/gallery/full_screen_image_viewer.dart';
 
 class FirstDetailedViewBuilder extends StatelessWidget {
@@ -15,6 +16,8 @@ class FirstDetailedViewBuilder extends StatelessWidget {
 
     if (hotel is HotelDetailModel) {
       images = hotel.galleryImages ?? [];
+    } else if (hotel is BanquetHall) {
+      images = hotel.imageUrl != null ? [hotel.imageUrl!] : [];
     } else if (hotel != null) {
       try {
         images = List<String>.from(hotel.galleryImages ?? []);
@@ -27,6 +30,8 @@ class FirstDetailedViewBuilder extends StatelessWidget {
     if (hotel is HotelDetailModel) {
       if (hotel.coverImageUrl != null) allImages.add(hotel.coverImageUrl!);
       if (hotel.galleryImages != null) allImages.addAll(hotel.galleryImages!);
+    } else if (hotel is BanquetHall) {
+      if (hotel.imageUrl != null) allImages.add(hotel.imageUrl!);
     } else {
       try {
         if (hotel.coverImageUrl != null) allImages.add(hotel.coverImageUrl);

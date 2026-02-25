@@ -11,57 +11,106 @@ class ItinerarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (itinerary == null || itinerary!.isEmpty) return const SizedBox.shrink();
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: itinerary!
-            .map((item) => Padding(
-                  padding: EdgeInsets.only(bottom: 20.h),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(itinerary!.length, (index) {
+          final item = itinerary![index];
+          final isLast = index == itinerary!.length - 1;
+
+          final dayStr = (item.day?.replaceAll(RegExp(r'[^0-9]'), '') ?? '');
+          final dayNum = dayStr.isNotEmpty ? dayStr : "${index + 1}";
+
+          return IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Timeline left part
+                SizedBox(
+                  width: 30.w,
+                  child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 12.w, vertical: 8.h),
+                        width: 28.w,
+                        height: 28.w,
                         decoration: BoxDecoration(
-                            color: blue,
-                            borderRadius: BorderRadius.circular(8.r)),
-                        child: Text(item.day ?? '',
+                          color: blue,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            dayNum,
                             style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12.sp)),
-                      ),
-                      SizedBox(width: 15.w),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Day ${item.day?.replaceAll(RegExp(r'[^0-9]'), '')}",
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: blue,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.sp,
-                              ),
+                              color: white,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins',
                             ),
-                            SizedBox(height: 4.h),
-                            Text(item.description ?? '',
-                                style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: black,
-                                    fontSize: 13.sp,
-                                    height: 1.5)),
-                          ],
+                          ),
                         ),
                       ),
+                      if (!isLast)
+                        Expanded(
+                          child: Container(
+                            width: 2.w,
+                            color: blue.withOpacity(0.3),
+                          ),
+                        ),
                     ],
                   ),
-                ))
-            .toList(),
+                ),
+                SizedBox(width: 15.w),
+                // Card right part
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 25.h),
+                    child: Container(
+                      padding: EdgeInsets.all(15.r),
+                      decoration: BoxDecoration(
+                        color: white,
+                        borderRadius: BorderRadius.circular(15.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(color: border, width: 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.day ?? 'Day $dayNum',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: blue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            item.description ?? '',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: black.withOpacity(0.8),
+                              fontSize: 12.sp,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
