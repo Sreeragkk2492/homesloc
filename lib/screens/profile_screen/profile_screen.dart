@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/profile_screen/my_bookings/my_bookings_screen.dart';
+import 'package:homesloc/screens/profile_screen/personal_details/personal_details_screen.dart';
 import 'package:homesloc/core/common/global_variables.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:homesloc/screens/auth/sign_in.dart';
@@ -62,130 +63,33 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Genius Level Card
-              Container(
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: blue, size: 20.sp),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'Level 1',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          children: [
-                            Icon(Icons.house, color: blue, size: 24.sp),
-                            SizedBox(height: 4.h),
-                            Text(
-                              '10% off stays',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Icon(Icons.car_rental, color: blue, size: 24.sp),
-                            SizedBox(height: 4.h),
-                            Text(
-                              '10% off rental cars',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      'You\'re 5 bookings away from Genius Level 2',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                  ],
+              SizedBox(height: 10.h),
+              Text(
+                'Account Settings',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                  color: Colors.black87,
                 ),
               ),
-              SizedBox(height: 24.h),
-              // Profile Completion Card
-              Container(
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Complete your profile',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Complete your profile and use this information for your next booking',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontFamily: 'Poppins',
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: blue,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20.w,
-                          vertical: 12.h,
-                        ),
-                      ),
-                      child: Text(
-                        'Complete now',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              SizedBox(height: 16.h),
+              _buildModernMenuItem(
+                icon: Icons.person_outline,
+                title: 'Personal details',
+                subtitle: 'Manage your profile and info',
+                onTap: () {
+                  Get.to(() => PersonalDetailsScreen());
+                },
               ),
-              SizedBox(height: 24.h),
-              // Menu Items
-              _buildMenuItem(Icons.person_outline, 'Personal details', () {}),
-              _buildMenuItem(Icons.book_online, 'My Bookings', () {
-                Get.to(() => TripScreen());
-              }),
-              _buildMenuItem(Icons.settings, 'Security settings', () {}),
-              _buildMenuItem(Icons.email_outlined, 'Email preferences', () {}),
+              _buildModernMenuItem(
+                icon: Icons.book_online,
+                title: 'My Bookings',
+                subtitle: 'View your upcoming stays',
+                onTap: () {
+                  Get.to(() => TripScreen());
+                },
+              ),
             ],
           ),
         ),
@@ -193,27 +97,73 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap) {
-    return SizedBox(
-      height: 60.h,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 16.h),
+  Widget _buildModernMenuItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 16.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            spreadRadius: 2,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
         child: InkWell(
+          borderRadius: BorderRadius.circular(16.r),
           onTap: onTap,
-          child: Row(
-            children: [
-              Icon(icon, color: Colors.grey, size: 24.sp),
-              SizedBox(width: 16.w),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontFamily: 'Poppins',
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: blue.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Icon(icon, color: blue, size: 24.sp),
                 ),
-              ),
-              const Spacer(),
-              Icon(Icons.chevron_right, color: Colors.grey, size: 24.sp),
-            ],
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontFamily: 'Poppins',
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios,
+                    color: Colors.grey.shade400, size: 16.sp),
+              ],
+            ),
           ),
         ),
       ),

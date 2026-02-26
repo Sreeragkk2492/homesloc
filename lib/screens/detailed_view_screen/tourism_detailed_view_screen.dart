@@ -471,7 +471,7 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
           ),
         ),
         // Floating Favorite Button
-        Positioned(
+        /* Positioned(
           top: 40.h,
           right: 15.w,
           child: GestureDetector(
@@ -496,7 +496,7 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
               ),
             ),
           ),
-        ),
+        ), */
         // Expanding Dots Indicator
         if (images.length > 1)
           Positioned(

@@ -26,6 +26,7 @@ import 'package:homesloc/core/widgets/gallery/full_screen_image_viewer.dart';
 
 import 'package:homesloc/models/search/search_hotel_model.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HallDetailedViewScreen extends StatefulWidget {
   final dynamic hotel;
@@ -113,6 +114,35 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _launchMap(dynamic hotel) async {
+    try {
+      final lat = hotel.latitude;
+      final lng = hotel.longitude;
+      if (lat != null &&
+          lng != null &&
+          lat.toString().isNotEmpty &&
+          lng.toString().isNotEmpty) {
+        final uri = Uri.parse(
+            "https://www.google.com/maps/search/?api=1&query=$lat,$lng");
+        if (!await launchUrl(uri)) {
+          debugPrint('Could not launch map');
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location coordinates not available')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location coordinates not available')),
+        );
+      }
+    }
   }
 
   Widget _buildPolicyHighlight({
@@ -265,8 +295,6 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
                 color: black,
                 height: 1.4,
               ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ],
@@ -373,7 +401,7 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
                   ),
                 ),
                 // Floating Favorite Button
-                Positioned(
+                /* Positioned(
                   top: 40.h,
                   right: 15.w,
                   child: GestureDetector(
@@ -406,7 +434,7 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
                       ),
                     ),
                   ),
-                ),
+                ), */
                 // Expanding Dots Indicator
                 if (_getGalleryImages(hotelData).length > 1)
                   Positioned(
@@ -527,31 +555,34 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
                         fontSize: 17.sp,
                         fontWeight: FontWeight.bold),
                   ),
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: gwhite,
-                      borderRadius: BorderRadius.circular(4.sp),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          size: 14.sp,
-                          color: blue,
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          'Map View', // More standard label
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ],
+                  GestureDetector(
+                    onTap: () => _launchMap(hotelData),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: gwhite,
+                        borderRadius: BorderRadius.circular(4.sp),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 14.sp,
+                            color: blue,
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            'Map View', // More standard label
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: blue,
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

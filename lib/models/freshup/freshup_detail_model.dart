@@ -14,6 +14,8 @@ class FreshupDetailModel {
   List<FreshupSlot>? slots;
   List<FreshupAmenity>? amenities;
   String? priceMethod;
+  String? latitude;
+  String? longitude;
 
   FreshupDetailModel({
     this.freshupId,
@@ -29,6 +31,8 @@ class FreshupDetailModel {
     this.slots,
     this.amenities,
     this.priceMethod,
+    this.latitude,
+    this.longitude,
   });
 
   factory FreshupDetailModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +48,8 @@ class FreshupDetailModel {
       smokingAllowed: json["smoking_allowed"],
       bathroomAttached: json["bathroom_attached"],
       priceMethod: json["price_method"],
+      latitude: json["latitude"]?.toString(),
+      longitude: json["longitude"]?.toString(),
       slots: json["slots"] == null
           ? []
           : List<FreshupSlot>.from(
@@ -67,6 +73,8 @@ class FreshupDetailModel {
         "smoking_allowed": smokingAllowed,
         "bathroom_attached": bathroomAttached,
         "price_method": priceMethod,
+        "latitude": latitude,
+        "longitude": longitude,
         "slots": slots == null
             ? []
             : List<dynamic>.from(slots!.map((x) => x.toJson())),

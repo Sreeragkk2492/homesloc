@@ -9,6 +9,8 @@ class HotelDetailModel {
   num? starRating;
   num? reviewCount;
   String? description;
+  String? latitude;
+  String? longitude;
   List<String>? amenities;
   List<TransportationInfo>? transportationInfo;
   Policies? policies;
@@ -28,6 +30,8 @@ class HotelDetailModel {
     this.starRating,
     this.reviewCount,
     this.description,
+    this.latitude,
+    this.longitude,
     this.amenities,
     this.transportationInfo,
     this.policies,
@@ -51,6 +55,8 @@ class HotelDetailModel {
         starRating: json["star_rating"],
         reviewCount: json["review_count"],
         description: json["description"],
+        latitude: json["latitude"],
+        longitude: json["longitude"],
         amenities: json["amenities"] == null
             ? []
             : List<String>.from(json["amenities"]),
@@ -130,6 +136,8 @@ class HotelDetailModel {
       starRating: hotel["star_rating"],
       // reviewCount isn't explicitly in room response, maybe default to 0 or null
       description: json["description"] ?? hotel["description"],
+      latitude: hotel["latitude"] ?? json["latitude"],
+      longitude: hotel["longitude"] ?? json["longitude"],
       amenities: amens,
       policies: pol,
       // Pricing requires careful mapping
@@ -205,6 +213,9 @@ class HotelDetailModel {
       coverImageUrl: images.isNotEmpty ? images[0] : hotel["cover_image_url"],
       starRating: hotel["star_rating"],
       description: hotel["description"],
+      latitude: hotel["latitude"] ?? property["latitude"] ?? json["latitude"],
+      longitude:
+          hotel["longitude"] ?? property["longitude"] ?? json["longitude"],
       amenities: amens,
       policies: pol,
       // Pricing requires careful mapping
@@ -268,6 +279,8 @@ class HotelDetailModel {
       starRating: 5, // Default or derived
       reviewCount: 0,
       description: propInfo["description"],
+      latitude: locInfo["latitude"],
+      longitude: locInfo["longitude"],
       amenities: uniqueAmenities.toList(),
       policies: pol,
       pricing: Pricing(
@@ -292,6 +305,8 @@ class HotelDetailModel {
         "star_rating": starRating,
         "review_count": reviewCount,
         "description": description,
+        "latitude": latitude,
+        "longitude": longitude,
         "amenities": amenities == null
             ? []
             : List<dynamic>.from(amenities!.map((x) => x)),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/models/freshup/freshup_availability_model.dart';
+import 'package:intl/intl.dart';
 
 class FreshupSlotRow extends StatefulWidget {
   final List<FreshupSlot>? slots;
@@ -45,6 +46,23 @@ class _FreshupSlotRowState extends State<FreshupSlotRow> {
       }
     });
     widget.onSlotsSelected?.call(_selectedSlotIds);
+  }
+
+  String _formatTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty) return 'N/A';
+    try {
+      final String rawTime = timeStr.split('.').first;
+      final parts = rawTime.split(':');
+      if (parts.length >= 2) {
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        final dt = DateTime(2000, 1, 1, hour, minute);
+        return DateFormat('hh:mm a').format(dt);
+      }
+      return timeStr;
+    } catch (e) {
+      return timeStr;
+    }
   }
 
   @override
@@ -105,7 +123,7 @@ class _FreshupSlotRowState extends State<FreshupSlotRow> {
                     ),
                     SizedBox(height: 4.h),
                     Text(
-                      "${slot.checkIn ?? 'N/A'} - ${slot.checkOut ?? 'N/A'}",
+                      "${_formatTime(slot.checkIn)} - ${_formatTime(slot.checkOut)}",
                       style: TextStyle(
                         color: black,
                         fontFamily: 'Poppins',

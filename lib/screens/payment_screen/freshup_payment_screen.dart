@@ -136,42 +136,42 @@ class FreshupPaymentScreen extends StatelessWidget {
                           ],
                         ),
                         SizedBox(height: 8.h),
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 6.w, vertical: 2.h),
-                              decoration: BoxDecoration(
-                                color: blue.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(4.r),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    "4.2",
-                                    style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        color: blue,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 10.sp),
-                                  ),
-                                  SizedBox(width: 2.w),
-                                  Icon(Icons.star_rounded,
-                                      color: yellow, size: 12.sp),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              "835 Reviews",
-                              style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  color: fontColor,
-                                  fontSize: 10.sp),
-                            ),
-                          ],
-                        ),
+                        // Row(
+                        //   children: [
+                        //     Container(
+                        //       padding: EdgeInsets.symmetric(
+                        //           horizontal: 6.w, vertical: 2.h),
+                        //       decoration: BoxDecoration(
+                        //         color: blue.withOpacity(0.1),
+                        //         borderRadius: BorderRadius.circular(4.r),
+                        //       ),
+                        //       child: Row(
+                        //         mainAxisSize: MainAxisSize.min,
+                        //         children: [
+                        //           Text(
+                        //             "4.2",
+                        //             style: TextStyle(
+                        //                 fontFamily: 'Poppins',
+                        //                 color: blue,
+                        //                 fontWeight: FontWeight.bold,
+                        //                 fontSize: 10.sp),
+                        //           ),
+                        //           SizedBox(width: 2.w),
+                        //           Icon(Icons.star_rounded,
+                        //               color: yellow, size: 12.sp),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //     SizedBox(width: 8.w),
+                        //     Text(
+                        //       "835 Reviews",
+                        //       style: TextStyle(
+                        //           fontFamily: 'Poppins',
+                        //           color: fontColor,
+                        //           fontSize: 10.sp),
+                        //     ),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),

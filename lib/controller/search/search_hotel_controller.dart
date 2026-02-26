@@ -1,4 +1,7 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:homesloc/apis/search/location_autocomplete_service.dart';
 import 'package:homesloc/apis/search/search_hotel_api.dart';
 import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
@@ -8,8 +11,19 @@ import 'package:homesloc/models/search/tourism_search_model.dart';
 
 class SearchHotelController extends GetxController {
   final SearchHotelService _searchService = SearchHotelService();
+  final LocationAutocompleteService _locationService =
+      LocationAutocompleteService();
 
   final CalendarController calendarController = Get.find<CalendarController>();
+
+  // Global Text Controllers for all Search Form Autocompletes across tabs
+  final List<TextEditingController> locationControllers = [];
+
+  void registerLocationController(TextEditingController controller) {
+    if (!locationControllers.contains(controller)) {
+      locationControllers.add(controller);
+    }
+  }
 
   // Observable variables
   final isLoading = false.obs;
@@ -40,6 +54,23 @@ class SearchHotelController extends GetxController {
   final isFreshup = false.obs;
   final isTourism = false.obs;
 
+  Future<Iterable<String>> fetchLocationSuggestions(String query) async {
+    if (query.isEmpty) {
+      return const Iterable<String>.empty();
+    }
+
+    // A small manual delay to simulate debouncing within FutureBuilder/Autocomplete
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    try {
+      final results = await _locationService.fetchSuggestions(query);
+      return results;
+    } catch (e) {
+      print('Error fetching location suggestions: $e');
+      return const Iterable<String>.empty();
+    }
+  }
+
   // Search hotels with current parameters
   Future<void> searchHotels({
     bool isLoadMoreAction = false,
@@ -67,12 +98,28 @@ class SearchHotelController extends GetxController {
     }
     errorMessage.value = '';
 
+    // Extract the final location to send to the backend, then clear the UI State
+    final searchLocation = location ?? this.location.value;
+
+    // Clear the observable backend state so next search starts fresh
+    this.location.value = '';
+
+    // Clear all visual text fields explicitly without throwing if disposed
+    for (var controller in locationControllers) {
+      try {
+        controller.clear();
+      } catch (e) {
+        // Ignored if the widget was already disposed from the widget tree
+      }
+    }
+
     try {
       if (isTourism.value) {
         final newResult = await _searchService.searchTourism(
           page: currentPage.value,
           pageSize: limit ?? pageSize,
           sortBy: sortBy ?? this.sortBy.value,
+          location: searchLocation,
         );
         if (newResult != null) {
           if (!isLoadMoreAction) {
@@ -102,7 +149,7 @@ class SearchHotelController extends GetxController {
         result = await _searchService.searchFreshup(
           page: currentPage.value,
           pageSize: limit ?? pageSize,
-          location: location ?? this.location.value,
+          location: searchLocation,
           checkIn: checkIn ??
               (calendarController.checkInDate.value != null
                   ? DateFormat('yyyy-MM-dd')
@@ -122,6 +169,7 @@ class SearchHotelController extends GetxController {
           page: currentPage.value,
           pageSize: limit ?? pageSize,
           sortBy: sortBy ?? this.sortBy.value,
+          location: searchLocation,
           startDate: checkIn ??
               (calendarController.checkInDate.value != null
                   ? DateFormat('yyyy-MM-dd')
@@ -152,15 +200,14 @@ class SearchHotelController extends GetxController {
           minPrice: minPrice ?? this.minPrice.value,
           maxPrice: maxPrice ?? this.maxPrice.value,
           sortBy: sortBy ?? this.sortBy.value,
-          search: location ??
-              this.location.value, // Using location as search term if needed
+          search: searchLocation, // Using location as search term if needed
         );
       } else {
         // Call the existing normal search API
         result = await _searchService.searchHotels(
           page: currentPage.value,
           pageSize: limit ?? pageSize,
-          location: location ?? this.location.value,
+          location: searchLocation,
           checkIn: checkIn ??
               (calendarController.checkInDate.value != null
                   ? DateFormat('yyyy-MM-dd')

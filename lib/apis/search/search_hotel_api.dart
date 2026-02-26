@@ -1,22 +1,19 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:homesloc/core/common/global_variables.dart';
 import 'package:homesloc/core/constant/api_constant.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
-import 'package:http/http.dart' as http;
+import 'package:homesloc/core/api/api_helper.dart';
 
 import 'package:homesloc/models/search/tourism_search_model.dart';
 import 'package:homesloc/models/tourism/tourism_detail_model.dart';
 import 'package:homesloc/models/tourism/tourism_availability_model.dart';
 
 class SearchHotelService {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-
   Future<TourismSearchModel?> searchTourism({
     int page = 1,
     int pageSize = 10,
     String sortBy = 'created_at',
     String sortOrder = 'desc',
+    String? location,
   }) async {
     try {
       final queryParams = <String, String>{
@@ -26,30 +23,24 @@ class SearchHotelService {
         'sort_order': sortOrder,
       };
 
+      if (location != null && location.isNotEmpty) {
+        queryParams['location'] = location;
+      }
+
       final uri =
           Uri.parse(ApiConstant.BASE_URL + ApiConstant.TOURISM_SEARCH_URL)
               .replace(queryParameters: queryParams);
 
       print('Tourism Search URL: $uri');
 
-      String? token = accessToken;
-      if (token.isEmpty) {
-        token = await _storage.read(key: 'access_token');
-      }
-
-      final response = await http.get(
+      final response = await ApiHelper.get(
         uri,
-        headers: {
-          'accept': 'application/json',
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-        },
       );
 
       print('Tourism Search Response Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
         return TourismSearchModel.fromJson(jsonResponse);
       } else {
         print('Failed to search tourism: ${response.statusCode}');
@@ -99,26 +90,15 @@ class SearchHotelService {
 
       print('Search URL: $uri');
 
-      // Attempt to get token from storage if global accessToken is empty
-      String? token = accessToken;
-      if (token.isEmpty) {
-        token = await _storage.read(key: 'access_token');
-      }
-
-      final response = await http.get(
+      final response = await ApiHelper.get(
         uri,
-        headers: {
-          'accept': 'application/json',
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-        },
       );
 
       print('Search Response Code: ${response.statusCode}');
       // print('Search Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
         return SearchHotelModel.fromJson(jsonResponse);
       } else {
         print('Failed to search hotels: ${response.statusCode}');
@@ -163,25 +143,14 @@ class SearchHotelService {
 
       print('Grouped Search URL: $uri');
 
-      // Attempt to get token from storage if global accessToken is empty
-      String? token = accessToken;
-      if (token.isEmpty) {
-        token = await _storage.read(key: 'access_token');
-      }
-
-      final response = await http.get(
+      final response = await ApiHelper.get(
         uri,
-        headers: {
-          'accept': 'application/json',
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-        },
       );
 
       print('Grouped Search Response Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
         return SearchHotelModel.fromJson(jsonResponse);
       } else {
         print('Failed to search hotels grouped: ${response.statusCode}');
@@ -201,6 +170,7 @@ class SearchHotelService {
     bool isActive = true,
     String? startDate,
     String? endDate,
+    String? location,
   }) async {
     try {
       final queryParams = <String, String>{
@@ -213,31 +183,23 @@ class SearchHotelService {
 
       if (startDate != null) queryParams['check_in_date'] = startDate;
       if (endDate != null) queryParams['check_out_date'] = endDate;
+      if (location != null && location.isNotEmpty) {
+        queryParams['location'] = location;
+      }
 
       final uri = Uri.parse(ApiConstant.BASE_URL + ApiConstant.HALL_SEARCH_URL)
           .replace(queryParameters: queryParams);
 
       print('Hall Search URL: $uri');
 
-      // Attempt to get token from storage if global accessToken is empty
-      String? token = accessToken;
-      if (token.isEmpty) {
-        token = await _storage.read(key: 'access_token');
-      }
-
-      final response = await http.get(
+      final response = await ApiHelper.get(
         uri,
-        headers: {
-          'accept': 'application/json',
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-        },
       );
 
       print('Hall Search Response Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
         return SearchHotelModel.fromJson(jsonResponse);
       } else {
         print('Failed to search halls: ${response.statusCode}');
@@ -279,24 +241,14 @@ class SearchHotelService {
 
       print('Freshup Search URL: $uri');
 
-      String? token = accessToken;
-      if (token.isEmpty) {
-        token = await _storage.read(key: 'access_token');
-      }
-
-      final response = await http.get(
+      final response = await ApiHelper.get(
         uri,
-        headers: {
-          'accept': 'application/json',
-          if (token != null && token.isNotEmpty)
-            'Authorization': 'Bearer $token',
-        },
       );
 
       print('Freshup Search Response Code: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
         return SearchHotelModel.fromJson(jsonResponse);
       } else {
         print('Failed to search freshups: ${response.statusCode}');
@@ -324,12 +276,10 @@ class SearchHotelService {
               packageId)
           .replace(queryParameters: queryParams);
 
-      final response = await http.get(uri, headers: {
-        'Accept': 'application/json',
-      });
+      final response = await ApiHelper.get(uri);
 
       if (response.statusCode == 200) {
-        return TourismDetailModel.fromJson(json.decode(response.body));
+        return TourismDetailModel.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       } else {
         print('Failed to fetch tourism details: ${response.statusCode}');
         return null;
@@ -354,12 +304,10 @@ class SearchHotelService {
           Uri.parse(ApiConstant.BASE_URL + ApiConstant.TOURISM_AVAILABILITY_URL)
               .replace(queryParameters: queryParams);
 
-      final response = await http.get(uri, headers: {
-        'Accept': 'application/json',
-      });
+      final response = await ApiHelper.get(uri);
 
       if (response.statusCode == 200) {
-        return TourismAvailabilityModel.fromJson(json.decode(response.body));
+        return TourismAvailabilityModel.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       } else {
         print('Failed to check tourism availability: ${response.statusCode}');
         return null;

@@ -46,6 +46,8 @@ class Hotel {
   bool? isFavorite;
   List<String>? galleryImages;
   FreshupDetailModel? freshupDetails;
+  String? latitude;
+  String? longitude;
 
   Hotel({
     this.id,
@@ -64,6 +66,8 @@ class Hotel {
     this.isFavorite,
     this.galleryImages,
     this.freshupDetails,
+    this.latitude,
+    this.longitude,
   });
 
   factory Hotel.fromJson(Map<String, dynamic> json) {
@@ -160,6 +164,14 @@ class Hotel {
       freshup = FreshupDetailModel.fromJson(json);
     }
 
+    String? lat = json["latitude"]?.toString();
+    String? lng = json["longitude"]?.toString();
+    if (json["location"] is Map) {
+      final locMap = json["location"];
+      if (lat == null) lat = locMap["latitude"]?.toString();
+      if (lng == null) lng = locMap["longitude"]?.toString();
+    }
+
     return Hotel(
       id: json["id"],
       uniqueId: json["unique_id"],
@@ -177,6 +189,8 @@ class Hotel {
       isFavorite: json["is_favorite"],
       galleryImages: images,
       freshupDetails: freshup,
+      latitude: lat,
+      longitude: lng,
     );
   }
 
@@ -199,5 +213,7 @@ class Hotel {
         "is_favorite": isFavorite,
         "gallery_images": galleryImages,
         "freshup_details": freshupDetails?.toJson(),
+        "latitude": latitude,
+        "longitude": longitude,
       };
 }

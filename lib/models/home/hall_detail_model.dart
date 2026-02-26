@@ -61,6 +61,8 @@ class HallDetailModel {
   String get name => propertyInfo?.name ?? '';
   String get location =>
       "${locationInfo?.city ?? ''}, ${locationInfo?.state ?? ''}";
+  String? get latitude => locationInfo?.latitude;
+  String? get longitude => locationInfo?.longitude;
   List<String> get galleryImages => mediaInfo?.galleryImages ?? [];
   String? get coverImageUrl => mediaInfo?.coverImageUrl;
   String? get description => propertyInfo?.description;

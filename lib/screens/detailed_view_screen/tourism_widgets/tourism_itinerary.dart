@@ -20,8 +20,7 @@ class ItinerarySection extends StatelessWidget {
           final item = itinerary![index];
           final isLast = index == itinerary!.length - 1;
 
-          final dayStr = (item.day?.replaceAll(RegExp(r'[^0-9]'), '') ?? '');
-          final dayNum = dayStr.isNotEmpty ? dayStr : "${index + 1}";
+          final dayNum = "${index + 1}";
 
           return IntrinsicHeight(
             child: Row(

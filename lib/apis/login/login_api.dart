@@ -38,7 +38,7 @@ Future<LoginModel> loginApi(
     // print("------------------------------------------------------------------");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final loginresponse = LoginModel.fromJson(jsonDecode(response.body));
+      final loginresponse = LoginModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
 
       accessToken = loginresponse.accessToken.toString();
       refreshToken = loginresponse.refreshToken.toString();
@@ -148,7 +148,7 @@ Future<String> sendVerificationEmail({required String email}) async {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       customSnackBar('Success', 'OTP sent to email');
-      final body = jsonDecode(response.body);
+      final body = jsonDecode(utf8.decode(response.bodyBytes));
       if (body is Map<String, dynamic> &&
           body.containsKey('verification_token')) {
         return body['verification_token'];
@@ -177,7 +177,7 @@ Future<String> verifyEmailOtp(
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final body = jsonDecode(response.body);
+      final body = jsonDecode(utf8.decode(response.bodyBytes));
       // Assuming the token is in 'verification_token' or similar field.
       // Adjust based on actual API response.
       // If the response is just the token string or inside a data object:
