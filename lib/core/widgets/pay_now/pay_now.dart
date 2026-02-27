@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:homesloc/controller/myBooking/my_booking_controller.dart';
 import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
-import 'package:homesloc/models/booking/booking_model.dart';
 import 'package:homesloc/models/booking/room_availability_model.dart';
 
 class PayNow extends StatelessWidget {
@@ -273,20 +272,8 @@ class PayNow extends StatelessWidget {
   }
 
   void _proceedToPay(BuildContext context, double grandTotal) {
-    final int numberOfNights = bookingDetails?.nights ??
-        (calendarController.totalDays.value > 0
-            ? calendarController.totalDays.value
-            : 1);
-
-    final booking = BookingModel(
-      hotelName: hotelName,
-      totalAmount: grandTotal,
-      numberOfNights: numberOfNights,
-      checkInDate: calendarController.checkInDate.value ?? DateTime.now(),
-      checkOutDate: calendarController.checkOutDate.value ??
-          DateTime.now().add(const Duration(days: 1)),
-    );
-    tripController.addBooking(booking);
+    // TODO: Update booking submission to use API instead.
+    // tripController.addBooking(booking);
 
     // Navigator.push(context, MaterialPageRoute(builder: (context) {
     //   return BookingSuccessful(

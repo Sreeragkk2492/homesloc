@@ -17,7 +17,7 @@ import 'package:homesloc/core/widgets/builder/detailed_view_builder/second_detai
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
 import 'package:homesloc/core/widgets/name_view/name_view.dart';
 import 'package:homesloc/models/home/homescreen_model.dart';
-import 'package:homesloc/models/home/hotel_detail_model.dart';
+import 'package:homesloc/models/home/hotel_detail_model.dart' hide EventArea;
 import 'package:homesloc/models/home/hall_detail_model.dart';
 import 'package:homesloc/apis/home/hotel_detail_service.dart';
 
@@ -50,6 +50,7 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
   bool _isLoading = true;
   int _carouselIndex = 0;
   final PageController _pageController = PageController();
+  dynamic _selectedArea;
 
   final bool _isFullProperty = true; // Halls are always full property/venue
 
@@ -80,6 +81,11 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
         if (mounted) {
           setState(() {
             _hallDetails = details;
+            if (details != null &&
+                details.eventAreas != null &&
+                details.eventAreas!.isNotEmpty) {
+              _selectedArea = details.eventAreas!.first;
+            }
             _isLoading = false;
           });
         }
@@ -210,73 +216,71 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
   }
 
   Widget _buildEventAreaCard(dynamic area) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-      padding: EdgeInsets.all(15.r),
-      decoration: BoxDecoration(
-        color: white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: border, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  area.eventName ?? "Event Area",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                    color: blue,
+    final isSelected = _selectedArea?.id == area.id;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedArea = area;
+        });
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+        padding: EdgeInsets.all(15.r),
+        decoration: BoxDecoration(
+          color: white,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+              color: isSelected ? blue : border, width: isSelected ? 2 : 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    area.eventName ?? "Event Area",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: blue,
+                    ),
                   ),
                 ),
-              ),
-              if (area.price != null)
-                Text(
-                  "₹${area.price}",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                    color: black,
+                if (isSelected)
+                  Icon(Icons.check_circle, color: blue, size: 20.sp),
+                if (area.price != null)
+                  Padding(
+                    padding: EdgeInsets.only(left: 8.w),
+                    child: Text(
+                      "₹${area.price}",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: black,
+                      ),
+                    ),
                   ),
-                ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          Row(
-            children: [
-              Icon(Icons.people_outline, size: 16.sp, color: fontColor),
-              SizedBox(width: 5.w),
-              Text(
-                "Capacity: ${area.seatingCapacity} (Seats) / ${area.floatingCapacity} (Floating)",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 12.sp,
-                  color: fontColor,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 5.h),
-          if (area.spaceType != null)
+              ],
+            ),
+            SizedBox(height: 8.h),
             Row(
               children: [
-                Icon(Icons.crop_square, size: 16.sp, color: fontColor),
+                Icon(Icons.people_outline, size: 16.sp, color: fontColor),
                 SizedBox(width: 5.w),
                 Text(
-                  "Type: ${area.spaceType}",
+                  "Capacity: ${area.seatingCapacity} (Seats) / ${area.floatingCapacity} (Floating)",
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 12.sp,
@@ -285,19 +289,36 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
                 ),
               ],
             ),
-          if (area.description != null && area.description!.isNotEmpty) ...[
-            SizedBox(height: 8.h),
-            Text(
-              area.description!,
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 12.sp,
-                color: black,
-                height: 1.4,
+            SizedBox(height: 5.h),
+            if (area.spaceType != null)
+              Row(
+                children: [
+                  Icon(Icons.crop_square, size: 16.sp, color: fontColor),
+                  SizedBox(width: 5.w),
+                  Text(
+                    "Type: ${area.spaceType}",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 12.sp,
+                      color: fontColor,
+                    ),
+                  ),
+                ],
               ),
-            ),
+            if (area.description != null && area.description!.isNotEmpty) ...[
+              SizedBox(height: 8.h),
+              Text(
+                area.description!,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 12.sp,
+                  color: black,
+                  height: 1.4,
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -666,7 +687,10 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
               AmenitieRow(hotel: hotelData),
             SizedBox(height: 15.h),
             if (hotelData is HallDetailModel)
-              HallBookNow(hall: hotelData)
+              HallBookNow(
+                hall: hotelData,
+                selectedArea: _selectedArea,
+              )
             else
               BookNow(
                 hotel: hotelData,

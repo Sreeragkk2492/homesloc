@@ -28,14 +28,14 @@ class ProfileScreen extends StatelessWidget {
           style: TextStyle(fontSize: 18.sp, color: white),
         ),
         actions: [
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              size: 24.sp,
-              color: white,
-            ),
-            onPressed: () {},
-          ),
+          // IconButton(
+          //   icon: Icon(
+          //     Icons.search,
+          //     size: 24.sp,
+          //     color: white,
+          //   ),
+          //   onPressed: () {},
+          // ),
           IconButton(
             icon: Icon(
               Icons.logout,

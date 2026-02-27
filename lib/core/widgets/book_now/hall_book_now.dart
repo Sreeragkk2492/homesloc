@@ -13,10 +13,12 @@ import 'package:homesloc/models/booking/room_availability_model.dart'
 
 class HallBookNow extends StatelessWidget {
   final HallDetailModel hall;
+  final EventArea? selectedArea;
 
   const HallBookNow({
     super.key,
     required this.hall,
+    this.selectedArea,
   });
 
   @override
@@ -90,11 +92,10 @@ class HallBookNow extends StatelessWidget {
                   final HotelDetailService hotelDetailService =
                       HotelDetailService();
 
-                  if (calendarController.checkInDate.value == null ||
-                      calendarController.checkOutDate.value == null) {
+                  if (calendarController.checkInDate.value == null) {
                     Get.snackbar(
-                      "Dates Required",
-                      "Please select check-in and check-out dates",
+                      "Date Required",
+                      "Please select a date for your event",
                       snackPosition: SnackPosition.BOTTOM,
                       backgroundColor: Colors.red.withOpacity(0.8),
                       colorText: white,
@@ -102,15 +103,24 @@ class HallBookNow extends StatelessWidget {
                     return;
                   }
 
-                  if (hall.eventAreas != null && hall.eventAreas!.isNotEmpty) {
-                    // Use the first event area for now
-                    String eventId = hall.eventAreas!.first.id!;
+                  String? eventId;
+                  if (selectedArea != null) {
+                    eventId = selectedArea!.id;
+                  } else if (hall.eventAreas != null &&
+                      hall.eventAreas!.isNotEmpty) {
+                    eventId = hall.eventAreas!.first.id;
+                  }
 
+                  if (eventId != null) {
                     final dateFormat = DateFormat('yyyy-MM-dd');
                     final checkIn = dateFormat
                         .format(calendarController.checkInDate.value!);
-                    final checkOut = dateFormat
-                        .format(calendarController.checkOutDate.value!);
+                    // Use check-in date as check-out for single date booking
+                    final checkOut =
+                        calendarController.checkOutDate.value != null
+                            ? dateFormat
+                                .format(calendarController.checkOutDate.value!)
+                            : checkIn;
 
                     final hallResult =
                         await hotelDetailService.checkHallAvailability(
@@ -150,7 +160,7 @@ class HallBookNow extends StatelessWidget {
                               hall.coverImageUrl ??
                               "",
                           bookingDetails: roomBookingDetails,
-                          propertyId: eventId,
+                          propertyId: eventId!,
                           propertyType: "HALL",
                         );
                       }));
@@ -200,6 +210,9 @@ class HallBookNow extends StatelessWidget {
   }
 
   String _getPrice() {
+    if (selectedArea != null && selectedArea!.price != null) {
+      return selectedArea!.price!.toInt().toString();
+    }
     return hall.bestPrice ?? '0';
   }
 }
