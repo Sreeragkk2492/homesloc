@@ -95,17 +95,17 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: SecondLog(),
               ),
               actions: [
-                Container(
-                  margin: EdgeInsets.only(right: 15.w, top: 8.h),
-                  width: 21.w,
-                  height: 21.h,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage(
-                            'assets/images/notifications-outline.png'),
-                        fit: BoxFit.cover),
-                  ),
-                ),
+                // Container(
+                //   margin: EdgeInsets.only(right: 15.w, top: 8.h),
+                //   width: 21.w,
+                //   height: 21.h,
+                //   decoration: BoxDecoration(
+                //     image: DecorationImage(
+                //         image: AssetImage(
+                //             'assets/images/notifications-outline.png'),
+                //         fit: BoxFit.cover),
+                //   ),
+                // ),
               ],
             ),
             SliverToBoxAdapter(

@@ -44,24 +44,24 @@ class HomeScreen extends StatelessWidget {
 
             title: Logo(),
             actions: [
-              Container(
-                color: blue,
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    margin: EdgeInsets.only(right: 15.w, top: 10.h),
-                    width: 21.w,
-                    height: 21.h,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage(
-                            'assets/images/notifications-outline.png'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // Container(
+              //   color: blue,
+              //   child: Align(
+              //     alignment: Alignment.topRight,
+              //     child: Container(
+              //       margin: EdgeInsets.only(right: 15.w, top: 10.h),
+              //       width: 21.w,
+              //       height: 21.h,
+              //       decoration: BoxDecoration(
+              //         image: DecorationImage(
+              //           image: AssetImage(
+              //               'assets/images/notifications-outline.png'),
+              //           fit: BoxFit.cover,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           SliverToBoxAdapter(
