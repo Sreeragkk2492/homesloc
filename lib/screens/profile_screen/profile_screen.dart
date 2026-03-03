@@ -36,25 +36,6 @@ class ProfileScreen extends StatelessWidget {
           //   ),
           //   onPressed: () {},
           // ),
-          IconButton(
-            icon: Icon(
-              Icons.logout,
-              size: 24.sp,
-              color: white,
-            ),
-            onPressed: () async {
-              const storage = FlutterSecureStorage();
-              await storage.deleteAll();
-
-              // Clear globals
-              accessToken = "";
-              refreshToken = "";
-              userId = "";
-              userName = "";
-
-              Get.offAll(() => const SignIn());
-            },
-          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -90,6 +71,43 @@ class ProfileScreen extends StatelessWidget {
                   Get.to(() => TripScreen());
                 },
               ),
+              SizedBox(height: 24.h),
+              Center(
+                child: TextButton.icon(
+                  onPressed: () async {
+                    const storage = FlutterSecureStorage();
+                    await storage.deleteAll();
+
+                    // Clear globals
+                    accessToken = "";
+                    refreshToken = "";
+                    userId = "";
+                    userName = "";
+
+                    Get.offAll(() => const SignIn());
+                  },
+                  icon: Icon(Icons.logout,
+                      color: Colors.red.shade600, size: 20.sp),
+                  label: Text(
+                    'Sign Out',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16.sp,
+                      color: Colors.red.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                    backgroundColor: Colors.red.shade50,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
             ],
           ),
         ),

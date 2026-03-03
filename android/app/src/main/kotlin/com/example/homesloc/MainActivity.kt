@@ -1,4 +1,4 @@
-package com.example.homesloc
+package com.homesloc.app
 
 import io.flutter.embedding.android.FlutterActivity
 
