@@ -7,6 +7,7 @@ import 'package:homesloc/screens/profile_screen/personal_details/personal_detail
 import 'package:homesloc/core/common/global_variables.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:homesloc/screens/auth/sign_in.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -69,6 +70,21 @@ class ProfileScreen extends StatelessWidget {
                 subtitle: 'View your upcoming stays',
                 onTap: () {
                   Get.to(() => TripScreen());
+                },
+              ),
+              _buildModernMenuItem(
+                icon: Icons.policy_outlined,
+                title: 'Privacy & Cookies',
+                subtitle: 'Read our privacy policy and cookie terms',
+                onTap: () async {
+                  final Uri url = Uri.parse('https://www.homesloc.com/cookies');
+                  if (!await launchUrl(url)) {
+                    Get.snackbar(
+                      "Error",
+                      "Could not launch the link",
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                  }
                 },
               ),
               SizedBox(height: 24.h),
