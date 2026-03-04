@@ -334,6 +334,7 @@ class BanquetPolicies {
   bool? decorationAllowed;
   bool? valetParkingAvailable;
   bool? isActive;
+  List<String>? otherPolicies;
 
   BanquetPolicies({
     this.id,
@@ -348,6 +349,7 @@ class BanquetPolicies {
     this.decorationAllowed,
     this.valetParkingAvailable,
     this.isActive,
+    this.otherPolicies,
   });
 
   factory BanquetPolicies.fromJson(Map<String, dynamic> json) =>
@@ -367,6 +369,9 @@ class BanquetPolicies {
         decorationAllowed: json["decoration_allowed"],
         valetParkingAvailable: json["valet_parking_available"],
         isActive: json["is_active"],
+        otherPolicies: json["other_policies"] == null
+            ? []
+            : List<String>.from(json["other_policies"]!.map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
@@ -384,6 +389,9 @@ class BanquetPolicies {
         "decoration_allowed": decorationAllowed,
         "valet_parking_available": valetParkingAvailable,
         "is_active": isActive,
+        "other_policies": otherPolicies == null
+            ? []
+            : List<dynamic>.from(otherPolicies!.map((x) => x)),
       };
 }
 

@@ -177,6 +177,7 @@ class BookNow extends StatelessWidget {
                           propertyId: id,
                           propertyType:
                               isFullProperty ? "FULL_PROPERTY" : "ROOM",
+                          cancellationPolicy: _getCancellationPolicy(),
                         );
                       }));
                     } else {
@@ -197,6 +198,7 @@ class BookNow extends StatelessWidget {
                         location: _getLocation(),
                         price: double.tryParse(_getPrice()) ?? 0.0,
                         coverImage: _getCoverImage(),
+                        cancellationPolicy: _getCancellationPolicy(),
                         // No propertyId/propertyType - booking won't work
                       );
                     }));
@@ -315,5 +317,51 @@ class BookNow extends StatelessWidget {
     } catch (e) {
       return 'https://via.placeholder.com/150';
     }
+  }
+
+  String? _getCancellationPolicy() {
+    List<String> relevantPolicies = [];
+
+    if (hotel is HotelDetailModel) {
+      final policy = hotel.policies?.cancellationPolicy;
+      if (policy != null && policy.isNotEmpty) {
+        if (policy.toLowerCase().contains('nonrefundable')) {
+          relevantPolicies.add('This booking is non-refundable.');
+        } else if (policy.startsWith('freeUpTo:')) {
+          final parts = policy.split(':');
+          if (parts.length > 1) {
+            final days = parts[1];
+            relevantPolicies
+                .add('Free cancellation up to $days days before check-in.');
+          }
+        } else {
+          relevantPolicies.add(policy);
+        }
+      }
+
+      // Filter accommodation policies for cancellation-related rules
+      if (hotel.policies?.accommodationPolicies != null) {
+        final filtered = hotel.policies!.accommodationPolicies!.where((p) {
+          final low = p.toLowerCase();
+          return low.contains('cancel') ||
+              low.contains('refund') ||
+              low.contains('non-refundable') ||
+              low.contains('nonrefundable') ||
+              low.contains('charge');
+        }).toList();
+        relevantPolicies.addAll(filtered);
+      }
+    } else if (hotel is HallDetailModel) {
+      if (hotel.banquetPolicies?.cancellationPolicy != null) {
+        relevantPolicies.add(hotel.banquetPolicies!.cancellationPolicy!);
+      }
+    }
+
+    if (relevantPolicies.isEmpty) {
+      return 'Standard cancellation policies apply.';
+    }
+
+    // Join and remove duplicates
+    return relevantPolicies.toSet().join('\n');
   }
 }

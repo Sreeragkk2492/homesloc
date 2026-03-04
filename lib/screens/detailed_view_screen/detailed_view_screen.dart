@@ -9,7 +9,10 @@ import 'package:homesloc/screens/detailed_view_screen/rating_row/rating_second_r
 import 'package:homesloc/screens/detailed_view_screen/rating_row/rating_third_row.dart';
 import 'package:homesloc/screens/detailed_view_screen/transportation_row/transportations_first_row.dart';
 import 'package:homesloc/core/widgets/yellow_star/yellow_star.dart';
+import 'package:homesloc/core/utils/bottom_sheet_utils.dart';
+import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/core/widgets/book_now/book_now.dart';
+import 'package:get/get.dart';
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/first_detailed_view_builder.dart';
 import 'package:homesloc/core/widgets/builder/detailed_view_builder/second_detailed_view_builder.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
@@ -17,6 +20,7 @@ import 'package:homesloc/core/widgets/name_view/name_view.dart';
 import 'package:homesloc/models/home/homescreen_model.dart';
 import 'package:homesloc/models/home/hotel_detail_model.dart';
 import 'package:homesloc/apis/home/hotel_detail_service.dart';
+import 'package:homesloc/core/widgets/policy_card/policy_card.dart';
 
 import 'package:homesloc/core/widgets/loader/app_loader.dart';
 import 'package:homesloc/core/widgets/gallery/full_screen_image_viewer.dart';
@@ -189,70 +193,6 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
         );
       }
     }
-  }
-
-  Widget _buildPolicyHighlight({
-    required IconData icon,
-    required String title,
-    required String content,
-  }) {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-      padding: EdgeInsets.all(15.r),
-      decoration: BoxDecoration(
-        color: white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(color: border, width: 1),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.all(10.r),
-            decoration: BoxDecoration(
-              color: blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
-            child: Icon(icon, color: blue, size: 22.sp),
-          ),
-          SizedBox(width: 15.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: blue,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 5.h),
-                Text(
-                  content,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: black,
-                    fontSize: 12.sp,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -578,10 +518,82 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
               secondName: 'View All',
               secondColor: blue,
             ),
-            SizedBox(height: 10.h),
-            AmenitieRow(
-                hotel:
-                    hotelData), // Reusing AmenitieRow as it now handles lists well
+            SizedBox(height: 15.h),
+            // Billing Details Section
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+            //   child: Text(
+            //     'Billing Details',
+            //     style: TextStyle(
+            //         fontFamily: 'Poppins',
+            //         color: blue,
+            //         fontSize: 17.sp,
+            //         fontWeight: FontWeight.bold),
+            //   ),
+            // ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 10.w),
+              padding: EdgeInsets.all(16.r),
+              decoration: BoxDecoration(
+                color: white,
+                borderRadius: BorderRadius.circular(16.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                border: Border.all(color: border, width: 1),
+              ),
+              child: Column(
+                children: [
+                  _buildBillingItem(
+                    context: context,
+                    icon: Icons.calendar_month_rounded,
+                    title: "Stay Dates",
+                    onTap: () =>
+                        BottomSheetUtils.showCalendarBottomSheet(context),
+                    subtitle: Obx(() {
+                      final calendarController = Get.find<CalendarController>();
+                      return Text(
+                        calendarController.checkInDate.value != null &&
+                                calendarController.checkOutDate.value != null
+                            ? "${calendarController.formatDate(calendarController.checkInDate.value)} - ${calendarController.formatDate(calendarController.checkOutDate.value)}"
+                            : "Select Dates",
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: blue,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13.sp),
+                      );
+                    }),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    child: Divider(color: border.withOpacity(0.5), height: 1),
+                  ),
+                  _buildBillingItem(
+                    context: context,
+                    icon: Icons.people_alt_rounded,
+                    title: "Guests & Rooms",
+                    onTap: () => BottomSheetUtils.showGuestBottomSheet(context),
+                    subtitle: Obx(() {
+                      final calendarController = Get.find<CalendarController>();
+                      return Text(
+                        "${calendarController.guestCount.value} Guests | ${calendarController.roomCount.value} Rooms",
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: blue,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13.sp),
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
             SizedBox(height: 15.h),
             BookNow(
               hotel: hotelData,
@@ -735,34 +747,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
               ),
             ),
             const HomeDivider(),
-            NameView(
-                name: 'Accommodation Policies',
-                color: blue,
-                secondName: 'View All',
-                secondColor: blue),
-            _buildPolicyHighlight(
-              icon: Icons.access_time_rounded,
-              title: 'Check in & Check out',
-              content:
-                  'Check In: ${_getCheckInTime(hotelData)}\nCheck Out: ${_getCheckOutTime(hotelData)}',
-            ),
-            _buildPolicyHighlight(
-              icon: Icons.assignment_return_rounded,
-              title: 'Cancellations & Refunds',
-              content: _getCancellationPolicy(hotelData),
-            ),
-            if (_getPetPolicy(hotelData).isNotEmpty)
-              _buildPolicyHighlight(
-                icon: Icons.pets_rounded,
-                title: 'Pet Policy',
-                content: _getPetPolicy(hotelData),
-              ),
-            if (_getChildPolicy(hotelData).isNotEmpty)
-              _buildPolicyHighlight(
-                icon: Icons.child_care_rounded,
-                title: 'Child Policy',
-                content: _getChildPolicy(hotelData),
-              ),
+            _buildPolicyGrid(hotelData),
             SizedBox(height: 40.h),
           ],
         ),
@@ -892,13 +877,297 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
     return 'Standard cancellation policies apply.';
   }
 
-  String _getPetPolicy(dynamic hotel) {
-    // Note: Pet policy not currently in model, returning empty for now
-    return '';
+  List<String> _getAccommodationPolicies(dynamic hotel) {
+    if (hotel is HotelDetailModel) {
+      if (hotel.policies?.accommodationPolicies != null &&
+          hotel.policies!.accommodationPolicies!.isNotEmpty) {
+        return hotel.policies!.accommodationPolicies!;
+      }
+    }
+    // Trying fallback for SearchHotelModel or other payloads
+    try {
+      if (hotel.propertyrules != null) {
+        return hotel.propertyrules
+            .toString()
+            .split('\n')
+            .where((s) => s.trim().isNotEmpty)
+            .toList();
+      }
+    } catch (e) {
+      // ignore
+    }
+    return [];
   }
 
-  String _getChildPolicy(dynamic hotel) {
-    // Note: Child policy not currently in model, returning empty for now
-    return '';
+  Widget _buildPolicyGrid(dynamic hotel) {
+    bool isHotelDetail = hotel is HotelDetailModel;
+    HotelDetailModel? detailedHotel = isHotelDetail ? hotel : null;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 15.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Accommodation Policies',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              color: blue,
+              fontSize: 17.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 15.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: PolicyCard(
+                  title: 'Check-in/out',
+                  icon: Icons.access_time_rounded,
+                  headerColor: Colors.indigo.shade50,
+                  iconColor: Colors.indigo.shade700,
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Check-in',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 10.sp,
+                                  color: grey)),
+                          Text(_getCheckInTime(hotel),
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: black)),
+                        ],
+                      ),
+                      SizedBox(height: 4.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Check-out',
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 10.sp,
+                                  color: grey)),
+                          Text(_getCheckOutTime(hotel),
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: black)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: PolicyCard(
+                  title: 'Cancellation Policy',
+                  icon: Icons.calendar_today_outlined,
+                  headerColor: Colors.blue.shade50,
+                  iconColor: Colors.blue.shade700,
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getCancellationPolicy(hotel),
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 10.sp,
+                          color: black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: PolicyCard(
+                  title: 'Acceptable ID Proof',
+                  icon: Icons.security_rounded,
+                  headerColor: Colors.green.shade50,
+                  iconColor: Colors.green.shade700,
+                  content: Wrap(
+                    spacing: 6.w,
+                    runSpacing: 6.h,
+                    children: (detailedHotel
+                                ?.policies?.acceptableIdentityProof ??
+                            ['Passport', 'Aadhar', 'Driving License'])
+                        .map((id) => Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 6.w, vertical: 3.h),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade50.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(4.r),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.check_circle_outline,
+                                      color: Colors.green.shade700,
+                                      size: 10.sp),
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    id,
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 9.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: PolicyCard(
+                  title: 'Extra Bed Policy',
+                  icon: Icons.bed_outlined,
+                  headerColor: Colors.red.shade50,
+                  iconColor: Colors.red.shade700,
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.king_bed_outlined,
+                              color: Colors.red.shade700, size: 12.sp),
+                          SizedBox(width: 6.w),
+                          Text(
+                            detailedHotel?.policies?.extraBedPolicy ?? 'No',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12.sp,
+                              color: black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (detailedHotel?.policies?.extraBedPrice != null) ...[
+                        SizedBox(height: 4.h),
+                        Text(
+                          'Price: ₹${detailedHotel?.policies?.extraBedPrice}',
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10.sp,
+                              color: grey),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (_getAccommodationPolicies(hotel).isNotEmpty) ...[
+            SizedBox(height: 10.h),
+            PolicyCard(
+              title: 'Property Rules',
+              icon: Icons.do_not_disturb_on_outlined,
+              headerColor: Colors.purple.shade50,
+              iconColor: Colors.purple.shade700,
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _getAccommodationPolicies(hotel)
+                    .map((rule) => Padding(
+                          padding: EdgeInsets.only(bottom: 4.h),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: 4.h),
+                                child: Container(
+                                  width: 4.w,
+                                  height: 4.h,
+                                  decoration: const BoxDecoration(
+                                      color: grey, shape: BoxShape.circle),
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  rule,
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 10.sp,
+                                    color: grey.withOpacity(0.8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBillingItem({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required Widget subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10.r),
+            decoration: BoxDecoration(
+              color: blue.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Icon(icon, color: blue, size: 20.sp),
+          ),
+          SizedBox(width: 15.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: fontColor,
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 2.h),
+                subtitle,
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward_ios_rounded,
+              color: grey.withOpacity(0.5), size: 14.sp),
+        ],
+      ),
+    );
   }
 }

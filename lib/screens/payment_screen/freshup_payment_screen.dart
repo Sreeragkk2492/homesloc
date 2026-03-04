@@ -11,8 +11,10 @@ import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/models/freshup/freshup_booking_details_model.dart';
 import 'package:homesloc/models/freshup/freshup_availability_model.dart';
 import 'package:homesloc/controller/freshup/freshup_detail_controller.dart';
+import 'package:homesloc/controller/profile/profile_controller.dart';
+import 'package:homesloc/core/common/global_variables.dart' as global;
 
-class FreshupPaymentScreen extends StatelessWidget {
+class FreshupPaymentScreen extends StatefulWidget {
   final String hotelName;
   final String location;
   final double price;
@@ -20,6 +22,7 @@ class FreshupPaymentScreen extends StatelessWidget {
   final FreshupBookingDetails? bookingDetails;
   final List<FreshupSlot>? selectedSlots;
   final String? freshupId;
+  final String? cancellationPolicy;
 
   FreshupPaymentScreen({
     super.key,
@@ -30,9 +33,58 @@ class FreshupPaymentScreen extends StatelessWidget {
     this.bookingDetails,
     this.selectedSlots,
     this.freshupId,
+    this.cancellationPolicy,
   });
 
+  @override
+  State<FreshupPaymentScreen> createState() => _FreshupPaymentScreenState();
+}
+
+class _FreshupPaymentScreenState extends State<FreshupPaymentScreen> {
   final calendarController = Get.find<CalendarController>();
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  void _loadUserProfile() {
+    try {
+      if (Get.isRegistered<ProfileController>()) {
+        final profileController = Get.find<ProfileController>();
+        final profile = profileController.userProfile.value;
+        if (profile != null) {
+          _nameController.text = profile.name;
+          _emailController.text = profile.primaryEmail;
+          _phoneController.text = profile.primaryMobile;
+          return; // Successfully loaded from profile
+        }
+      }
+
+      // Fallback to global variables if profile is missing
+      if (global.userName.isNotEmpty) {
+        _nameController.text = global.userName;
+      }
+      if (global.userEmail.isNotEmpty) {
+        _emailController.text = global.userEmail;
+      }
+    } catch (e) {
+      debugPrint("Error loading profile: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,10 +143,10 @@ class FreshupPaymentScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12.r),
                         image: DecorationImage(
-                          image: coverImage.startsWith('http')
-                              ? NetworkImage(coverImage)
-                              : AssetImage(coverImage.isNotEmpty
-                                  ? coverImage
+                          image: widget.coverImage.startsWith('http')
+                              ? NetworkImage(widget.coverImage)
+                              : AssetImage(widget.coverImage.isNotEmpty
+                                  ? widget.coverImage
                                   : 'assets/images/l1.png') as ImageProvider,
                           fit: BoxFit.cover,
                         ),
@@ -107,7 +159,7 @@ class FreshupPaymentScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          hotelName,
+                          widget.hotelName,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -124,7 +176,7 @@ class FreshupPaymentScreen extends StatelessWidget {
                             SizedBox(width: 4.w),
                             Expanded(
                               child: Text(
-                                location,
+                                widget.location,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -136,42 +188,6 @@ class FreshupPaymentScreen extends StatelessWidget {
                           ],
                         ),
                         SizedBox(height: 8.h),
-                        // Row(
-                        //   children: [
-                        //     Container(
-                        //       padding: EdgeInsets.symmetric(
-                        //           horizontal: 6.w, vertical: 2.h),
-                        //       decoration: BoxDecoration(
-                        //         color: blue.withOpacity(0.1),
-                        //         borderRadius: BorderRadius.circular(4.r),
-                        //       ),
-                        //       child: Row(
-                        //         mainAxisSize: MainAxisSize.min,
-                        //         children: [
-                        //           Text(
-                        //             "4.2",
-                        //             style: TextStyle(
-                        //                 fontFamily: 'Poppins',
-                        //                 color: blue,
-                        //                 fontWeight: FontWeight.bold,
-                        //                 fontSize: 10.sp),
-                        //           ),
-                        //           SizedBox(width: 2.w),
-                        //           Icon(Icons.star_rounded,
-                        //               color: yellow, size: 12.sp),
-                        //         ],
-                        //       ),
-                        //     ),
-                        //     SizedBox(width: 8.w),
-                        //     Text(
-                        //       "835 Reviews",
-                        //       style: TextStyle(
-                        //           fontFamily: 'Poppins',
-                        //           color: fontColor,
-                        //           fontSize: 10.sp),
-                        //     ),
-                        //   ],
-                        // ),
                       ],
                     ),
                   ),
@@ -179,11 +195,11 @@ class FreshupPaymentScreen extends StatelessWidget {
               ),
             ),
 
-            // Billing Details Section
+            // Enter your details section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               child: Text(
-                'Billing Details',
+                'Enter your details',
                 style: TextStyle(
                     fontFamily: 'Poppins',
                     color: blue,
@@ -191,106 +207,6 @@ class FreshupPaymentScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold),
               ),
             ),
-
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 12.w),
-              padding: EdgeInsets.all(16.r),
-              decoration: BoxDecoration(
-                color: white,
-                borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: black.withOpacity(0.04),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  _buildBillingItem(
-                    icon: Icons.calendar_month_rounded,
-                    title: "Stay Date",
-                    subtitle: Obx(() => Text(
-                          calendarController.checkInDate.value != null
-                              ? calendarController.formatDate(
-                                  calendarController.checkInDate.value)
-                              : "Select Date",
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13.sp),
-                        )),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12.h),
-                    child: Divider(color: border.withOpacity(0.5), height: 1),
-                  ),
-                  _buildBillingItem(
-                    icon: Icons.access_time_filled_rounded,
-                    title: "Stay Slots",
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children:
-                          (selectedSlots != null && selectedSlots!.isNotEmpty)
-                              ? selectedSlots!
-                                  .map((s) => Text(
-                                        "${s.checkIn} - ${s.checkOut}",
-                                        style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            color: blue,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 13.sp),
-                                      ))
-                                  .toList()
-                              : [
-                                  Text(
-                                    "No slots selected",
-                                    style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        color: grey,
-                                        fontSize: 13.sp),
-                                  )
-                                ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12.h),
-                    child: Divider(color: border.withOpacity(0.5), height: 1),
-                  ),
-                  _buildBillingItem(
-                    icon: Icons.people_alt_rounded,
-                    title: "Guests",
-                    onTap: () => BottomSheetUtils.showGuestBottomSheet(context),
-                    subtitle: Obx(() => Text(
-                          "${calendarController.guestCount.value} Guests",
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13.sp),
-                        )),
-                  ),
-                ],
-              ),
-            ),
-
-            // Payment Option Section
-            Padding(
-              padding: EdgeInsets.only(
-                  top: 20.h, left: 16.w, right: 16.w, bottom: 8.h),
-              child: Text(
-                'Payment Method',
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: blue,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-
             Container(
               margin: EdgeInsets.symmetric(horizontal: 12.w),
               padding: EdgeInsets.all(16.r),
@@ -309,49 +225,70 @@ class FreshupPaymentScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildPaymentType(
-                    title: "Pay In Full",
-                    description: "Pay the total now for a faster check-in",
-                    isSelected: true,
-                  ),
-                  SizedBox(height: 16.h),
-                  Text(
-                    "Preferred Methods",
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: fontColor,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
+                  Container(
+                    padding: EdgeInsets.all(12.r),
+                    decoration: BoxDecoration(
+                      color: scaffoldColor,
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
-                  ),
-                  SizedBox(height: 12.h),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
                     child: Row(
                       children: [
-                        _buildMethodIcon('assets/images/Picture.png'),
-                        _buildMethodIcon('assets/images/Picture (1).png'),
-                        _buildMethodIcon('assets/images/Picture (2).png'),
-                        _buildMethodIcon('assets/images/Picture (3).png'),
-                        _buildMethodIcon('assets/images/Picture (4).png'),
-                        Container(
-                          margin: EdgeInsets.only(left: 8.w),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 8.h),
-                          decoration: BoxDecoration(
-                            color: gwhite,
-                            borderRadius: BorderRadius.circular(10.r),
-                            border: Border.all(color: blue.withOpacity(0.1)),
-                          ),
+                        Icon(Icons.info_outline_rounded,
+                            color: blue, size: 20.sp),
+                        SizedBox(width: 12.w),
+                        Expanded(
                           child: Text(
-                            '+ Add',
+                            "Almost done! Just fill in the * required info",
                             style: TextStyle(
                                 fontFamily: 'Poppins',
                                 color: blue,
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.bold),
+                                fontSize: 13.sp),
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildTextField(
+                            label: "First name *",
+                            controller: _nameController,
+                            hint: "Enter your name"),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: _buildTextField(
+                            label: "Email address *",
+                            controller: _emailController,
+                            hint: "Enter email",
+                            keyboardType: TextInputType.emailAddress),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.h),
+                  _buildTextField(
+                    label: "Phone number *",
+                    controller: _phoneController,
+                    hint: "Enter your phone number",
+                    keyboardType: TextInputType.phone,
+                    prefix: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(width: 12.w),
+                        Text("+91",
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 14.sp,
+                                color: black)),
+                        Icon(Icons.keyboard_arrow_down_rounded,
+                            color: grey, size: 20.sp),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 8.w),
+                          width: 1,
+                          height: 20.h,
+                          color: border.withOpacity(0.5),
                         ),
                       ],
                     ),
@@ -360,22 +297,149 @@ class FreshupPaymentScreen extends StatelessWidget {
               ),
             ),
 
+            // Booking Summary Section
+            Padding(
+              padding: EdgeInsets.only(top: 20.h, left: 16.w, right: 16.w),
+              child: Text(
+                'Booking Summary',
+                style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: blue,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.all(12.w),
+              padding: EdgeInsets.all(16.r),
+              decoration: BoxDecoration(
+                color: white,
+                borderRadius: BorderRadius.circular(16.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: black.withOpacity(0.04),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Obx(() {
+                final checkIn = calendarController.checkInDate.value;
+                // For Freshups, duration is usually same day or determined by slots
+                // But user wants "Start Date", "End Date", "Duration"
+                final checkOut = calendarController.checkOutDate.value;
+                final duration = checkIn != null && checkOut != null
+                    ? checkOut.difference(checkIn).inDays.clamp(1, 100)
+                    : 1;
+
+                return Column(
+                  children: [
+                    _buildSummaryRow(
+                        "Start Date", calendarController.formatDate(checkIn)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      child: Divider(color: border.withOpacity(0.3), height: 1),
+                    ),
+                    _buildSummaryRow(
+                        "End Date", calendarController.formatDate(checkOut)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      child: Divider(color: border.withOpacity(0.3), height: 1),
+                    ),
+                    _buildSummaryRow("Duration", "$duration days"),
+                  ],
+                );
+              }),
+            ),
+
+            if (widget.cancellationPolicy != null &&
+                widget.cancellationPolicy!.isNotEmpty)
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                padding: EdgeInsets.all(16.r),
+                decoration: BoxDecoration(
+                  color: white,
+                  borderRadius: BorderRadius.circular(16.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: black.withOpacity(0.04),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.policy_rounded,
+                            color: Colors.redAccent, size: 20.sp),
+                        SizedBox(width: 8.w),
+                        Text(
+                          "Cancellation Policy",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: black,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12.h),
+                    Text(
+                      widget.cancellationPolicy!,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: fontColor,
+                        fontSize: 12.sp,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             Builder(builder: (context) {
               final controller =
-                  Get.find<FreshupDetailController>(tag: freshupId);
+                  Get.find<FreshupDetailController>(tag: widget.freshupId);
 
-              if (bookingDetails == null) {
+              if (widget.bookingDetails == null) {
                 return const SizedBox.shrink();
               }
 
               return FreshupPayNow(
-                bookingDetails: bookingDetails!,
-                onPayNow: () => controller.confirmFreshupBooking(
-                  hotelName: hotelName,
-                  location: location,
-                  coverImage: coverImage,
-                  totalAmount: bookingDetails?.price?.toDouble() ?? price,
-                ),
+                bookingDetails: widget.bookingDetails!,
+                onPayNow: () {
+                  final name = _nameController.text.trim();
+                  final email = _emailController.text.trim();
+                  final mobile = _phoneController.text.trim();
+
+                  if (name.isEmpty || email.isEmpty || mobile.isEmpty) {
+                    Get.snackbar(
+                      "Required Fields",
+                      "Please fill in all required details to proceed.",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.orange.withOpacity(0.8),
+                      colorText: white,
+                    );
+                    return;
+                  }
+
+                  controller.startFreshupPayment(
+                    hotelName: widget.hotelName,
+                    location: widget.location,
+                    coverImage: widget.coverImage,
+                    totalAmount: widget.bookingDetails?.price?.toDouble() ??
+                        widget.price,
+                    userName: name,
+                    email: email,
+                    mobile: mobile,
+                  );
+                },
               );
             }),
           ],
@@ -384,107 +448,82 @@ class FreshupPaymentScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBillingItem(
-      {required IconData icon,
-      required String title,
-      required Widget subtitle,
-      VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12.sp),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 4.w),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8.r),
-              decoration: BoxDecoration(
-                color: yellow.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: yellow, size: 20.sp),
-            ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: fontColor,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w500),
-                  ),
-                  subtitle,
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentType(
-      {required String title,
-      required String description,
-      required bool isSelected}) {
-    return Row(
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required String hint,
+    TextInputType? keyboardType,
+    Widget? prefix,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 20.r,
-          height: 20.r,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: isSelected ? blue : fontColor, width: 2),
-          ),
-          child: isSelected
-              ? Center(
-                  child: Container(
-                      width: 10.r,
-                      height: 10.r,
-                      decoration: const BoxDecoration(
-                          color: blue, shape: BoxShape.circle)))
-              : null,
+        Text(
+          label,
+          style: TextStyle(
+              fontFamily: 'Poppins',
+              color: fontColor,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w500),
         ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: black,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold),
-              ),
-              Text(
-                description,
-                style: TextStyle(
-                    fontFamily: 'Poppins', color: fontColor, fontSize: 11.sp),
-              ),
-            ],
+        SizedBox(height: 8.h),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 14.sp,
+              color: black,
+              fontWeight: FontWeight.w600),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14.sp,
+                color: grey,
+                fontWeight: FontWeight.normal),
+            prefixIcon: prefix,
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: BorderSide(color: border.withOpacity(0.5)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: BorderSide(color: border.withOpacity(0.5)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.r),
+              borderSide: const BorderSide(color: blue),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildMethodIcon(String asset) {
-    return Container(
-      margin: EdgeInsets.only(right: 8.w),
-      width: 50.w,
-      height: 32.h,
-      decoration: BoxDecoration(
-        color: gwhite,
-        borderRadius: BorderRadius.circular(6.r),
-        image: DecorationImage(image: AssetImage(asset), fit: BoxFit.contain),
-        border: Border.all(color: border.withOpacity(0.5)),
-      ),
+  Widget _buildSummaryRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+              fontFamily: 'Poppins',
+              color: fontColor,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+              fontFamily: 'Poppins',
+              color: black,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 }

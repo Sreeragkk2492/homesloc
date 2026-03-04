@@ -44,3 +44,6 @@ app.*.map.json
 
 # FVM Version Cache
 .fvm/
+
+# Sensitive Configuration
+lib/core/constant/api_constant.dart

@@ -38,18 +38,21 @@ Future<LoginModel> loginApi(
     // print("------------------------------------------------------------------");
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final loginresponse = LoginModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
+      final loginresponse =
+          LoginModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
 
       accessToken = loginresponse.accessToken.toString();
       refreshToken = loginresponse.refreshToken.toString();
       userId = loginresponse.userId.toString();
       userName = loginresponse.username.toString();
+      userEmail = loginresponse.email.toString();
 
       ///write to strorage
       await storage.write(key: "access_token", value: accessToken);
       await storage.write(key: "refresh_token", value: refreshToken);
       await storage.write(key: "user_id", value: userId);
       await storage.write(key: "user_name", value: userName);
+      await storage.write(key: "user_email", value: userEmail);
 
       return loginresponse;
     } else {

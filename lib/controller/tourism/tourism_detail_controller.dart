@@ -10,6 +10,8 @@ import 'package:homesloc/apis/home/hotel_detail_service.dart';
 import 'package:homesloc/screens/payment_screen/booking_successful/booking_successful.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/loader/app_loader.dart';
+import 'package:homesloc/core/services/razorpay_service.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class TourismDetailController extends GetxController {
   final String packageId;
@@ -111,7 +113,9 @@ class TourismDetailController extends GetxController {
                   tourismDetails.value?.galleryImages?.isNotEmpty == true
                       ? tourismDetails.value!.galleryImages!.first
                       : "",
-              bookingDetails: result.bookingDetails,
+              cancellationPolicy: tourismDetails
+                      .value?.agencyDetails?.policies?.cancellationPolicy ??
+                  'Standard cancellation policies apply.',
             ));
       } else {
         Get.snackbar("Not Available",
@@ -131,11 +135,63 @@ class TourismDetailController extends GetxController {
     }
   }
 
+  Future<void> startTourismPayment({
+    required String packageName,
+    required String destination,
+    required String coverImage,
+    required num totalAmount,
+    required String userName,
+    required String email,
+    required String mobile,
+  }) async {
+    final RazorpayService razorpayService = RazorpayService();
+
+    // Get user profile for prefill
+    String contact = mobile;
+    String prefillEmail = email;
+    String prefillName = userName;
+
+    razorpayService.onSuccess = (PaymentSuccessResponse response) {
+      confirmTourismBooking(
+        packageName: packageName,
+        destination: destination,
+        coverImage: coverImage,
+        totalAmount: totalAmount,
+        razorpayPaymentId: response.paymentId ?? "",
+        userName: userName,
+        email: email,
+        mobile: mobile,
+      );
+    };
+
+    razorpayService.onFailure = (PaymentFailureResponse response) {
+      Get.snackbar(
+        "Payment Failed",
+        response.message ?? "Payment was unsuccessful. Please try again.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: white,
+      );
+    };
+
+    await razorpayService.openCheckout(
+      amount: totalAmount.toDouble(),
+      name: prefillName,
+      description: "Tourism Booking for $packageName",
+      prefillContact: contact,
+      prefillEmail: prefillEmail,
+    );
+  }
+
   Future<void> confirmTourismBooking({
     required String packageName,
     required String destination,
     required String coverImage,
     required num totalAmount,
+    required String razorpayPaymentId,
+    required String userName,
+    required String email,
+    required String mobile,
   }) async {
     // Show loading
     Get.dialog(
@@ -152,15 +208,15 @@ class TourismDetailController extends GetxController {
       final booking = TourismBookingRequestModel(
         propertyId: packageId,
         propertyType: "PACKAGE",
-        userName: userName.isNotEmpty ? userName.value : "User",
-        primaryEmail: "user@example.com", // Placeholder
-        primaryMobile: "1234567890", // Placeholder
+        userName: userName,
+        primaryEmail: email,
+        primaryMobile: mobile,
         checkIn: checkInStr,
         checkOut: checkInStr, // Tourism packages use same date for check-in/out
         totalAmount: totalAmount,
-        paymentId: "PAY-${DateTime.now().millisecondsSinceEpoch}",
+        paymentId: razorpayPaymentId,
         paymentMethod: "Online",
-        paymentStatus: "Pending",
+        paymentStatus: "Completed",
         bookingStatus: "Booked",
       );
 

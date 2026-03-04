@@ -1,3 +1,5 @@
+import 'package:homesloc/models/freshup/freshup_detail_model.dart';
+
 class FreshupAvailabilityModel {
   List<FreshupAccommodation>? accommodations;
   int? totalCount;
@@ -6,6 +8,7 @@ class FreshupAvailabilityModel {
   bool? hasNext;
   bool? hasPrevious;
   String? message;
+  FreshupDetailModel? rawDetails;
 
   FreshupAvailabilityModel({
     this.accommodations,
@@ -15,6 +18,7 @@ class FreshupAvailabilityModel {
     this.hasNext,
     this.hasPrevious,
     this.message,
+    this.rawDetails,
   });
 
   factory FreshupAvailabilityModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +45,7 @@ class FreshupAvailabilityModel {
       hasNext: json['has_next'],
       hasPrevious: json['has_previous'],
       message: json['message'],
+      rawDetails: FreshupDetailModel.fromJson(json),
     );
   }
 

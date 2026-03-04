@@ -6,13 +6,14 @@ import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/loader/app_loader.dart';
 import 'package:homesloc/core/widgets/gallery/full_screen_image_viewer.dart';
 import 'package:homesloc/core/widgets/home_divider/home_divider.dart';
-import 'package:homesloc/core/widgets/name_view/name_view.dart';
 import 'package:homesloc/models/tourism/tourism_detail_model.dart';
 import 'package:homesloc/screens/detailed_view_screen/tourism_widgets/tourism_agency.dart';
 import 'package:homesloc/screens/detailed_view_screen/tourism_widgets/tourism_amenities.dart';
 import 'package:homesloc/screens/detailed_view_screen/tourism_widgets/tourism_highlights.dart';
 import 'package:homesloc/screens/detailed_view_screen/tourism_widgets/tourism_itinerary.dart';
 import 'package:homesloc/screens/detailed_view_screen/tourism_widgets/tourism_book_now.dart';
+import 'package:homesloc/core/utils/bottom_sheet_utils.dart';
+import 'package:homesloc/core/widgets/policy_card/policy_card.dart';
 
 class TourismDetailedViewScreen extends StatefulWidget {
   final String packageId;
@@ -59,70 +60,6 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
           images: images,
           initialIndex: initialIndex,
         ),
-      ),
-    );
-  }
-
-  Widget _buildPolicyHighlight({
-    required IconData icon,
-    required String title,
-    required String content,
-  }) {
-    return Container(
-      width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-      padding: EdgeInsets.all(15.r),
-      decoration: BoxDecoration(
-        color: white,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(color: border, width: 1),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.all(10.r),
-            decoration: BoxDecoration(
-              color: blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
-            child: Icon(icon, color: blue, size: 22.sp),
-          ),
-          SizedBox(width: 15.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: blue,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 5.h),
-                Text(
-                  content,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: black,
-                    fontSize: 12.sp,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -279,6 +216,85 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
               const HomeDivider(),
               TourismAmenitiesSection(amenities: data.amenities),
               const HomeDivider(),
+
+              // Billing Details Section
+              // Padding(
+              //   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+              //   child: Text(
+              //     'Billing Details',
+              //     style: TextStyle(
+              //         fontFamily: 'Poppins',
+              //         color: blue,
+              //         fontSize: 17.sp,
+              //         fontWeight: FontWeight.bold),
+              //   ),
+              // ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 10.w),
+                padding: EdgeInsets.all(16.r),
+                decoration: BoxDecoration(
+                  color: white,
+                  borderRadius: BorderRadius.circular(16.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: border, width: 1),
+                ),
+                child: Column(
+                  children: [
+                    _buildBillingItem(
+                      context: context,
+                      icon: Icons.calendar_month_rounded,
+                      title: "Travel Date",
+                      onTap: () {
+                        BottomSheetUtils.showCalendarBottomSheet(context);
+                      },
+                      subtitle: Obx(() {
+                        return Text(
+                          controller.calendarController.checkInDate.value !=
+                                  null
+                              ? controller.calendarController.formatDate(
+                                  controller
+                                      .calendarController.checkInDate.value)
+                              : "Select Date",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: blue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13.sp),
+                        );
+                      }),
+                    ),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(vertical: 12.h),
+                    //   child: Divider(color: border.withOpacity(0.5), height: 1),
+                    // ),
+                    // _buildBillingItem(
+                    //   context: context,
+                    //   icon: Icons.people_alt_rounded,
+                    //   title: "Travelers",
+                    //   onTap: () =>
+                    //       BottomSheetUtils.showGuestBottomSheet(context),
+                    //   subtitle: Obx(() {
+                    //     return Text(
+                    //       "${controller.calendarController.guestCount.value} Travelers",
+                    //       style: TextStyle(
+                    //           fontFamily: 'Poppins',
+                    //           color: blue,
+                    //           fontWeight: FontWeight.w600,
+                    //           fontSize: 13.sp),
+                    //     );
+                    //   }),
+                    // ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 15.h),
               TourismBookNow(data: data),
               const HomeDivider(),
               Padding(
@@ -336,23 +352,7 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
                 exclusions: data.tripExclusions,
               ),
               const HomeDivider(),
-              NameView(
-                  name: 'Package Policies',
-                  color: blue,
-                  secondName: 'View All',
-                  secondColor: blue),
-              if (data.agencyDetails?.policies?.cancellationPolicy != null)
-                _buildPolicyHighlight(
-                  icon: Icons.assignment_return_rounded,
-                  title: 'Cancellations & Refunds',
-                  content: data.agencyDetails!.policies!.cancellationPolicy!,
-                ),
-              if (data.agencyDetails?.policies?.paymentPolicy != null)
-                _buildPolicyHighlight(
-                  icon: Icons.payment_rounded,
-                  title: 'Payment Policy',
-                  content: data.agencyDetails!.policies!.paymentPolicy!,
-                ),
+              _buildPolicyGrid(data),
               const HomeDivider(),
               AgencyDetailSection(agency: data.agencyDetails),
               SizedBox(height: 40.h),
@@ -552,6 +552,232 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildPolicyGrid(TourismDetailModel data) {
+    final policies = data.agencyDetails?.policies;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 15.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Package Policies',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              color: blue,
+              fontSize: 17.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 15.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: PolicyCard(
+                  title: 'Cancellation & Refunds',
+                  icon: Icons.assignment_return_rounded,
+                  headerColor: Colors.indigo.shade50,
+                  iconColor: Colors.indigo.shade700,
+                  content: Text(
+                    policies?.cancellationPolicy ??
+                        'Standard cancellation applies',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 10.sp,
+                      color: black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: PolicyCard(
+                  title: 'Payment Policy',
+                  icon: Icons.payment_rounded,
+                  headerColor: Colors.blue.shade50,
+                  iconColor: Colors.blue.shade700,
+                  content: Text(
+                    policies?.paymentPolicy ?? 'Payment terms apply',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 10.sp,
+                      color: black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: PolicyCard(
+                  title: 'Acceptable ID Proofs',
+                  icon: Icons.badge_rounded,
+                  headerColor: Colors.green.shade50,
+                  iconColor: Colors.green.shade700,
+                  content: (policies?.acceptableIdentityProof == null ||
+                          policies!.acceptableIdentityProof!.isEmpty)
+                      ? Text('Mandatory ID proof',
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10.sp,
+                              color: black))
+                      : Wrap(
+                          spacing: 4.w,
+                          runSpacing: 4.h,
+                          children: policies.acceptableIdentityProof!
+                              .map((id) => Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 6.w, vertical: 2.h),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Colors.green.shade50.withOpacity(0.3),
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                    child: Text(
+                                      id,
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 9.sp,
+                                        color: black,
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                        ),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: PolicyCard(
+                  title: 'Travel Requirements',
+                  icon: Icons.info_outline_rounded,
+                  headerColor: Colors.red.shade50,
+                  iconColor: Colors.red.shade700,
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Starts: ${data.startLocation ?? "City"}',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 10.sp,
+                          color: black,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'Duration: ${data.durationDays}D/${data.durationNights}N',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 10.sp,
+                          color: black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (policies?.tripTermsConditions != null &&
+              policies!.tripTermsConditions!.isNotEmpty) ...[
+            SizedBox(height: 10.h),
+            PolicyCard(
+              title: 'Terms & Conditions',
+              icon: Icons.gavel_rounded,
+              headerColor: Colors.purple.shade50,
+              iconColor: Colors.purple.shade700,
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: policies.tripTermsConditions!
+                    .map((term) => Padding(
+                          padding: EdgeInsets.only(bottom: 4.h),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: 4.h),
+                                child: Container(
+                                  width: 4.w,
+                                  height: 4.h,
+                                  decoration: const BoxDecoration(
+                                      color: grey, shape: BoxShape.circle),
+                                ),
+                              ),
+                              SizedBox(width: 8.w),
+                              Expanded(
+                                child: Text(
+                                  term,
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 10.sp,
+                                    color: grey.withOpacity(0.8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBillingItem({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required Widget subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10.r),
+            decoration: BoxDecoration(
+              color: blue.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Icon(icon, color: blue, size: 20.sp),
+          ),
+          SizedBox(width: 15.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: fontColor,
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 2.h),
+                subtitle,
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward_ios_rounded,
+              color: grey.withOpacity(0.5), size: 14.sp),
+        ],
+      ),
     );
   }
 }

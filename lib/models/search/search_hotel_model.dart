@@ -155,13 +155,89 @@ class Hotel {
     } else if (json["gallery_images"] != null &&
         json["gallery_images"] is List) {
       images = List<String>.from(json["gallery_images"]);
-    } else if (json["room_images"] != null && json["room_images"] is List) {
-      images = List<String>.from(json["room_images"]);
     }
 
     FreshupDetailModel? freshup;
     if (type == "FRESHUP") {
       freshup = FreshupDetailModel.fromJson(json);
+
+      // Handle room_images from price_per_room if exists
+      if (json["price_per_room"] != null &&
+          json["price_per_room"]["room_images"] != null) {
+        freshup.roomImages =
+            List<String>.from(json["price_per_room"]["room_images"]);
+      }
+
+      // Merge Property details
+      final propDetails = json["property_details"];
+      if (propDetails != null) {
+        if (propDetails["near_by_attraction"] != null &&
+            propDetails["near_by_attraction"] is List) {
+          final attractionsList = propDetails["near_by_attraction"] as List;
+          List<String> formattedAttractions = [];
+          for (var item in attractionsList) {
+            if (item is Map) {
+              final name = item["name"]?.toString() ?? "";
+              final desc = item["description"]?.toString() ?? "";
+              if (name.isNotEmpty) {
+                formattedAttractions
+                    .add(desc.isNotEmpty ? "$name - $desc" : name);
+              }
+            }
+          }
+          freshup.nearbyAttractions = formattedAttractions;
+        }
+
+        // Merge Policies
+        final policies = propDetails["freshup_policies"];
+        if (policies != null) {
+          List<String> policyStrings = [];
+
+          if (policies["propertyrules"] != null) {
+            policyStrings.addAll(policies["propertyrules"]
+                .toString()
+                .split('\n')
+                .where((s) => s.trim().isNotEmpty));
+          }
+          if (policies["cancellationPolicy"] != null) {
+            policyStrings
+                .add("Cancellation: ${policies["cancellationPolicy"]}");
+          }
+          if (policies["cancellationDays"] != null) {
+            policyStrings
+                .add("Cancellation Days: ${policies["cancellationDays"]}");
+          }
+          if (policies["acceptedtimeslots"] != null) {
+            policyStrings
+                .add("Accepted Time Slots: ${policies["acceptedtimeslots"]}");
+          }
+          if (policies["extraBedPolicy"] != null) {
+            policyStrings
+                .add("Extra Bed Policy: ${policies["extraBedPolicy"]}");
+          }
+          if (policies["extra_bed_price"] != null) {
+            policyStrings
+                .add("Extra Bed Price: \u20B9${policies["extra_bed_price"]}");
+          }
+          if (policies["acceptableIdentityProof"] != null &&
+              policies["acceptableIdentityProof"] is List) {
+            policyStrings.add(
+                "Acceptable ID: ${(policies["acceptableIdentityProof"] as List).join(', ')}");
+          }
+          freshup.accommodationPolicies = policyStrings;
+        }
+
+        // Room details from rooms array (if needed as fallback)
+        if (freshup.roomImages == null || freshup.roomImages!.isEmpty) {
+          if (propDetails["rooms"] != null &&
+              (propDetails["rooms"] as List).isNotEmpty) {
+            final firstRoom = propDetails["rooms"][0];
+            if (firstRoom["room_images"] != null) {
+              freshup.roomImages = List<String>.from(firstRoom["room_images"]);
+            }
+          }
+        }
+      }
     }
 
     String? lat = json["latitude"]?.toString();

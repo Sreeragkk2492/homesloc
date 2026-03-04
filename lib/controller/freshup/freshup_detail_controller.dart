@@ -6,10 +6,11 @@ import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/loader/app_loader.dart';
 import 'package:homesloc/models/freshup/freshup_availability_model.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
-import 'package:homesloc/core/common/global_variables.dart';
 import 'package:homesloc/models/freshup/freshup_booking_request_model.dart';
 import 'package:homesloc/screens/payment_screen/booking_successful/booking_successful.dart';
 import 'package:homesloc/screens/payment_screen/freshup_payment_screen.dart';
+import 'package:homesloc/core/services/razorpay_service.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:intl/intl.dart';
 
 class FreshupDetailController extends GetxController {
@@ -152,6 +153,38 @@ class FreshupDetailController extends GetxController {
               bookingDetails: result.bookingDetails,
               selectedSlots: result.slotDetails,
               freshupId: freshup.id,
+              cancellationPolicy: (result
+                              .serviceDetails?.policies?.cancellationPolicy !=
+                          null &&
+                      result.serviceDetails!.policies!.cancellationPolicy!
+                          .isNotEmpty)
+                  ? result.serviceDetails!.policies!.cancellationPolicy
+                  : (availabilityModel.value?.rawDetails?.cancellationPolicy !=
+                              null &&
+                          availabilityModel.value!.rawDetails!
+                              .cancellationPolicy!.isNotEmpty)
+                      ? availabilityModel.value!.rawDetails!.cancellationPolicy
+                      : (freshup.freshupDetails?.cancellationPolicy != null &&
+                              freshup.freshupDetails!.cancellationPolicy!
+                                  .isNotEmpty)
+                          ? freshup.freshupDetails!.cancellationPolicy
+                          : (freshup.freshupDetails?.accommodationPolicies !=
+                                      null &&
+                                  freshup.freshupDetails!.accommodationPolicies!
+                                      .isNotEmpty)
+                              ? freshup.freshupDetails!.accommodationPolicies!
+                                  .where((p) {
+                                    final low = p.toLowerCase();
+                                    return low.contains('cancel') ||
+                                        low.contains('refund') ||
+                                        low.contains('non-refundable') ||
+                                        low.contains('nonrefundable') ||
+                                        low.contains('charge');
+                                  })
+                                  .toList()
+                                  .toSet()
+                                  .join('\n')
+                              : 'Standard Freshup cancellation policies apply.',
             ));
       } else {
         Get.snackbar(
@@ -175,11 +208,63 @@ class FreshupDetailController extends GetxController {
     }
   }
 
+  Future<void> startFreshupPayment({
+    required String hotelName,
+    required String location,
+    required String coverImage,
+    required num totalAmount,
+    required String userName,
+    required String email,
+    required String mobile,
+  }) async {
+    final RazorpayService razorpayService = RazorpayService();
+
+    // Get user profile for prefill
+    String contact = mobile;
+    String prefillEmail = email;
+    String prefillName = userName;
+
+    razorpayService.onSuccess = (PaymentSuccessResponse response) {
+      confirmFreshupBooking(
+        hotelName: hotelName,
+        location: location,
+        coverImage: coverImage,
+        totalAmount: totalAmount,
+        razorpayPaymentId: response.paymentId ?? "",
+        userName: userName,
+        email: email,
+        mobile: mobile,
+      );
+    };
+
+    razorpayService.onFailure = (PaymentFailureResponse response) {
+      Get.snackbar(
+        "Payment Failed",
+        response.message ?? "Payment was unsuccessful. Please try again.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withOpacity(0.8),
+        colorText: white,
+      );
+    };
+
+    await razorpayService.openCheckout(
+      amount: totalAmount.toDouble(),
+      name: prefillName,
+      description: "Freshup Booking for ${freshup.name}",
+      prefillContact: contact,
+      prefillEmail: prefillEmail,
+    );
+  }
+
   Future<void> confirmFreshupBooking({
     required String hotelName,
     required String location,
     required String coverImage,
     required num totalAmount,
+    required String razorpayPaymentId,
+    required String userName,
+    required String email,
+    required String mobile,
   }) async {
     // Show loading
     Get.dialog(
@@ -200,15 +285,15 @@ class FreshupDetailController extends GetxController {
         return FreshupBookingRequestModel(
           propertyId: slotId,
           propertyType: "SLOT",
-          userName: userName.isNotEmpty ? userName : "User",
-          primaryEmail: "user@example.com", // Placeholder
-          primaryMobile: "1234567890", // Placeholder
+          userName: userName,
+          primaryEmail: email,
+          primaryMobile: mobile,
           checkIn: checkInStr,
           checkOut: checkOutStr,
           totalAmount: totalAmount / selectedSlotIds.length,
-          paymentId: "PAY-${DateTime.now().millisecondsSinceEpoch}",
+          paymentId: razorpayPaymentId,
           paymentMethod: "Online",
-          paymentStatus: "Pending",
+          paymentStatus: "Completed",
           bookingStatus: "Booked",
         );
       }).toList();

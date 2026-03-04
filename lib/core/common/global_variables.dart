@@ -2,5 +2,6 @@
 
 String userId = "";
 String userName = "";
-String accessToken="";
-String refreshToken="";
+String userEmail = "";
+String accessToken = "";
+String refreshToken = "";

@@ -162,6 +162,8 @@ class HallBookNow extends StatelessWidget {
                           bookingDetails: roomBookingDetails,
                           propertyId: eventId!,
                           propertyType: "HALL",
+                          cancellationPolicy:
+                              hall.banquetPolicies?.cancellationPolicy,
                         );
                       }));
                     } else {

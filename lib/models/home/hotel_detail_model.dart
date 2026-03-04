@@ -84,8 +84,10 @@ class HotelDetailModel {
       pol = Policies.fromJson(hotel["policies"]);
     } else {
       pol = Policies(
-        checkInTime: hotel["check_in_time"],
-        checkOutTime: hotel["check_out_time"],
+        checkInTime: hotel["check_in_time"] ?? hotel["checkInTime"],
+        checkOutTime: hotel["check_out_time"] ?? hotel["checkOutTime"],
+        cancellationPolicy:
+            hotel["cancellation_policy"] ?? hotel["cancellationPolicy"],
       );
     }
 
@@ -161,8 +163,10 @@ class HotelDetailModel {
       pol = Policies.fromJson(hotel["policies"]);
     } else {
       pol = Policies(
-        checkInTime: hotel["check_in_time"],
-        checkOutTime: hotel["check_out_time"],
+        checkInTime: hotel["check_in_time"] ?? hotel["checkInTime"],
+        checkOutTime: hotel["check_out_time"] ?? hotel["checkOutTime"],
+        cancellationPolicy:
+            hotel["cancellation_policy"] ?? hotel["cancellationPolicy"],
       );
     }
 
@@ -346,19 +350,56 @@ class Policies {
   String? checkInTime;
   String? checkOutTime;
   String? cancellationPolicy;
+  List<String>? accommodationPolicies;
 
-  Policies({this.checkInTime, this.checkOutTime, this.cancellationPolicy});
+  // Structured Policy Fields
+  String? extraBedPolicy;
+  String? extraBedPrice;
+  List<String>? acceptableIdentityProof;
 
-  factory Policies.fromJson(Map<String, dynamic> json) => Policies(
-        checkInTime: json["check_in_time"],
-        checkOutTime: json["check_out_time"],
-        cancellationPolicy: json["cancellation_policy"],
-      );
+  Policies({
+    this.checkInTime,
+    this.checkOutTime,
+    this.cancellationPolicy,
+    this.accommodationPolicies,
+    this.extraBedPolicy,
+    this.extraBedPrice,
+    this.acceptableIdentityProof,
+  });
+
+  factory Policies.fromJson(Map<String, dynamic> json) {
+    List<String> policiesList = [];
+    if (json["propertyrules"] != null) {
+      policiesList.addAll(json["propertyrules"]
+          .toString()
+          .split('\n')
+          .where((s) => s.trim().isNotEmpty));
+    }
+
+    Policies pol = Policies(
+      checkInTime: json["check_in_time"] ?? json["checkInTime"],
+      checkOutTime: json["check_out_time"] ?? json["checkOutTime"],
+      cancellationPolicy:
+          json["cancellation_policy"] ?? json["cancellationPolicy"],
+      accommodationPolicies: policiesList.isNotEmpty ? policiesList : null,
+      extraBedPolicy: json["extraBedPolicy"]?.toString(),
+      extraBedPrice: json["extra_bed_price"]?.toString(),
+    );
+
+    if (json["acceptableIdentityProof"] != null &&
+        json["acceptableIdentityProof"] is List) {
+      pol.acceptableIdentityProof =
+          List<String>.from(json["acceptableIdentityProof"]);
+    }
+
+    return pol;
+  }
 
   Map<String, dynamic> toJson() => {
         "check_in_time": checkInTime,
         "check_out_time": checkOutTime,
         "cancellation_policy": cancellationPolicy,
+        "propertyrules": accommodationPolicies?.join('\n'),
       };
 }
 

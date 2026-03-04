@@ -576,73 +576,240 @@ class _SearchScreenState extends State<SearchScreen> {
                           borderRadius: BorderRadius.circular(15.sp),
                           border: Border.all(color: Colors.grey.shade300),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (hotel.coverImageUrl != null)
-                              ClipRRect(
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(15.sp)),
-                                child: Image.network(
-                                  hotel.coverImageUrl!,
-                                  height: 150.h,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                          height: 150.h,
-                                          color: Colors.grey[300]),
-                                ),
-                              ),
-                            Padding(
-                              padding: EdgeInsets.all(12.w),
-                              child: Column(
+                        child: hotel.accommodationType == "FRESHUP"
+                            ? // FRESHUP SPECIFIC ROOM CARD DESIGN
+                            Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    hotel.name ?? 'Hotel Name',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.sp,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4.h),
-                                  Text(
-                                    hotel.location ?? 'Location',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 12.sp,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8.h),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "₹${hotel.originalPrice ?? '0'}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.sp,
-                                          color: Colors.black,
-                                        ),
+                                  if (hotel.coverImageUrl != null)
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(15.sp)),
+                                      child: Image.network(
+                                        hotel.coverImageUrl!,
+                                        height: 150.h,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                                    height: 150.h,
+                                                    color: Colors.grey[300]),
                                       ),
-                                      if (hotel.taxInfo != null)
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 8.w),
-                                          child: Text(
-                                            hotel.taxInfo!,
-                                            style: TextStyle(
-                                              fontSize: 10.sp,
-                                              color: Colors.grey,
+                                    ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12.w),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                hotel.freshupDetails
+                                                        ?.freshupName ??
+                                                    hotel.name ??
+                                                    'Room Name',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16.sp,
+                                                ),
+                                              ),
                                             ),
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 8.w,
+                                                  vertical: 4.h),
+                                              decoration: BoxDecoration(
+                                                color: blue.withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(5.r),
+                                              ),
+                                              child: Text(
+                                                hotel.freshupDetails
+                                                        ?.freshupType ??
+                                                    'FreshUp',
+                                                style: TextStyle(
+                                                  color: blue,
+                                                  fontSize: 10.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 4.h),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.location_on_outlined,
+                                                size: 14.sp,
+                                                color: Colors.grey),
+                                            SizedBox(width: 4.w),
+                                            Expanded(
+                                              child: Text(
+                                                hotel.location ?? 'Location',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 12.sp,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 8.h),
+                                        Row(
+                                          children: [
+                                            if (hotel.freshupDetails?.bedType !=
+                                                null) ...[
+                                              Icon(Icons.bed_outlined,
+                                                  size: 14.sp,
+                                                  color: Colors.grey),
+                                              SizedBox(width: 4.w),
+                                              Text(
+                                                hotel.freshupDetails!.bedType!,
+                                                style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: Colors.grey),
+                                              ),
+                                              SizedBox(width: 12.w),
+                                            ],
+                                            if (hotel.freshupDetails
+                                                    ?.maxPerson !=
+                                                null) ...[
+                                              Icon(Icons.person_outline,
+                                                  size: 14.sp,
+                                                  color: Colors.grey),
+                                              SizedBox(width: 4.w),
+                                              Text(
+                                                "Max ${hotel.freshupDetails!.maxPerson}",
+                                                style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: Colors.grey),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                        SizedBox(height: 8.h),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "₹${hotel.offerPrice ?? hotel.originalPrice ?? '0'}",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18.sp,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                if (hotel.taxInfo != null)
+                                                  Text(
+                                                    hotel.taxInfo!,
+                                                    style: TextStyle(
+                                                      fontSize: 10.sp,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                            if (hotel.freshupDetails
+                                                    ?.availableRooms !=
+                                                null)
+                                              Text(
+                                                "${hotel.freshupDetails!.availableRooms} Rooms Left",
+                                                style: TextStyle(
+                                                  fontSize: 12.sp,
+                                                  color: Colors.redAccent,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : // DEFAULT HOTEL/HALL CARD DESIGN
+                            Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (hotel.coverImageUrl != null)
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(15.sp)),
+                                      child: Image.network(
+                                        hotel.coverImageUrl!,
+                                        height: 150.h,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                                    height: 150.h,
+                                                    color: Colors.grey[300]),
+                                      ),
+                                    ),
+                                  Padding(
+                                    padding: EdgeInsets.all(12.w),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          hotel.name ?? 'Hotel Name',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16.sp,
                                           ),
                                         ),
-                                    ],
+                                        SizedBox(height: 4.h),
+                                        Text(
+                                          hotel.location ?? 'Location',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 12.sp,
+                                          ),
+                                        ),
+                                        SizedBox(height: 8.h),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              "₹${hotel.originalPrice ?? '0'}",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16.sp,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            if (hotel.taxInfo != null)
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(left: 8.w),
+                                                child: Text(
+                                                  hotel.taxInfo!,
+                                                  style: TextStyle(
+                                                    fontSize: 10.sp,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     );
                   },
