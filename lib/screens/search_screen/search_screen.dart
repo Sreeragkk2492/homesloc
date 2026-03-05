@@ -143,7 +143,9 @@ class _SearchScreenState extends State<SearchScreen> {
                               final isHall =
                                   searchHotelController.isGroupedByHall.value;
                               final isTourism =
-                                  searchHotelController.isTourism.value;
+                                  searchHotelController.isTourism.value ||
+                                      searchHotelController
+                                          .isAdventureTourism.value;
                               final expandDateBlock = isHall || isTourism;
 
                               return AnimatedContainer(
@@ -166,7 +168,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                     final isFreshup =
                                         searchHotelController.isFreshup.value;
                                     final isTourism =
-                                        searchHotelController.isTourism.value;
+                                        searchHotelController.isTourism.value ||
+                                            searchHotelController
+                                                .isAdventureTourism.value;
                                     final isSingleDate =
                                         isHall || isFreshup || isTourism;
 
@@ -239,8 +243,9 @@ class _SearchScreenState extends State<SearchScreen> {
                           Obx(() {
                             final isHall =
                                 searchHotelController.isGroupedByHall.value;
-                            final isTourism =
-                                searchHotelController.isTourism.value;
+                            final isTourism = searchHotelController
+                                    .isTourism.value ||
+                                searchHotelController.isAdventureTourism.value;
                             final hideGuests = isHall || isTourism;
                             if (hideGuests)
                               return const SizedBox
@@ -346,7 +351,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
               )
-            else if (searchHotelController.isTourism.value &&
+            else if ((searchHotelController.isTourism.value ||
+                    searchHotelController.isAdventureTourism.value) &&
                 searchHotelController.tourismResult.value != null &&
                 searchHotelController.tourismResult.value!.packages != null)
               SliverList(
@@ -392,9 +398,12 @@ class _SearchScreenState extends State<SearchScreen> {
                                   width: double.infinity,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                          height: 150.h,
-                                          color: Colors.grey[300]),
+                                      Image.asset(
+                                    'assets/logos/default.jpeg',
+                                    height: 150.h,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
                             Padding(
@@ -592,9 +601,12 @@ class _SearchScreenState extends State<SearchScreen> {
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) =>
-                                                Container(
-                                                    height: 150.h,
-                                                    color: Colors.grey[300]),
+                                                Image.asset(
+                                          'assets/logos/default.jpeg',
+                                          height: 150.h,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                     ),
                                   Padding(
@@ -754,9 +766,12 @@ class _SearchScreenState extends State<SearchScreen> {
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) =>
-                                                Container(
-                                                    height: 150.h,
-                                                    color: Colors.grey[300]),
+                                                Image.asset(
+                                          'assets/logos/default.jpeg',
+                                          height: 150.h,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
                                     ),
                                   Padding(

@@ -301,12 +301,17 @@ class HotelSearchScreen extends StatelessWidget {
                               margin: EdgeInsets.only(left: 5.w, top: 2.h),
                               width: 144.w,
                               height: 128.h,
-                              decoration: BoxDecoration(
+                              child: ClipRRect(
                                 borderRadius: BorderRadius.circular(13.sp),
-                                image: DecorationImage(
-                                  image: NetworkImage(hotel.coverImageUrl ??
-                                      'https://via.placeholder.com/150'),
+                                child: Image.network(
+                                  hotel.coverImageUrl ??
+                                      'https://via.placeholder.com/150',
                                   fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                    'assets/logos/default.jpeg',
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
                             ),

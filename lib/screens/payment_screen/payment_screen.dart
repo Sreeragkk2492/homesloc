@@ -331,10 +331,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
               child: Obx(() {
                 final checkIn = calendarController.checkInDate.value;
-                final checkOut = calendarController.checkOutDate.value;
-                final duration = checkIn != null && checkOut != null
-                    ? checkOut.difference(checkIn).inDays
-                    : 0;
+                DateTime? checkOut = calendarController.checkOutDate.value;
+
+                // For halls, if same day selection, checkOut might be null in controller
+                // We default to checkIn for display purposes
+                if (widget.propertyType == "HALL" && checkOut == null) {
+                  checkOut = checkIn;
+                }
+
+                int duration;
+                if (widget.propertyType == "HALL" &&
+                    widget.bookingDetails?.days != null) {
+                  duration = widget.bookingDetails!.days!;
+                } else if (checkIn != null && checkOut != null) {
+                  // For ROOM/FULL_PROPERTY, duration is nights (difference in days)
+                  duration = checkOut.difference(checkIn).inDays;
+                } else {
+                  duration = 0;
+                }
 
                 return Column(
                   children: [

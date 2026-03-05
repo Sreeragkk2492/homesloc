@@ -1,46 +1,47 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:homesloc/core/api/api_helper.dart';
+import 'package:homesloc/core/constant/api_constant.dart';
 
 class LocationAutocompleteService {
-  Future<List<String>> fetchSuggestions(String query) async {
-    if (query.isEmpty) return [];
-
+  Future<Iterable<String>> fetchSuggestions(String query) async {
     try {
       final uri = Uri.parse(
-          "https://nominatim.openstreetmap.org/search?q=$query&format=json&addressdetails=1&limit=5");
-      final response = await http.get(uri, headers: {
-        'Accept-Language': 'en',
-        'User-Agent': 'homesloc_mobile_app', // Required by Nominatim policy
-      });
+          ApiConstant.BASE_URL + ApiConstant.LOCATION_AUTOCOMPLETE_URL);
+
+      // Log for debugging
+      print('Fetching suggestions from: $uri');
+      print('Payload: {"query": "$query", "types": "geocode"}');
+
+      final payload = {
+        "query": query,
+        "types": "geocode",
+      };
+
+      final response = await ApiHelper.post(
+        uri,
+        body: json.encode(payload),
+      );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
-        List<String> suggestions = [];
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        print('Location Autocomplete Success: ${jsonResponse['message']}');
 
-        for (var item in data) {
-          final displayName = item['display_name'];
-          if (displayName != null) {
-            // Trim down exactly how they look on the web app: 'Munnar, Kerala, India' instead of 10 line long addresses
-            final parts = displayName.toString().split(', ');
-            if (parts.length > 3) {
-              // Usually the first is the specific place, second to last is state, last is country
-              suggestions.add(
-                  "${parts[0]}, ${parts[parts.length - 2]}, ${parts.last}");
-            } else {
-              suggestions.add(displayName.toString());
-            }
-          }
+        if (jsonResponse['suggestions'] != null &&
+            jsonResponse['suggestions'] is List) {
+          final List<dynamic> suggestions = jsonResponse['suggestions'];
+          return suggestions
+              .where((s) => s['value'] != null)
+              .map((s) => s['value'].toString())
+              .toList();
         }
-
-        // Remove exact duplicates that might happen after trimming
-        return suggestions.toSet().toList();
       } else {
-        print('Nominatim API error: ${response.statusCode}');
-        return [];
+        print('Autocomplete API Error: ${response.statusCode}');
+        print('Response body: ${response.body}');
       }
+      return const Iterable<String>.empty();
     } catch (e) {
-      print('Nominatim Error: $e');
-      return [];
+      print('Error fetching location suggestions: $e');
+      return const Iterable<String>.empty();
     }
   }
 }

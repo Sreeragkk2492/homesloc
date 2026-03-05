@@ -14,6 +14,9 @@ class SearchHotelService {
     String sortBy = 'created_at',
     String sortOrder = 'desc',
     String? location,
+    String? packageType,
+    int? minPrice,
+    int? maxPrice,
   }) async {
     try {
       final queryParams = <String, String>{
@@ -26,6 +29,11 @@ class SearchHotelService {
       if (location != null && location.isNotEmpty) {
         queryParams['location'] = location;
       }
+      if (packageType != null && packageType.isNotEmpty) {
+        queryParams['package_type'] = packageType;
+      }
+      if (minPrice != null) queryParams['min_price'] = minPrice.toString();
+      if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
 
       final uri =
           Uri.parse(ApiConstant.BASE_URL + ApiConstant.TOURISM_SEARCH_URL)
@@ -63,6 +71,10 @@ class SearchHotelService {
     int? minPrice,
     int? maxPrice,
     String? propertyType,
+    String? amenities,
+    String? accommodationType,
+    String? roomType,
+    int? starRating,
     String? sortBy,
     int? limit,
   }) async {
@@ -81,7 +93,16 @@ class SearchHotelService {
       if (roomCount != null) queryParams['room_count'] = roomCount.toString();
       if (minPrice != null) queryParams['min_price'] = minPrice.toString();
       if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
-      if (propertyType != null) queryParams['property_type'] = propertyType;
+      if (propertyType != null && propertyType.isNotEmpty)
+        queryParams['property_type'] = propertyType;
+      if (amenities != null && amenities.isNotEmpty)
+        queryParams['amenities'] = amenities;
+      if (accommodationType != null && accommodationType.isNotEmpty)
+        queryParams['accommodation_type'] = accommodationType;
+      if (roomType != null && roomType.isNotEmpty)
+        queryParams['room_type'] = roomType;
+      if (starRating != null)
+        queryParams['star_rating'] = starRating.toString();
       if (sortBy != null) queryParams['sort_by'] = sortBy;
       if (limit != null) queryParams['limit'] = limit.toString();
 
@@ -121,6 +142,11 @@ class SearchHotelService {
     String? endDate, // checkout
     int? minPrice,
     int? maxPrice,
+    String? propertyType,
+    String? amenities,
+    String? accommodationType,
+    String? roomType,
+    int? starRating,
   }) async {
     try {
       final queryParams = <String, String>{
@@ -136,6 +162,16 @@ class SearchHotelService {
       if (endDate != null) queryParams['end_date'] = endDate;
       if (minPrice != null) queryParams['min_price'] = minPrice.toString();
       if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
+      if (propertyType != null && propertyType.isNotEmpty)
+        queryParams['property_type'] = propertyType;
+      if (amenities != null && amenities.isNotEmpty)
+        queryParams['amenities'] = amenities;
+      if (accommodationType != null && accommodationType.isNotEmpty)
+        queryParams['accommodation_type'] = accommodationType;
+      if (roomType != null && roomType.isNotEmpty)
+        queryParams['room_type'] = roomType;
+      if (starRating != null)
+        queryParams['star_rating'] = starRating.toString();
 
       final uri = Uri.parse(
               ApiConstant.BASE_URL + ApiConstant.HOTEL_FULLPROPERTY_ROOM_URL)
@@ -171,6 +207,10 @@ class SearchHotelService {
     String? startDate,
     String? endDate,
     String? location,
+    String? venueType,
+    String? spaceType,
+    int? minPrice,
+    int? maxPrice,
   }) async {
     try {
       final queryParams = <String, String>{
@@ -186,6 +226,14 @@ class SearchHotelService {
       if (location != null && location.isNotEmpty) {
         queryParams['location'] = location;
       }
+      if (venueType != null && venueType.isNotEmpty) {
+        queryParams['venue_type'] = venueType;
+      }
+      if (spaceType != null && spaceType.isNotEmpty) {
+        queryParams['space_type'] = spaceType;
+      }
+      if (minPrice != null) queryParams['min_price'] = minPrice.toString();
+      if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
 
       final uri = Uri.parse(ApiConstant.BASE_URL + ApiConstant.HALL_SEARCH_URL)
           .replace(queryParameters: queryParams);
@@ -219,6 +267,10 @@ class SearchHotelService {
     String? checkOut,
     int? guestCount,
     int? roomCount,
+    String? freshupType,
+    String? priceMethod,
+    int? minPrice,
+    int? maxPrice,
   }) async {
     try {
       final queryParams = <String, String>{
@@ -234,6 +286,14 @@ class SearchHotelService {
       if (guestCount != null)
         queryParams['guest_count'] = guestCount.toString();
       if (roomCount != null) queryParams['room_count'] = roomCount.toString();
+      if (freshupType != null && freshupType.isNotEmpty) {
+        queryParams['freshup_type'] = freshupType;
+      }
+      if (priceMethod != null && priceMethod.isNotEmpty) {
+        queryParams['price_method'] = priceMethod;
+      }
+      if (minPrice != null) queryParams['min_price'] = minPrice.toString();
+      if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
 
       final uri =
           Uri.parse(ApiConstant.BASE_URL + ApiConstant.FRESHUP_SEARCH_URL)
@@ -279,7 +339,8 @@ class SearchHotelService {
       final response = await ApiHelper.get(uri);
 
       if (response.statusCode == 200) {
-        return TourismDetailModel.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+        return TourismDetailModel.fromJson(
+            json.decode(utf8.decode(response.bodyBytes)));
       } else {
         print('Failed to fetch tourism details: ${response.statusCode}');
         return null;
@@ -307,7 +368,8 @@ class SearchHotelService {
       final response = await ApiHelper.get(uri);
 
       if (response.statusCode == 200) {
-        return TourismAvailabilityModel.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+        return TourismAvailabilityModel.fromJson(
+            json.decode(utf8.decode(response.bodyBytes)));
       } else {
         print('Failed to check tourism availability: ${response.statusCode}');
         return null;

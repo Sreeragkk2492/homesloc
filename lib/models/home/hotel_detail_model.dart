@@ -59,7 +59,16 @@ class HotelDetailModel {
         longitude: json["longitude"],
         amenities: json["amenities"] == null
             ? []
-            : List<String>.from(json["amenities"]),
+            : (json["amenity_ids"] != null ||
+                    (json["amenities"] is List &&
+                        (json["amenities"] as List).isNotEmpty &&
+                        (json["amenities"] as List).first is Map))
+                ? (json["amenities"] as List).map((e) {
+                    if (e is Map && e["name"] != null)
+                      return e["name"].toString();
+                    return e.toString();
+                  }).toList()
+                : List<String>.from(json["amenities"]),
         transportationInfo: json["transportation_info"] == null
             ? []
             : List<TransportationInfo>.from(json["transportation_info"]
@@ -174,6 +183,15 @@ class HotelDetailModel {
     List<String> amens = [];
     if (json["amenity_ids"] != null) {
       for (var item in json["amenity_ids"]) {
+        if (item is Map && item["name"] != null) {
+          amens.add(item["name"]);
+        }
+      }
+    }
+
+    // Fallback to hotel_details amenities if property-specific ones are missing
+    if (amens.isEmpty && hotel["amenities"] != null) {
+      for (var item in hotel["amenities"]) {
         if (item is Map && item["name"] != null) {
           amens.add(item["name"]);
         }

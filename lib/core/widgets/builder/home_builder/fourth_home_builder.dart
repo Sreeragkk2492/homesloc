@@ -52,16 +52,36 @@ class FourthHomeBuilder extends StatelessWidget {
                         margin: EdgeInsets.only(left: 5.w, top: 2.h),
                         width: 144.w,
                         height: 128.h,
-                        decoration: BoxDecoration(
+                        child: ClipRRect(
                           borderRadius: BorderRadius.circular(13.sp),
-                          image: DecorationImage(
-                            image: (hotel.coverImageUrl != null &&
-                                    hotel.coverImageUrl!.startsWith('http'))
-                                ? NetworkImage(hotel.coverImageUrl!)
-                                : AssetImage('assets/images/l1.png')
-                                    as ImageProvider,
-                            fit: BoxFit.cover,
-                          ),
+                          child: (hotel.coverImageUrl != null &&
+                                  hotel.coverImageUrl!.startsWith('http'))
+                              ? Image.network(
+                                  hotel.coverImageUrl!,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: blue,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                    'assets/logos/default.jpeg',
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Image.asset(
+                                  'assets/logos/default.jpeg',
+                                  fit: BoxFit.cover,
+                                ),
                         ),
                       ),
                       Padding(

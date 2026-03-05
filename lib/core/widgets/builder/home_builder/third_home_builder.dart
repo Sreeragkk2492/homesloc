@@ -63,15 +63,23 @@ class ThirdHomeBuilder extends StatelessWidget {
                   Container(
                     width: 170.w,
                     height: 120.h,
-                    decoration: BoxDecoration(
+                    child: ClipRRect(
                       borderRadius: BorderRadius.circular(15.sp),
-                      // color: yellow,
-                      image: DecorationImage(
-                          image: (package.imageUrl != null &&
-                                  package.imageUrl!.isNotEmpty)
-                              ? NetworkImage(package.imageUrl!) as ImageProvider
-                              : const AssetImage('assets/images/image (6).png'),
-                          fit: BoxFit.cover),
+                      child: (package.imageUrl != null &&
+                              package.imageUrl!.isNotEmpty)
+                          ? Image.network(
+                              package.imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset(
+                                'assets/logos/default.jpeg',
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Image.asset(
+                              'assets/logos/default.jpeg',
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   ),
                   SizedBox(

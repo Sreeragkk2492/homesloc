@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/screens/home/hotel_search_screen.dart';
+import 'package:homesloc/controller/search/search_hotel_controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/categorie_screen/categorie_view/categorie_view.dart';
@@ -114,6 +115,15 @@ class CategorieSreen extends StatelessWidget {
                         //   child: CategoriesGridPage()),
                         GestureDetector(
                           onTap: () {
+                            final searchHotelController =
+                                Get.put(SearchHotelController());
+                            searchHotelController.isGroupedByHotel.value = true;
+                            searchHotelController.isGroupedByHall.value = false;
+                            searchHotelController.isFreshup.value = false;
+                            searchHotelController.isTourism.value = false;
+                            searchHotelController.isAdventureTourism.value =
+                                false;
+                            searchHotelController.searchHotels();
                             Get.to(() => HotelSearchScreen());
                           },
                           child: CategoriesView(
@@ -123,6 +133,16 @@ class CategorieSreen extends StatelessWidget {
                         ),
                         GestureDetector(
                           onTap: () {
+                            final searchHotelController =
+                                Get.put(SearchHotelController());
+                            searchHotelController.isGroupedByHall.value = true;
+                            searchHotelController.isGroupedByHotel.value =
+                                false;
+                            searchHotelController.isFreshup.value = false;
+                            searchHotelController.isTourism.value = false;
+                            searchHotelController.isAdventureTourism.value =
+                                false;
+                            searchHotelController.searchHotels();
                             Get.to(() => HotelSearchScreen());
                           },
                           child: CategoriesView(
@@ -132,6 +152,16 @@ class CategorieSreen extends StatelessWidget {
                         ),
                         GestureDetector(
                           onTap: () {
+                            final searchHotelController =
+                                Get.find<SearchHotelController>();
+                            searchHotelController.isTourism.value = true;
+                            searchHotelController.isAdventureTourism.value =
+                                false;
+                            searchHotelController.isFreshup.value = false;
+                            searchHotelController.isGroupedByHall.value = false;
+                            searchHotelController.isGroupedByHotel.value =
+                                false;
+                            searchHotelController.searchHotels();
                             Get.to(() => HotelSearchScreen());
                           },
                           child: CategoriesView(
@@ -141,6 +171,16 @@ class CategorieSreen extends StatelessWidget {
                         ),
                         GestureDetector(
                           onTap: () {
+                            final searchHotelController =
+                                Get.put(SearchHotelController());
+                            searchHotelController.isFreshup.value = true;
+                            searchHotelController.isGroupedByHall.value = false;
+                            searchHotelController.isGroupedByHotel.value =
+                                false;
+                            searchHotelController.isTourism.value = false;
+                            searchHotelController.isAdventureTourism.value =
+                                false;
+                            searchHotelController.searchHotels();
                             Get.to(() => HotelSearchScreen());
                           },
                           child: CategoriesView(
@@ -149,10 +189,26 @@ class CategorieSreen extends StatelessWidget {
                           ),
                         ),
 
-                        // CategoriesView(
-                        //   image: 'assets/images/image (3).png',
-                        //   categories: 'Tourism Package',
-                        // ),
+                        GestureDetector(
+                          onTap: () {
+                            final searchHotelController =
+                                Get.find<SearchHotelController>();
+                            searchHotelController.isTourism.value = false;
+                            searchHotelController.isAdventureTourism.value =
+                                true;
+                            searchHotelController.isFreshup.value = false;
+                            searchHotelController.isGroupedByHall.value = false;
+                            searchHotelController.isGroupedByHotel.value =
+                                false;
+                            // Search immediately
+                            searchHotelController.searchHotels();
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/image (25).png',
+                            categories: 'Adventure Tourism',
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(

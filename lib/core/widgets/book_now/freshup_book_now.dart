@@ -61,16 +61,16 @@ class FreshupBookNow extends StatelessWidget {
                     children: [
                       if (freshup.originalPrice != null &&
                           freshup.originalPrice != freshup.offerPrice) ...[
-                        Text(
-                          "₹${freshup.originalPrice}",
-                          style: TextStyle(
-                              color: const Color.fromARGB(255, 190, 190, 190),
-                              fontFamily: 'Poppins',
-                              decoration: TextDecoration.lineThrough,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14.sp),
-                        ),
-                        SizedBox(width: 8.w),
+                        // Text(
+                        //   "₹${freshup.originalPrice}",
+                        //   style: TextStyle(
+                        //       color: const Color.fromARGB(255, 190, 190, 190),
+                        //       fontFamily: 'Poppins',
+                        //       decoration: TextDecoration.lineThrough,
+                        //       fontWeight: FontWeight.bold,
+                        //       fontSize: 14.sp),
+                        // ),
+                       // SizedBox(width: 8.w),
                       ],
                       Text(
                         "₹${freshup.offerPrice ?? freshup.originalPrice ?? '0'}",

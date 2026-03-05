@@ -32,25 +32,40 @@ class FirstHomeBuilder extends StatelessWidget {
                     searchHotelController.isGroupedByHall.value = false;
                     searchHotelController.isFreshup.value = false;
                     searchHotelController.isTourism.value = false;
+                    searchHotelController.isAdventureTourism.value = false;
                   } else if (category == "Banquet Hall") {
                     searchHotelController.isGroupedByHall.value = true;
                     searchHotelController.isGroupedByHotel.value = false;
                     searchHotelController.isFreshup.value = false;
                     searchHotelController.isTourism.value = false;
+                    searchHotelController.isAdventureTourism.value = false;
                   } else if (category == "Fresh Up") {
                     searchHotelController.isFreshup.value = true;
                     searchHotelController.isGroupedByHall.value = false;
                     searchHotelController.isGroupedByHotel.value = false;
                     searchHotelController.isTourism.value = false;
+                    searchHotelController.isAdventureTourism.value = false;
                   } else if (category == "Tourism Package") {
                     searchHotelController.isTourism.value = true;
+                    searchHotelController.isAdventureTourism.value = false;
+                    searchHotelController.isFreshup.value = false;
+                    searchHotelController.isGroupedByHall.value = false;
+                    searchHotelController.isGroupedByHotel.value = false;
+                  } else if (category == "Adventure Tourism") {
+                    searchHotelController.isTourism.value = false;
+                    searchHotelController.isAdventureTourism.value = true;
                     searchHotelController.isFreshup.value = false;
                     searchHotelController.isGroupedByHall.value = false;
                     searchHotelController.isGroupedByHotel.value = false;
                   }
 
-                  if (["Hotels", "Banquet Hall", "Fresh Up", "Tourism Package"]
-                      .contains(category)) {
+                  if ([
+                    "Hotels",
+                    "Banquet Hall",
+                    "Fresh Up",
+                    "Tourism Package",
+                    "Adventure Tourism"
+                  ].contains(category)) {
                     searchHotelController.searchHotels();
                     bottomBarController.updateSelectedPageIndex(1);
                   }

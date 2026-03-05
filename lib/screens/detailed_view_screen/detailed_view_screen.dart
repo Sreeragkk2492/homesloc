@@ -518,6 +518,8 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
               secondName: 'View All',
               secondColor: blue,
             ),
+            SizedBox(height: 10.h),
+            AmenitieRow(hotel: hotelData),
             SizedBox(height: 15.h),
             // Billing Details Section
             // Padding(
@@ -1067,7 +1069,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                       if (detailedHotel?.policies?.extraBedPrice != null) ...[
                         SizedBox(height: 4.h),
                         Text(
-                          'Price: ₹${detailedHotel?.policies?.extraBedPrice}',
+                          '₹${detailedHotel?.policies?.extraBedPrice}',
                           style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 10.sp,

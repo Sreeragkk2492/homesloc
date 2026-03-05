@@ -33,6 +33,10 @@ List firstUser = [
     "assets/images/sunrise.jpg",
     "Tourism Package",
   ),
+  FirstUser(
+    "assets/images/image (25).png",
+    "Adventure Tourism",
+  ),
   // FirstUser(
   //   "assets/images/image (16).png",
   //   "Nearby Spots",

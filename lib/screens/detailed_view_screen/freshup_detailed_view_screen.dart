@@ -972,7 +972,7 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                             Text(
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              'Extra Bed Price ₹${data.extraBedPrice ?? '0'}',
+                              '₹${data.extraBedPrice ?? '0'}',
                               style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,

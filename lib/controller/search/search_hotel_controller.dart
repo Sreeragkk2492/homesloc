@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/apis/search/location_autocomplete_service.dart';
 import 'package:homesloc/apis/search/search_hotel_api.dart';
+import 'package:homesloc/controller/search/filter_controller.dart';
 import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
 import 'package:intl/intl.dart';
@@ -53,20 +54,17 @@ class SearchHotelController extends GetxController {
   final isGroupedByHall = false.obs;
   final isFreshup = false.obs;
   final isTourism = false.obs;
+  final isAdventureTourism = false.obs;
 
   Future<Iterable<String>> fetchLocationSuggestions(String query) async {
     if (query.isEmpty) {
       return const Iterable<String>.empty();
     }
 
-    // A small manual delay to simulate debouncing within FutureBuilder/Autocomplete
-    await Future.delayed(const Duration(milliseconds: 300));
-
     try {
       final results = await _locationService.fetchSuggestions(query);
       return results;
     } catch (e) {
-      print('Error fetching location suggestions: $e');
       return const Iterable<String>.empty();
     }
   }
@@ -114,12 +112,19 @@ class SearchHotelController extends GetxController {
     }
 
     try {
-      if (isTourism.value) {
+      if (isTourism.value || isAdventureTourism.value) {
         final newResult = await _searchService.searchTourism(
           page: currentPage.value,
           pageSize: limit ?? pageSize,
           sortBy: sortBy ?? this.sortBy.value,
           location: searchLocation,
+          minPrice: minPrice ?? this.minPrice.value,
+          maxPrice: maxPrice ?? this.maxPrice.value,
+          packageType: isAdventureTourism.value
+              ? "Adventure Tourism"
+              : (Get.isRegistered<FilterController>()
+                  ? Get.find<FilterController>().apiPackageType
+                  : null),
         );
         if (newResult != null) {
           if (!isLoadMoreAction) {
@@ -162,6 +167,14 @@ class SearchHotelController extends GetxController {
                   : null),
           guestCount: guestCount ?? guestCountVal,
           roomCount: roomCount ?? roomCountVal,
+          minPrice: minPrice ?? this.minPrice.value,
+          maxPrice: maxPrice ?? this.maxPrice.value,
+          freshupType: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().apiFreshupType
+              : null,
+          priceMethod: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().apiPriceMethod
+              : null,
         );
       } else if (isGroupedByHall.value) {
         // Call the Hall search API
@@ -180,6 +193,14 @@ class SearchHotelController extends GetxController {
                   ? DateFormat('yyyy-MM-dd')
                       .format(calendarController.checkOutDate.value!)
                   : null),
+          minPrice: minPrice ?? this.minPrice.value,
+          maxPrice: maxPrice ?? this.maxPrice.value,
+          venueType: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().apiVenueType
+              : null,
+          spaceType: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().apiSpaceType
+              : null,
         );
       } else if (isGroupedByHotel.value) {
         // Call the new grouped search API
@@ -199,6 +220,27 @@ class SearchHotelController extends GetxController {
           // Map other parameters as needed
           minPrice: minPrice ?? this.minPrice.value,
           maxPrice: maxPrice ?? this.maxPrice.value,
+          propertyType: propertyType ??
+              (Get.isRegistered<FilterController>()
+                  ? Get.find<FilterController>().selectedPropertyType.value
+                  : this.propertyType.value),
+          amenities: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>()
+                  .amenities
+                  .entries
+                  .where((e) => e.value)
+                  .map((e) => e.key)
+                  .join(',')
+              : null,
+          accommodationType: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().apiAccommodationType
+              : null,
+          roomType: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().roomType.value
+              : null,
+          starRating: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().starRating.value
+              : null,
           sortBy: sortBy ?? this.sortBy.value,
           search: searchLocation, // Using location as search term if needed
         );
@@ -222,7 +264,27 @@ class SearchHotelController extends GetxController {
           roomCount: roomCount ?? roomCountVal,
           minPrice: minPrice ?? this.minPrice.value,
           maxPrice: maxPrice ?? this.maxPrice.value,
-          propertyType: propertyType ?? this.propertyType.value,
+          propertyType: propertyType ??
+              (Get.isRegistered<FilterController>()
+                  ? Get.find<FilterController>().selectedPropertyType.value
+                  : this.propertyType.value),
+          amenities: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>()
+                  .amenities
+                  .entries
+                  .where((e) => e.value)
+                  .map((e) => e.key)
+                  .join(',')
+              : null,
+          accommodationType: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().apiAccommodationType
+              : null,
+          roomType: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().roomType.value
+              : null,
+          starRating: Get.isRegistered<FilterController>()
+              ? Get.find<FilterController>().starRating.value
+              : null,
           sortBy: sortBy ?? this.sortBy.value,
           limit: limit,
         );
