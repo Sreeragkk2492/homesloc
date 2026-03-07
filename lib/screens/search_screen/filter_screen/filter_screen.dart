@@ -10,7 +10,7 @@ class FilterSearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(FilterController());
+    final controller = Get.find<FilterController>();
 
     return Scaffold(
       backgroundColor: white,
@@ -40,16 +40,23 @@ class FilterSearchScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (Get.find<SearchHotelController>().isTourism.value) ...[
+                      if (Get.find<SearchHotelController>().isTourism.value ||
+                          Get.find<SearchHotelController>()
+                              .isAdventureTourism
+                              .value) ...[
                         _buildTourismSection(controller),
                         const Divider(),
                       ] else ...[
                         _buildAmenitiesSection(controller),
                         const Divider(),
-                        if (Get.find<SearchHotelController>().isFreshup.value) ...[
+                        if (Get.find<SearchHotelController>()
+                            .isFreshup
+                            .value) ...[
                           _buildFreshupSection(controller),
                           const Divider(),
-                        ] else if (Get.find<SearchHotelController>().isGroupedByHall.value) ...[
+                        ] else if (Get.find<SearchHotelController>()
+                            .isGroupedByHall
+                            .value) ...[
                           _buildBanquetHallSection(controller),
                           const Divider(),
                         ] else ...[
@@ -80,7 +87,6 @@ class FilterSearchScreen extends StatelessWidget {
                       ],
                     ],
                   ),
-
                 ),
               ),
               _buildBottomButtons(controller),

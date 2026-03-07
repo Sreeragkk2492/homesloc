@@ -20,6 +20,16 @@ class SearchHotelController extends GetxController {
   // Global Text Controllers for all Search Form Autocompletes across tabs
   final List<TextEditingController> locationControllers = [];
 
+  @override
+  void onInit() {
+    super.onInit();
+    if (!Get.isRegistered<FilterController>()) {
+      Get.put(FilterController());
+    }
+    // Fetch initial search results (Hotels) for the Search tab
+    searchHotels();
+  }
+
   void registerLocationController(TextEditingController controller) {
     if (!locationControllers.contains(controller)) {
       locationControllers.add(controller);
@@ -50,7 +60,7 @@ class SearchHotelController extends GetxController {
   int get roomCountVal => calendarController.roomCount.value;
 
   // Flag to toggle between normal search, grouped hotel, and grouped hall
-  final isGroupedByHotel = false.obs;
+  final isGroupedByHotel = true.obs;
   final isGroupedByHall = false.obs;
   final isFreshup = false.obs;
   final isTourism = false.obs;
@@ -120,11 +130,10 @@ class SearchHotelController extends GetxController {
           location: searchLocation,
           minPrice: minPrice ?? this.minPrice.value,
           maxPrice: maxPrice ?? this.maxPrice.value,
-          packageType: isAdventureTourism.value
-              ? "Adventure Tourism"
-              : (Get.isRegistered<FilterController>()
-                  ? Get.find<FilterController>().apiPackageType
-                  : null),
+          packageType: (Get.isRegistered<FilterController>() &&
+                  Get.find<FilterController>().apiPackageType != null)
+              ? Get.find<FilterController>().apiPackageType
+              : (isAdventureTourism.value ? "Adventure Tourism" : null),
         );
         if (newResult != null) {
           if (!isLoadMoreAction) {
@@ -222,21 +231,24 @@ class SearchHotelController extends GetxController {
           maxPrice: maxPrice ?? this.maxPrice.value,
           propertyType: propertyType ??
               (Get.isRegistered<FilterController>()
-                  ? Get.find<FilterController>().selectedPropertyType.value
-                  : this.propertyType.value),
+                  ? Get.find<FilterController>()
+                      .selectedPropertyType
+                      .value
+                      ?.toLowerCase()
+                  : this.propertyType.value.toLowerCase()),
           amenities: Get.isRegistered<FilterController>()
               ? Get.find<FilterController>()
                   .amenities
                   .entries
                   .where((e) => e.value)
-                  .map((e) => e.key)
+                  .map((e) => e.key.toLowerCase())
                   .join(',')
               : null,
           accommodationType: Get.isRegistered<FilterController>()
               ? Get.find<FilterController>().apiAccommodationType
               : null,
           roomType: Get.isRegistered<FilterController>()
-              ? Get.find<FilterController>().roomType.value
+              ? Get.find<FilterController>().roomType.value?.toLowerCase()
               : null,
           starRating: Get.isRegistered<FilterController>()
               ? Get.find<FilterController>().starRating.value
@@ -266,21 +278,24 @@ class SearchHotelController extends GetxController {
           maxPrice: maxPrice ?? this.maxPrice.value,
           propertyType: propertyType ??
               (Get.isRegistered<FilterController>()
-                  ? Get.find<FilterController>().selectedPropertyType.value
-                  : this.propertyType.value),
+                  ? Get.find<FilterController>()
+                      .selectedPropertyType
+                      .value
+                      ?.toLowerCase()
+                  : this.propertyType.value.toLowerCase()),
           amenities: Get.isRegistered<FilterController>()
               ? Get.find<FilterController>()
                   .amenities
                   .entries
                   .where((e) => e.value)
-                  .map((e) => e.key)
+                  .map((e) => e.key.toLowerCase())
                   .join(',')
               : null,
           accommodationType: Get.isRegistered<FilterController>()
               ? Get.find<FilterController>().apiAccommodationType
               : null,
           roomType: Get.isRegistered<FilterController>()
-              ? Get.find<FilterController>().roomType.value
+              ? Get.find<FilterController>().roomType.value?.toLowerCase()
               : null,
           starRating: Get.isRegistered<FilterController>()
               ? Get.find<FilterController>().starRating.value
