@@ -167,7 +167,7 @@ class FilterSearchScreen extends StatelessWidget {
         ),
         SizedBox(height: 10.h),
         Obx(() => Column(
-              children: [5, 4, 3, 2, 1].map((rating) {
+              children: [7, 6, 5, 4, 3, 2, 1].map((rating) {
                 return Row(
                   children: [
                     Radio<int>(
@@ -177,7 +177,7 @@ class FilterSearchScreen extends StatelessWidget {
                       activeColor: blue,
                     ),
                     Row(
-                      children: List.generate(5, (index) {
+                      children: List.generate(7, (index) {
                         return Icon(
                           Icons.star,
                           color:

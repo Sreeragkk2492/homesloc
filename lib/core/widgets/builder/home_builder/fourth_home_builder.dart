@@ -92,6 +92,7 @@ class FourthHomeBuilder extends StatelessWidget {
                             SizedBox(
                               width: 160.w,
                               child: Text(
+                               // maxLines: 2,
                                 hotel.name ?? 'Grand Luxury Resort',
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -99,6 +100,7 @@ class FourthHomeBuilder extends StatelessWidget {
                                   color: black,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14.sp,
+                                  
                                 ),
                               ),
                             ),

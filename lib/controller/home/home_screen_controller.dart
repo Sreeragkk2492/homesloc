@@ -29,7 +29,7 @@ class HomeScreenController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchData(10); // Default limit
+    fetchData(50); // Default limit
   }
 
   // Format date as "dd MMM"

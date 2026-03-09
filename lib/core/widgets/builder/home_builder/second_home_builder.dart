@@ -65,9 +65,12 @@ class SecondHomeBuilder extends StatelessWidget {
                           ? Image.network(
                               package.imageUrl!,
                               fit: BoxFit.cover,
+                              
                               errorBuilder: (context, error, stackTrace) =>
                                   Image.asset(
                                 'assets/logos/default.jpeg',
+                               
+                              
                                 fit: BoxFit.cover,
                               ),
                             )
