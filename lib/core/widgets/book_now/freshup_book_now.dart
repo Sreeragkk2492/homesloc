@@ -8,14 +8,26 @@ import 'package:homesloc/models/search/search_hotel_model.dart';
 class FreshupBookNow extends StatelessWidget {
   final Hotel freshup;
   final List<String> selectedSlotIds;
+  final String? selectedRoomPrice;
+  final String? selectedRoomOriginalPrice;
   const FreshupBookNow({
     super.key,
     required this.freshup,
     this.selectedSlotIds = const [],
+    this.selectedRoomPrice,
+    this.selectedRoomOriginalPrice,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Effective prices: prefer selected room price > freshup price
+    final displayPrice =
+        selectedRoomPrice ?? freshup.offerPrice ?? freshup.originalPrice ?? '0';
+    final originalPrice = selectedRoomOriginalPrice ?? freshup.originalPrice;
+    final hasDiscount = originalPrice != null &&
+        originalPrice != displayPrice &&
+        originalPrice != freshup.offerPrice;
+
     return Container(
       padding: EdgeInsets.all(15.r),
       margin: EdgeInsets.symmetric(horizontal: 10.w),
@@ -59,21 +71,20 @@ class FreshupBookNow extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (freshup.originalPrice != null &&
-                          freshup.originalPrice != freshup.offerPrice) ...[
-                        // Text(
-                        //   "₹${freshup.originalPrice}",
-                        //   style: TextStyle(
-                        //       color: const Color.fromARGB(255, 190, 190, 190),
-                        //       fontFamily: 'Poppins',
-                        //       decoration: TextDecoration.lineThrough,
-                        //       fontWeight: FontWeight.bold,
-                        //       fontSize: 14.sp),
-                        // ),
-                       // SizedBox(width: 8.w),
+                      if (hasDiscount) ...[
+                        Text(
+                          '\u20b9$originalPrice',
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 190, 190, 190),
+                              fontFamily: 'Poppins',
+                              decoration: TextDecoration.lineThrough,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14.sp),
+                        ),
+                        SizedBox(width: 6.w),
                       ],
                       Text(
-                        "₹${freshup.offerPrice ?? freshup.originalPrice ?? '0'}",
+                        '\u20b9$displayPrice',
                         style: TextStyle(
                             color: white,
                             fontFamily: 'Poppins',
@@ -83,7 +94,7 @@ class FreshupBookNow extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    "+ Taxes & Fees",
+                    '+ Taxes & Fees',
                     style: TextStyle(
                         color: const Color.fromARGB(255, 190, 190, 190),
                         fontFamily: 'Poppins',
@@ -107,7 +118,7 @@ class FreshupBookNow extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      "BOOK NOW",
+                      'BOOK NOW',
                       style: TextStyle(
                           color: black,
                           fontSize: 15.sp,

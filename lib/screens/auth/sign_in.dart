@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/login/login_screen_controller.dart';
+import 'package:homesloc/screens/auth/forgot_password.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/loader/app_loader.dart';
 
 import 'package:homesloc/core/widgets/auth_button/auth_button.dart';
-import 'package:homesloc/core/widgets/divider_up/divider_up.dart';
 import 'package:homesloc/core/widgets/my_form/name_form/name_form.dart';
 import 'package:homesloc/core/widgets/my_form/name_form/password_form.dart';
 import 'package:homesloc/screens/auth/sign_up.dart';
@@ -74,7 +74,7 @@ class SignIn extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: () {
-                        print('Forgot Password');
+                        Get.to(() => const ForgotPassword());
                       },
                       child: Text(
                         "Forgot Password?",

@@ -18,6 +18,13 @@ class HotelDetailModel {
   List<dynamic>? reviews;
   bool? isFavorite;
   List<EventArea>? eventAreas;
+  List<HotelRoom>? rooms;
+  String? roomName;
+  String? roomDescription;
+  int? yearBuild;
+  int? yearRenovated;
+  List<NearByAttraction>? nearByAttractions;
+  bool? isFullProperty;
 
   HotelDetailModel({
     this.id,
@@ -39,6 +46,13 @@ class HotelDetailModel {
     this.reviews,
     this.isFavorite,
     this.eventAreas,
+    this.rooms,
+    this.roomName,
+    this.roomDescription,
+    this.yearBuild,
+    this.yearRenovated,
+    this.nearByAttractions,
+    this.isFullProperty,
   });
 
   factory HotelDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -81,7 +95,39 @@ class HotelDetailModel {
         reviews:
             json["reviews"] == null ? [] : List<dynamic>.from(json["reviews"]),
         isFavorite: json["is_favorite"],
-        eventAreas: null,
+        eventAreas: json["event_areas"] != null
+            ? List<EventArea>.from(
+                json["event_areas"].map((x) => EventArea.fromJson(x)))
+            : null,
+        rooms: json["rooms"] != null
+            ? List<HotelRoom>.from(
+                json["rooms"].map((x) => HotelRoom.fromJson(x)))
+            : (json["hotel_details"] != null &&
+                    json["hotel_details"]["rooms"] != null
+                ? List<HotelRoom>.from(json["hotel_details"]["rooms"]
+                    .map((x) => HotelRoom.fromJson(x)))
+                : []),
+        yearBuild: json["year_build"] ??
+            (json["hotel_details"] != null
+                ? json["hotel_details"]["year_build"]
+                : null),
+        yearRenovated: json["year_renovated"] ??
+            (json["hotel_details"] != null
+                ? json["hotel_details"]["year_renovated"]
+                : null),
+        nearByAttractions: json["near_by_attraction"] != null
+            ? List<NearByAttraction>.from(json["near_by_attraction"]
+                .map((x) => NearByAttraction.fromJson(x)))
+            : (json["hotel_details"] != null &&
+                    json["hotel_details"]["near_by_attraction"] != null
+                ? List<NearByAttraction>.from(json["hotel_details"]
+                        ["near_by_attraction"]
+                    .map((x) => NearByAttraction.fromJson(x)))
+                : null),
+        isFullProperty: json["is_full_property"] ??
+            (json["hotel_details"] != null
+                ? json["hotel_details"]["is_full_property"]
+                : null),
       );
 
   factory HotelDetailModel.fromRoomJson(Map<String, dynamic> json) {
@@ -131,7 +177,8 @@ class HotelDetailModel {
 
     return HotelDetailModel(
       id: roomId,
-      name: json["room_name"] ?? hotel["name"],
+      name: hotel["name"],
+      roomName: json["room_name"],
       location: hotel["location"] ??
           "${hotel["city"] ?? ''}, ${hotel["state"] ?? ''}, ${hotel["country"] ?? ''}",
       phoneNumber: hotel["phone_number"],
@@ -139,14 +186,16 @@ class HotelDetailModel {
       galleryImages: json["room_images"] != null
           ? List<String>.from(json["room_images"])
           : [],
-      // Use the first room image as cover if available
-      coverImageUrl: (json["room_images"] != null &&
-              (json["room_images"] as List).isNotEmpty)
-          ? json["room_images"][0]
-          : hotel["cover_image_url"],
+      // Use hotel images for hotel-level fields
+      coverImageUrl: hotel["cover_image_url"] ??
+          ((json["room_images"] != null &&
+                  (json["room_images"] as List).isNotEmpty)
+              ? json["room_images"][0]
+              : null),
       starRating: hotel["star_rating"],
       // reviewCount isn't explicitly in room response, maybe default to 0 or null
-      description: json["description"] ?? hotel["description"],
+      description: hotel["description"] ?? json["description"],
+      roomDescription: json["description"],
       latitude: hotel["latitude"] ?? json["latitude"],
       longitude: hotel["longitude"] ?? json["longitude"],
       amenities: amens,
@@ -157,6 +206,21 @@ class HotelDetailModel {
         offerPrice: json["offer_price"],
       ),
       eventAreas: null,
+      rooms: (hotel["rooms"] != null &&
+              hotel["rooms"] is List &&
+              (hotel["rooms"] as List).isNotEmpty)
+          ? List<HotelRoom>.from(
+              hotel["rooms"].map((x) => HotelRoom.fromJson(x)))
+          : [],
+      yearBuild: hotel["year_build"],
+      yearRenovated: hotel["year_renovated"],
+      nearByAttractions: hotel["near_by_attraction"] != null
+          ? List<NearByAttraction>.from(hotel["near_by_attraction"]
+              .map((x) => NearByAttraction.fromJson(x)))
+          : (json["near_by_attraction"] != null
+              ? List<NearByAttraction>.from(json["near_by_attraction"]
+                  .map((x) => NearByAttraction.fromJson(x)))
+              : null),
     );
   }
 
@@ -240,12 +304,30 @@ class HotelDetailModel {
           hotel["longitude"] ?? property["longitude"] ?? json["longitude"],
       amenities: amens,
       policies: pol,
-      // Pricing requires careful mapping
       pricing: Pricing(
         bestPrice: bestPrice,
         offerPrice: offerPrice,
       ),
       eventAreas: null,
+      rooms: (json["rooms"] != null && json["rooms"] is List)
+          ? List<HotelRoom>.from(
+              json["rooms"].map((x) => HotelRoom.fromJson(x)))
+          : (hotel["rooms"] != null && hotel["rooms"] is List
+              ? List<HotelRoom>.from(
+                  hotel["rooms"].map((x) => HotelRoom.fromJson(x)))
+              : []),
+      yearBuild: hotel["year_build"] ?? json["year_build"],
+      yearRenovated: hotel["year_renovated"] ?? json["year_renovated"],
+      nearByAttractions: hotel["near_by_attraction"] != null
+          ? List<NearByAttraction>.from(hotel["near_by_attraction"]
+              .map((x) => NearByAttraction.fromJson(x)))
+          : (json["near_by_attraction"] != null
+              ? List<NearByAttraction>.from(json["near_by_attraction"]
+                  .map((x) => NearByAttraction.fromJson(x)))
+              : null),
+      isFullProperty: json["is_full_property"] ??
+          hotel["is_full_property"] ??
+          (hotel["room_type"] == "FULL_PROPERTY"),
     );
   }
 
@@ -499,5 +581,148 @@ class EventArea {
         "price": price,
         "description": description,
         "amenities": amenities,
+      };
+}
+
+class HotelRoom {
+  String? id;
+  String? name;
+  num? starRating;
+  String? roomType;
+  String? bedType;
+  int? maxPerson;
+  String? mealOption;
+  int? roomSize;
+  int? quantity;
+  String? price;
+  dynamic offerPrice;
+  List<String>? images;
+  String? description;
+  List<String>? amenities;
+  List<Map<String, dynamic>>? slots; // freshup room slots
+  String? freshupType;
+  int? availableRoomsCount;
+
+  HotelRoom({
+    this.id,
+    this.name,
+    this.starRating,
+    this.roomType,
+    this.bedType,
+    this.maxPerson,
+    this.mealOption,
+    this.roomSize,
+    this.quantity,
+    this.price,
+    this.offerPrice,
+    this.images,
+    this.description,
+    this.amenities,
+    this.slots,
+    this.freshupType,
+    this.availableRoomsCount,
+  });
+
+  factory HotelRoom.fromJson(Map<String, dynamic> json) {
+    // Pricing extraction
+    String? basePrice;
+    if (json["price"] != null) {
+      basePrice = json["price"].toString();
+    } else if (json["base_property_price"] != null) {
+      basePrice = json["base_property_price"].toString();
+    }
+
+    // Image extraction
+    List<String> roomImages = [];
+    if (json["room_images"] != null) {
+      roomImages = List<String>.from(json["room_images"]);
+    } else if (json["images"] != null) {
+      roomImages = List<String>.from(json["images"]);
+    }
+
+    // Amenities extraction
+    List<String> amens = [];
+    if (json["amenities"] != null && json["amenities"] is List) {
+      for (var item in json["amenities"]) {
+        if (item is String) {
+          amens.add(item);
+        } else if (item is Map && item["name"] != null) {
+          amens.add(item["name"]);
+        }
+      }
+    }
+
+    return HotelRoom(
+      id: json["id"]?.toString(),
+      name: json["room_name"] ?? json["freshup_name"] ?? json["name"] ?? "Room",
+      starRating: json["star_rating"] ?? 5,
+      roomType: json["room_type"],
+      bedType: json["bed_type"],
+      maxPerson: json["max_person"] is int
+          ? json["max_person"]
+          : (json["max_persons"] is int
+              ? json["max_persons"]
+              : int.tryParse(
+                  (json["max_person"] ?? json["max_persons"])?.toString() ??
+                      '')),
+      mealOption: json["meal_option"],
+      roomSize: json["room_size"] is int
+          ? json["room_size"]
+          : int.tryParse(json["room_size"]?.toString() ?? ''),
+      quantity: json["quantity"] is int
+          ? json["quantity"]
+          : int.tryParse(json["quantity"]?.toString() ?? ''),
+      price: basePrice,
+      offerPrice: json["offer_price"],
+      images: roomImages,
+      description: json["description"] ?? json["freshup_description"],
+      amenities: amens,
+      freshupType: json["freshup_type"],
+      availableRoomsCount: json["available_rooms"] is int
+          ? json["available_rooms"]
+          : int.tryParse(json["available_rooms"]?.toString() ?? ''),
+      slots: json["slots"] != null && json["slots"] is List
+          ? List<Map<String, dynamic>>.from(
+              json["slots"].map((s) => Map<String, dynamic>.from(s)))
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "room_name": name,
+        "star_rating": starRating,
+        "room_type": roomType,
+        "bed_type": bedType,
+        "max_person": maxPerson,
+        "meal_option": mealOption,
+        "room_size": roomSize,
+        "quantity": quantity,
+        "price": price,
+        "offer_price": offerPrice,
+        "room_images": images,
+        "description": description,
+        "amenities": amenities,
+      };
+}
+
+class NearByAttraction {
+  String? name;
+  String? distance;
+  String? description;
+
+  NearByAttraction({this.name, this.distance, this.description});
+
+  factory NearByAttraction.fromJson(Map<String, dynamic> json) =>
+      NearByAttraction(
+        name: json["name"],
+        distance: json["distance"]?.toString(),
+        description: json["description"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "distance": distance,
+        "description": description,
       };
 }

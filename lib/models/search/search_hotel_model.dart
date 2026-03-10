@@ -1,4 +1,5 @@
 import 'package:homesloc/models/freshup/freshup_detail_model.dart';
+import 'package:homesloc/models/home/hotel_detail_model.dart';
 
 class SearchHotelModel {
   List<Hotel>? searchResults;
@@ -227,16 +228,34 @@ class Hotel {
           freshup.accommodationPolicies = policyStrings;
         }
 
-        // Room details from rooms array (if needed as fallback)
-        if (freshup.roomImages == null || freshup.roomImages!.isEmpty) {
-          if (propDetails["rooms"] != null &&
-              (propDetails["rooms"] as List).isNotEmpty) {
+        // Parse rooms from property_details.rooms
+        if (propDetails["rooms"] != null &&
+            propDetails["rooms"] is List &&
+            (propDetails["rooms"] as List).isNotEmpty) {
+          freshup.rooms = List<HotelRoom>.from(
+              propDetails["rooms"].map((x) => HotelRoom.fromJson(x)));
+
+          // Fallback: also set room images from first room if not already set
+          if (freshup.roomImages == null || freshup.roomImages!.isEmpty) {
             final firstRoom = propDetails["rooms"][0];
             if (firstRoom["room_images"] != null) {
               freshup.roomImages = List<String>.from(firstRoom["room_images"]);
             }
           }
         }
+
+        // Parse nearby attractions as structured objects
+        if (propDetails["near_by_attraction"] != null &&
+            propDetails["near_by_attraction"] is List) {
+          freshup.nearbyAttractionObjects = List<NearByAttraction>.from(
+              (propDetails["near_by_attraction"] as List)
+                  .map((x) => NearByAttraction.fromJson(x)));
+        }
+
+        // Metadata
+        freshup.yearBuild = propDetails["year_build"];
+        freshup.yearRenovated = propDetails["year_renovated"];
+        freshup.phoneNumber = propDetails["phone_number"]?.toString();
       }
     }
 

@@ -201,3 +201,63 @@ Future<String> verifyEmailOtp(
     throw Exception('Verify OTP error: $e');
   }
 }
+
+Future<String> requestPasswordResetApi({required String email}) async {
+  try {
+    final url = Uri.parse(
+        "${ApiConstant.BASE_URL}${ApiConstant.REQUEST_PASSWORD_RESET_URL}");
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+      },
+      body: jsonEncode({"email": email}),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      customSnackBar('Success', 'Verification code sent to email');
+      final body = jsonDecode(utf8.decode(response.bodyBytes));
+      return body['verification_token'] ?? "";
+    } else {
+      throw Exception('Failed to request password reset: ${response.body}');
+    }
+  } catch (e) {
+    customSnackBar('Error', 'Failed to request password reset: $e');
+    throw Exception('Request password reset error: $e');
+  }
+}
+
+Future<void> resetPasswordWithTokenApi({
+  required String verificationToken,
+  required String otp,
+  required String newPassword,
+  required String confirmPassword,
+}) async {
+  try {
+    final url = Uri.parse(
+        "${ApiConstant.BASE_URL}${ApiConstant.RESET_PASSWORD_WITH_TOKEN_URL}");
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+      },
+      body: jsonEncode({
+        "verification_token": verificationToken,
+        "otp": otp,
+        "new_password": newPassword,
+        "confirm_password": confirmPassword,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      customSnackBar('Success', 'Password reset successfully');
+    } else {
+      throw Exception('Failed to reset password: ${response.body}');
+    }
+  } catch (e) {
+    customSnackBar('Error', 'Failed to reset password: $e');
+    throw Exception('Reset password error: $e');
+  }
+}

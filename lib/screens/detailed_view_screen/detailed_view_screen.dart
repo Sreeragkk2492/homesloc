@@ -51,6 +51,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   bool _isLoading = true;
   int _carouselIndex = 0;
   final PageController _pageController = PageController();
+  HotelRoom? _selectedRoom;
 
   bool _isFullProperty = false; // Add this flag
 
@@ -146,6 +147,193 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
         });
       }
     }
+  }
+
+  Widget _buildRoomCard(HotelRoom room, dynamic hotelData) {
+    final bool isSelected = _selectedRoom?.id == room.id;
+    bool isFull = false;
+    if (hotelData is HotelDetailModel) {
+      isFull = hotelData.isFullProperty == true;
+    } else {
+      try {
+        isFull = hotelData.accommodationType == "FULL_PROPERTY";
+      } catch (e) {}
+    }
+
+    return GestureDetector(
+      onTap: () {
+        if (isFull) {
+          return;
+        }
+        setState(() {
+          _selectedRoom = isSelected ? null : room;
+          _carouselIndex = 0;
+          if (_pageController.hasClients) {
+            _pageController.jumpToPage(0);
+          }
+        });
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: white,
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(
+            color: isSelected ? blue : border,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Room Image Carousel/Single Image
+            if (room.images != null && room.images!.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(isSelected ? 14.r : 15.r)),
+                child: SizedBox(
+                  height: 160.h,
+                  width: double.infinity,
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        room.images!.first,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 160.h,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Image.asset('assets/images/l1.png',
+                                fit: BoxFit.cover),
+                      ),
+                      if (isSelected &&
+                          !((hotelData is HotelDetailModel &&
+                                  hotelData.isFullProperty == true) ||
+                              (hotelData.runtimeType.toString() == 'Hotel' &&
+                                  hotelData.accommodationType ==
+                                      'FULL_PROPERTY')))
+                        Positioned(
+                          top: 10.h,
+                          right: 10.w,
+                          child: Icon(Icons.check_circle,
+                              color: blue, size: 24.sp),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            Padding(
+              padding: EdgeInsets.all(12.r),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          room.name ?? "Room",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: blue,
+                          ),
+                        ),
+                      ),
+                      if (!isFull)
+                        Text(
+                          "₹${room.offerPrice ?? room.price ?? '0'}",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: black,
+                          ),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 4.h),
+                  Row(
+                    children: [
+                      if (!isFull) ...[
+                        Icon(Icons.person_outline,
+                            size: 14.sp, color: fontColor),
+                        SizedBox(width: 4.w),
+                        Text(
+                          "Max ${room.maxPerson ?? 0} Persons",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 12.sp,
+                              color: fontColor),
+                        ),
+                        SizedBox(width: 12.w),
+                      ],
+                      Icon(Icons.king_bed_outlined,
+                          size: 14.sp, color: fontColor),
+                      SizedBox(width: 4.w),
+                      Text(
+                        room.bedType ?? "Bed Type",
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12.sp,
+                            color: fontColor),
+                      ),
+                    ],
+                  ),
+                  if (room.mealOption != null) ...[
+                    SizedBox(height: 4.h),
+                    Row(
+                      children: [
+                        Icon(Icons.restaurant_menu, size: 14.sp, color: green),
+                        SizedBox(width: 4.w),
+                        Text(
+                          room.mealOption!,
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 12.sp,
+                              color: green),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (room.amenities != null && room.amenities!.isNotEmpty) ...[
+                    SizedBox(height: 8.h),
+                    Wrap(
+                      spacing: 8.w,
+                      runSpacing: 4.h,
+                      children: room.amenities!.take(3).map((amenity) {
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.w, vertical: 4.h),
+                          decoration: BoxDecoration(
+                            color: gwhite,
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
+                          child: Text(
+                            amenity,
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 10.sp,
+                                color: blue),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -389,14 +577,22 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _getName(hotelData),
+                          _getHotelName(hotelData),
                           style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: blue,
-                            fontSize: 22.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              fontFamily: 'Poppins',
+                              color: blue,
+                              fontSize: 22.sp,
+                              fontWeight: FontWeight.bold),
                         ),
+                        if (_getRoomName(hotelData).isNotEmpty)
+                          Text(
+                            _getRoomName(hotelData),
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: blue.withOpacity(0.7),
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600),
+                          ),
                         SizedBox(height: 5.h),
                         Row(
                           children: [
@@ -600,6 +796,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
             BookNow(
               hotel: hotelData,
               isFullProperty: _isFullProperty,
+              selectedRoom: _selectedRoom,
             ),
             Padding(
               padding: EdgeInsets.only(top: 18.h, left: 10.w, bottom: 10.h),
@@ -712,10 +909,31 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
             ),
             TransportationsFirstRow(hotel: hotelData),
             const HomeDivider(),
+
+            if (hotelData is HotelDetailModel &&
+                hotelData.rooms != null &&
+                hotelData.rooms!.isNotEmpty) ...[
+              NameView(
+                name: (hotelData.isFullProperty == true)
+                    ? "Rooms in Full Property"
+                    : "Rooms Available",
+                color: blue,
+                secondName: '',
+                secondColor: blue,
+              ),
+              SizedBox(height: 10.h),
+              ...hotelData.rooms!
+                  .map((room) => _buildRoomCard(room, hotelData)),
+              const HomeDivider(),
+            ],
+
+            if (hotelData is HotelDetailModel)
+              _buildNearbyAttractions(hotelData),
+
             Padding(
               padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
               child: Text(
-                'About ${_getName(hotelData)}',
+                'About ${_getHotelName(hotelData)}',
                 style: TextStyle(
                     fontFamily: 'Poppins',
                     color: blue,
@@ -739,13 +957,106 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Text(
-                _getDescription(hotelData),
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: black,
-                    height: 1.5,
-                    fontSize: 13.sp),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _getDescription(hotelData),
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: black,
+                        height: 1.5,
+                        fontSize: 13.sp),
+                  ),
+                  if (hotelData is HotelDetailModel &&
+                      (hotelData.yearBuild != null ||
+                          hotelData.yearRenovated != null)) ...[
+                    SizedBox(height: 12.h),
+                    Row(
+                      children: [
+                        if (hotelData.yearBuild != null) ...[
+                          Icon(Icons.build_circle_outlined,
+                              size: 16.sp, color: blue),
+                          SizedBox(width: 4.w),
+                          Text(
+                            "Built in ${hotelData.yearBuild}",
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
+                                color: fontColor),
+                          ),
+                          if (hotelData.yearRenovated != null) ...[
+                            SizedBox(width: 16.w),
+                            Icon(Icons.auto_awesome_outlined,
+                                size: 16.sp, color: blue),
+                            SizedBox(width: 4.w),
+                            Text(
+                              "Renovated in ${hotelData.yearRenovated}",
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: fontColor),
+                            ),
+                          ],
+                        ] else if (hotelData.yearRenovated != null) ...[
+                          Icon(Icons.auto_awesome_outlined,
+                              size: 16.sp, color: blue),
+                          SizedBox(width: 4.w),
+                          Text(
+                            "Renovated in ${hotelData.yearRenovated}",
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
+                                color: fontColor),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                  // if (hotelData is HotelDetailModel &&
+                  //     hotelData.phoneNumber != null) ...[
+                  //   SizedBox(height: 8.h),
+                  //   Row(
+                  //     children: [
+                  //       Icon(Icons.phone_outlined, size: 16.sp, color: blue),
+                  //       SizedBox(width: 4.w),
+                  //       Text(
+                  //         hotelData.phoneNumber!,
+                  //         style: TextStyle(
+                  //             fontFamily: 'Poppins',
+                  //             fontSize: 12.sp,
+                  //             fontWeight: FontWeight.w500,
+                  //             color: fontColor),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ],
+                  // if (hotelData is HotelDetailModel &&
+                  //     hotelData.location != null) ...[
+                  //   SizedBox(height: 8.h),
+                  //   Row(
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: [
+                  //       Icon(Icons.location_on_outlined,
+                  //           size: 16.sp, color: blue),
+                  //       SizedBox(width: 4.w),
+                  //       Expanded(
+                  //         child: Text(
+                  //           hotelData.location!,
+                  //           style: TextStyle(
+                  //               fontFamily: 'Poppins',
+                  //               fontSize: 12.sp,
+                  //               fontWeight: FontWeight.w500,
+                  //               color: fontColor),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ],
+                ],
               ),
             ),
             const HomeDivider(),
@@ -757,13 +1068,20 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
     );
   }
 
-  String _getName(dynamic hotel) {
+  String _getHotelName(dynamic hotel) {
     if (hotel is HotelDetailModel) return hotel.name ?? 'Hotel Name';
     try {
       return hotel.name ?? 'Hotel Name';
     } catch (e) {
       return 'Hotel Name';
     }
+  }
+
+  String _getRoomName(dynamic hotel) {
+    if (hotel is HotelDetailModel) {
+      return _selectedRoom?.name ?? hotel.roomName ?? "";
+    }
+    return "";
   }
 
   String _getLocation(dynamic hotel) {
@@ -794,6 +1112,13 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
 
   List<String> _getGalleryImages(dynamic hotel) {
     List<String> images = [];
+
+    if (_selectedRoom != null &&
+        _selectedRoom!.images != null &&
+        _selectedRoom!.images!.isNotEmpty) {
+      return _selectedRoom!.images!;
+    }
+
     if (hotel is HotelDetailModel) {
       if (hotel.coverImageUrl != null) images.add(hotel.coverImageUrl!);
       if (hotel.galleryImages != null) images.addAll(hotel.galleryImages!);
@@ -1126,6 +1451,90 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildNearbyAttractions(HotelDetailModel hotel) {
+    if (hotel.nearByAttractions == null || hotel.nearByAttractions!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 10.w, bottom: 10.h, top: 10.h),
+          child: Text(
+            'Nearby Attractions',
+            style: TextStyle(
+                fontFamily: 'Poppins',
+                color: blue,
+                fontSize: 17.sp,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
+        SizedBox(
+          height: 90.h,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
+            itemCount: hotel.nearByAttractions!.length,
+            itemBuilder: (context, index) {
+              final attraction = hotel.nearByAttractions![index];
+              return Container(
+                width: 180.w,
+                margin: EdgeInsets.only(right: 12.w),
+                padding: EdgeInsets.all(12.r),
+                decoration: BoxDecoration(
+                  color: white,
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: border.withOpacity(0.5)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      attraction.name ?? "Attraction",
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.bold,
+                        color: blue,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Row(
+                      children: [
+                        Icon(Icons.directions_walk, size: 14.sp, color: grey),
+                        SizedBox(width: 4.w),
+                        Text(
+                          "${attraction.distance ?? '0'} km away",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 11.sp,
+                            color: const Color.fromARGB(255, 141, 139, 139),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        const HomeDivider(),
+      ],
     );
   }
 

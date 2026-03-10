@@ -5,6 +5,7 @@ import 'package:homesloc/controller/calender_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/widgets/loader/app_loader.dart';
 import 'package:homesloc/models/freshup/freshup_availability_model.dart';
+import 'package:homesloc/models/home/hotel_detail_model.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
 import 'package:homesloc/models/freshup/freshup_booking_request_model.dart';
 import 'package:homesloc/screens/payment_screen/booking_successful/booking_successful.dart';
@@ -26,6 +27,43 @@ class FreshupDetailController extends GetxController {
   var isLoading = false.obs;
   var availabilityModel = Rxn<FreshupAvailabilityModel>();
   var selectedSlotIds = <String>[].obs;
+  var selectedFreshupRoom = Rxn<HotelRoom>();
+
+  void selectRoom(HotelRoom room) {
+    if (selectedFreshupRoom.value?.id == room.id) {
+      // If already selected, do nothing or just ensure it stays selected
+      return;
+    }
+
+    selectedFreshupRoom.value = room;
+    // Refetch availability for the selected room using room ID
+    fetchFreshupDetailsForRoom(room.id!);
+
+    // Reset slots when changing room
+    selectedSlotIds.clear();
+    carouselIndex.value = 0;
+  }
+
+  Future<void> fetchFreshupDetailsForRoom(String roomId) async {
+    if (freshup.freshupDetails?.priceMethod == null) return;
+    isLoading(true);
+    try {
+      final dateFormat = DateFormat('yyyy-MM-dd');
+      final date = dateFormat
+          .format(calendarController.checkInDate.value ?? DateTime.now());
+      final result = await _hotelDetailService.checkFreshupAvailability(
+        freshupRoomId: roomId,
+        priceMethod: freshup.freshupDetails!.priceMethod!,
+        date: date,
+      );
+      availabilityModel.value = result;
+      selectedSlotIds.clear();
+    } catch (e) {
+      debugPrint("Error fetching freshup details for room: $e");
+    } finally {
+      isLoading(false);
+    }
+  }
 
   @override
   void onInit() {

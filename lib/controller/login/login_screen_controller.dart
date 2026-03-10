@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:homesloc/apis/login/login_api.dart';
 import 'package:homesloc/screens/auth/otp_varification.dart';
+import 'package:homesloc/screens/auth/reset_password.dart';
+import 'package:homesloc/screens/auth/sign_in.dart';
 import 'package:homesloc/screens/auth/sign_up.dart';
 
 class LoginScreenController extends GetxController {
@@ -22,8 +24,15 @@ class LoginScreenController extends GetxController {
   final emailController = TextEditingController();
   final phoneNumberController = TextEditingController();
   final registrationNumberController = TextEditingController();
+  // Forgot/Reset Password Controllers
+  final forgotEmailController = TextEditingController();
+  final resetOtpController = TextEditingController();
+  final resetNewPasswordController = TextEditingController();
+  final resetConfirmPasswordController = TextEditingController();
   final signupFormKey = GlobalKey<FormState>();
   final loginFormKey = GlobalKey<FormState>();
+  final forgotPasswordFormKey = GlobalKey<FormState>();
+  final resetPasswordFormKey = GlobalKey<FormState>();
 
   // Registration State
   RxBool isRegisterLoading = false.obs;
@@ -43,6 +52,7 @@ class LoginScreenController extends GetxController {
   List<Map<String, dynamic>> services = [];
   num commission = 0;
   String verificationToken = "string"; // Placeholder as requested
+  RxString resetVerificationToken = "".obs;
 
   // Country Code State
   RxString countryCode = "+91".obs;
@@ -79,11 +89,11 @@ class LoginScreenController extends GetxController {
     try {
       String token = await sendVerificationEmail(email: emailController.text);
       verificationToken = token;
+      isOtpLoading.value = false;
       // Navigate to OTP screen
       Get.to(() => const OtpVarification());
     } catch (e) {
       Get.snackbar("Error", e.toString());
-    } finally {
       isOtpLoading.value = false;
     }
   }
@@ -103,10 +113,10 @@ class LoginScreenController extends GetxController {
 
       isEmailVerified.value = true;
       Get.snackbar("Success", "Email Verified Successfully");
+      isOtpLoading.value = false;
       Get.offAll(() => SignUp()); // Navigate to Sign Up
     } catch (e) {
       Get.snackbar("Error", e.toString());
-    } finally {
       isOtpLoading.value = false;
     }
   }
@@ -136,10 +146,10 @@ class LoginScreenController extends GetxController {
 
       // Optional: Clear controllers on success
       clearRegistrationControllers();
+      isRegisterLoading.value = false;
     } catch (e) {
       registerMessage.value = e.toString().replaceAll("Exception: ", "");
       isRegisterSuccess.value = false;
-    } finally {
       isRegisterLoading.value = false;
     }
   }
@@ -154,6 +164,59 @@ class LoginScreenController extends GetxController {
     registrationNumberController.clear();
   }
 
+  Future<void> requestPasswordReset() async {
+    if (forgotEmailController.text.isEmpty) {
+      Get.snackbar("Error", "Please enter email first");
+      return;
+    }
+    isLoading.value = true;
+    try {
+      String token =
+          await requestPasswordResetApi(email: forgotEmailController.text);
+      resetVerificationToken.value = token;
+      isLoading.value = false;
+      Get.to(() => const ResetPassword());
+    } catch (e) {
+      // Error handled in API function with snackbar
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> resetPasswordWithToken({
+    required String otp,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    if (otp.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
+      Get.snackbar("Error", "Please fill all fields");
+      return false;
+    }
+    if (newPassword != confirmPassword) {
+      Get.snackbar("Error", "Passwords do not match");
+      return false;
+    }
+    isLoading.value = true;
+    try {
+      await resetPasswordWithTokenApi(
+        verificationToken: resetVerificationToken.value,
+        otp: resetOtpController.text,
+        newPassword: resetNewPasswordController.text,
+        confirmPassword: resetConfirmPasswordController.text,
+      );
+      isLoading.value = false;
+      // Clear controllers on success
+      forgotEmailController.clear();
+      resetOtpController.clear();
+      resetNewPasswordController.clear();
+      resetConfirmPasswordController.clear();
+      return true;
+    } catch (e) {
+      // Error handled in API function with snackbar
+      isLoading.value = false;
+      return false;
+    }
+  }
+
   @override
   void onClose() {
     usernameController.dispose();
@@ -163,6 +226,10 @@ class LoginScreenController extends GetxController {
     emailController.dispose();
     phoneNumberController.dispose();
     registrationNumberController.dispose();
+    forgotEmailController.dispose();
+    resetOtpController.dispose();
+    resetNewPasswordController.dispose();
+    resetConfirmPasswordController.dispose();
     super.onClose();
   }
 }

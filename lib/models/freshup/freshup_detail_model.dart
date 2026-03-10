@@ -1,4 +1,5 @@
 import 'package:homesloc/models/freshup/freshup_availability_model.dart';
+import 'package:homesloc/models/home/hotel_detail_model.dart';
 
 class FreshupDetailModel {
   String? freshupId;
@@ -20,6 +21,11 @@ class FreshupDetailModel {
   List<String>? roomImages;
   List<String>? nearbyAttractions;
   List<String>? accommodationPolicies;
+  List<HotelRoom>? rooms;
+  int? yearBuild;
+  int? yearRenovated;
+  String? phoneNumber;
+  List<NearByAttraction>? nearbyAttractionObjects;
 
   // Structured Policy Fields
   String? acceptedTimeSlots;
@@ -56,6 +62,11 @@ class FreshupDetailModel {
     this.extraBedPrice,
     this.acceptableIdentityProof,
     this.propertyRules,
+    this.rooms,
+    this.yearBuild,
+    this.yearRenovated,
+    this.phoneNumber,
+    this.nearbyAttractionObjects,
   });
 
   factory FreshupDetailModel.fromJson(Map<String, dynamic> json) {
@@ -172,6 +183,28 @@ class FreshupDetailModel {
               "Acceptable ID: ${model.acceptableIdentityProof!.join(', ')}");
         }
         model.accommodationPolicies = policyStrings;
+      }
+
+      // Merge other Property details from hotel_details or property_details
+      final hotelDetails = json["hotel_details"] ?? propDetails;
+      if (hotelDetails != null) {
+        model.yearBuild = hotelDetails["year_build"];
+        model.yearRenovated = hotelDetails["year_renovated"];
+        model.phoneNumber = hotelDetails["phone_number"]?.toString();
+
+        // Parse rooms from property_details.rooms (freshup API structure)
+        if (hotelDetails["rooms"] != null && hotelDetails["rooms"] is List) {
+          model.rooms = List<HotelRoom>.from(
+              hotelDetails["rooms"].map((x) => HotelRoom.fromJson(x)));
+        }
+
+        // Parse nearby attractions as objects for horizontal card display
+        if (hotelDetails["near_by_attraction"] != null &&
+            hotelDetails["near_by_attraction"] is List) {
+          model.nearbyAttractionObjects = List<NearByAttraction>.from(
+              hotelDetails["near_by_attraction"]
+                  .map((x) => NearByAttraction.fromJson(x)));
+        }
       }
 
       // Secondary logic for backward compatibility if accommodationPolicies are directly provided

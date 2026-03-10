@@ -15,11 +15,13 @@ import 'package:intl/intl.dart';
 class BookNow extends StatelessWidget {
   final dynamic hotel;
   final bool isFullProperty;
+  final HotelRoom? selectedRoom;
 
   const BookNow({
     super.key,
     this.hotel,
     this.isFullProperty = false,
+    this.selectedRoom,
   });
 
   @override
@@ -120,7 +122,9 @@ class BookNow extends StatelessWidget {
 
                   // Get ID (Room ID or Property ID)
                   String? id;
-                  if (hotel is HotelDetailModel) {
+                  if (selectedRoom != null) {
+                    id = selectedRoom!.id;
+                  } else if (hotel is HotelDetailModel) {
                     id = hotel.id;
                   } else if (hotel is HallDetailModel) {
                     id = hotel.id;
@@ -142,7 +146,7 @@ class BookNow extends StatelessWidget {
 
                     dynamic result;
 
-                    if (isFullProperty) {
+                    if (isFullProperty && selectedRoom == null) {
                       // Perform Full Property Availability Check
                       result = await hotelDetailService
                           .checkFullPropertyAvailability(
@@ -168,15 +172,18 @@ class BookNow extends StatelessWidget {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                         return PaymentScreen(
-                          hotelName: _getName(),
+                          hotelName: selectedRoom != null
+                              ? "${_getName()} - ${selectedRoom!.name}"
+                              : _getName(),
                           location: _getLocation(),
                           price:
                               result.bookingDetails?.price?.toDouble() ?? 0.0,
                           coverImage: _getCoverImage(),
                           bookingDetails: result.bookingDetails,
                           propertyId: id,
-                          propertyType:
-                              isFullProperty ? "FULL_PROPERTY" : "ROOM",
+                          propertyType: (isFullProperty && selectedRoom == null)
+                              ? "FULL_PROPERTY"
+                              : "ROOM",
                           cancellationPolicy: _getCancellationPolicy(),
                         );
                       }));
@@ -231,6 +238,10 @@ class BookNow extends StatelessWidget {
   }
 
   String _getPrice() {
+    if (selectedRoom != null) {
+      return (selectedRoom!.offerPrice ?? selectedRoom!.price ?? '0')
+          .toString();
+    }
     if (hotel is HallDetailModel) {
       return hotel.bestPrice ?? '0';
     }
@@ -255,6 +266,9 @@ class BookNow extends StatelessWidget {
   }
 
   String _getOriginalPrice() {
+    if (selectedRoom != null) {
+      return (selectedRoom!.price ?? '0').toString();
+    }
     if (hotel is HallDetailModel) {
       return hotel.bestPrice ??
           '0'; // Halls might not have separate original price
