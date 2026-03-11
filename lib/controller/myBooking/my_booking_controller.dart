@@ -12,6 +12,7 @@ class TripController extends GetxController {
   final expandedIds = <String>{}.obs;
   final bookingDetails = <String, UserBooking>{}.obs;
   final isDetailLoading = <String, bool>{}.obs;
+  final isCancelLoading = <String, bool>{}.obs;
 
   @override
   void onInit() {
@@ -86,6 +87,43 @@ class TripController extends GetxController {
       print("Error fetching user bookings: $e");
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> cancelBooking(String bookingId, String reason) async {
+    isCancelLoading[bookingId] = true;
+    try {
+      final url = Uri.parse(
+          "${ApiConstant.BASE_URL}/api/v1/bookings/$bookingId/cancel");
+      final response = await ApiHelper.put(
+        url,
+        body: jsonEncode({"reason": reason}),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Get.snackbar(
+          "Success",
+          "Booking cancelled successfully",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        fetchUserBookings(); // Refresh the list
+      } else {
+        final errorData = jsonDecode(utf8.decode(response.bodyBytes));
+        Get.snackbar(
+          "Error",
+          errorData['detail'] ?? "Failed to cancel booking",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      print("Error cancelling booking: $e");
+      Get.snackbar(
+        "Error",
+        "An unexpected error occurred",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isCancelLoading[bookingId] = false;
     }
   }
 }

@@ -290,12 +290,12 @@ class BookNow extends StatelessWidget {
 
   String _getTaxInfo() {
     if (hotel is HallDetailModel) {
-      return "+ Taxes & Fees";
+      return "Including Taxes";
     }
     if (hotel is HotelDetailModel) {
-      return hotel.pricing?.taxInfo ?? "+ Taxes & Fees";
+      return hotel.pricing?.taxInfo ?? "Including Taxes";
     }
-    return "+ Taxes & Fees";
+    return "Including Taxes";
   }
 
   String _getName() {

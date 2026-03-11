@@ -334,6 +334,8 @@ class BanquetPolicies {
   bool? decorationAllowed;
   bool? valetParkingAvailable;
   bool? isActive;
+  String? extraBedPolicy;
+  String? extraBedPrice;
   List<String>? otherPolicies;
 
   BanquetPolicies({
@@ -349,6 +351,8 @@ class BanquetPolicies {
     this.decorationAllowed,
     this.valetParkingAvailable,
     this.isActive,
+    this.extraBedPolicy,
+    this.extraBedPrice,
     this.otherPolicies,
   });
 
@@ -369,6 +373,8 @@ class BanquetPolicies {
         decorationAllowed: json["decoration_allowed"],
         valetParkingAvailable: json["valet_parking_available"],
         isActive: json["is_active"],
+        extraBedPolicy: json["extraBedPolicy"]?.toString(),
+        extraBedPrice: (json["extraBedRate"] ?? json["extra_bed_price"])?.toString(),
         otherPolicies: json["other_policies"] == null
             ? []
             : List<String>.from(json["other_policies"]!.map((x) => x)),

@@ -12,8 +12,21 @@ class FreshupAmenitieRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Accessing amenities from provided list OR freshupDetails which is a List<FreshupAmenity>
-    final displayAmenities =
+    final List<FreshupAmenity> roomAmenities =
         amenities ?? freshup.freshupDetails?.amenities ?? [];
+    final List<FreshupAmenity> propertyAmenities =
+        freshup.freshupDetails?.propertyAmenities ?? [];
+
+    // Merge them avoiding duplicates by name
+    final Map<String, FreshupAmenity> combined = {};
+    for (var a in propertyAmenities) {
+      if (a.name != null) combined[a.name!] = a;
+    }
+    for (var a in roomAmenities) {
+      if (a.name != null) combined[a.name!] = a;
+    }
+
+    final displayAmenities = combined.values.toList();
 
     if (displayAmenities.isEmpty) {
       return Padding(

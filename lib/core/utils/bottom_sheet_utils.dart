@@ -277,4 +277,43 @@ class BottomSheetUtils {
       ),
     );
   }
+
+  static Future<void> showSingleDatePicker(BuildContext context) async {
+    final calendarController = Get.put(CalendarController());
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    DateTime initDate = calendarController.checkInDate.value ?? today;
+    if (initDate.isBefore(today)) {
+      initDate = today;
+    }
+
+    final selectedDate = await showDatePicker(
+      context: context,
+      initialDate: initDate,
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: blue,
+              onPrimary: white,
+              onSurface: black,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: blue),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (selectedDate != null) {
+      calendarController.checkInDate.value = selectedDate;
+      calendarController.checkOutDate.value = selectedDate;
+      calendarController.totalDays.value = 1;
+    }
+  }
 }

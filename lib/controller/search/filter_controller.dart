@@ -35,6 +35,7 @@ class FilterController extends GetxController {
 
   // Tourism specific filters
   final RxMap<String, bool> packageType = {
+    'Tourism Packages': false,
     'Adventure Tourism': false,
     'Wedding Tourism': false,
   }.obs;

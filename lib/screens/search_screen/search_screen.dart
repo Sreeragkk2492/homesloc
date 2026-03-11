@@ -23,6 +23,7 @@ import 'package:homesloc/screens/home/widget/guest_dialog.dart';
 import 'package:homesloc/animations/animated_content.dart';
 import 'package:homesloc/core/controller/bottom_navigation_bar/bottom_bar_controller.dart';
 import 'package:homesloc/core/widgets/loader/app_loader.dart';
+import 'package:homesloc/core/utils/bottom_sheet_utils.dart';
 
 import 'package:scrollable_clean_calendar/scrollable_clean_calendar.dart';
 import 'package:scrollable_clean_calendar/utils/enums.dart';
@@ -590,12 +591,12 @@ class _SearchScreenState extends State<SearchScreen> {
                             Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (hotel.coverImageUrl != null)
+                                  if (hotel.freshupDetails?.roomImages != null)
                                     ClipRRect(
                                       borderRadius: BorderRadius.vertical(
                                           top: Radius.circular(15.sp)),
                                       child: Image.network(
-                                        hotel.coverImageUrl!,
+                                        hotel.freshupDetails!.roomImages!.first,
                                         height: 150.h,
                                         width: double.infinity,
                                         fit: BoxFit.cover,
@@ -620,15 +621,31 @@ class _SearchScreenState extends State<SearchScreen> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Text(
-                                                hotel.freshupDetails
-                                                        ?.freshupName ??
-                                                    hotel.name ??
-                                                    'Room Name',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16.sp,
-                                                ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  if (hotel.name != null)
+                                                    Text(
+                                                      hotel.name!,
+                                                      style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 16.sp,
+                                                    ),
+                                                    ),
+                                                  Text(
+                                                    hotel.freshupDetails
+                                                            ?.freshupName ??
+                                                        hotel.name ??
+                                                        'Room Name',
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 12.sp,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             Container(
@@ -671,39 +688,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                                 overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 8.h),
-                                        Row(
-                                          children: [
-                                            if (hotel.freshupDetails?.bedType !=
-                                                null) ...[
-                                              Icon(Icons.bed_outlined,
-                                                  size: 14.sp,
-                                                  color: Colors.grey),
-                                              SizedBox(width: 4.w),
-                                              Text(
-                                                hotel.freshupDetails!.bedType!,
-                                                style: TextStyle(
-                                                    fontSize: 12.sp,
-                                                    color: Colors.grey),
-                                              ),
-                                              SizedBox(width: 12.w),
-                                            ],
-                                            if (hotel.freshupDetails
-                                                    ?.maxPerson !=
-                                                null) ...[
-                                              Icon(Icons.person_outline,
-                                                  size: 14.sp,
-                                                  color: Colors.grey),
-                                              SizedBox(width: 4.w),
-                                              Text(
-                                                "Max ${hotel.freshupDetails!.maxPerson}",
-                                                style: TextStyle(
-                                                    fontSize: 12.sp,
-                                                    color: Colors.grey),
-                                              ),
-                                            ],
                                           ],
                                         ),
                                         SizedBox(height: 8.h),
@@ -930,142 +914,8 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            PopupMenuButton<String>(
-              onSelected: (value) {
-                searchHotelController.propertyType.value = value;
-                searchHotelController.searchHotels();
-              },
-              offset: Offset(0, 35),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.sp),
-              ),
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem<String>(
-                  value: 'hotel',
-                  child: Text(
-                    'Hotel',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'apartment',
-                  child: Text(
-                    'Apartment',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'villa',
-                  child: Text(
-                    'Villa',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'resort',
-                  child: Text(
-                    'Resort',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'cabin',
-                  child: Text(
-                    'Cabin',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'cottage',
-                  child: Text(
-                    'Cottage',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'glamping_site',
-                  child: Text(
-                    'Glamping Site',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'guest_house',
-                  child: Text(
-                    'Guest House',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'holyday_apartment',
-                  child: Text(
-                    'Holyday Apartment',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ),
-              ],
-              child: Container(
-                height: 30.h,
-                width: 105.w,
-                decoration: BoxDecoration(
-                  color: gblue,
-                  borderRadius: BorderRadius.circular(10.sp),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Obx(() => Text(
-                          searchHotelController.propertyType.value.isEmpty
-                              ? "Sort"
-                              : searchHotelController
-                                  .propertyType.value.capitalizeFirst!,
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: poppinsFont,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w100,
-                          ),
-                        )),
-                    SizedBox(
-                      width: 7.w,
-                    ),
-                    Image(
-                      image: AssetImage('assets/images/Frame.png'),
-                      color: Colors.white,
-                    )
-                  ],
-                ),
-              ),
-            ),
             PopupMenuButton<String>(
               color: white,
               position: PopupMenuPosition.under,
@@ -1078,7 +928,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   enabled: false, // Makes the item non-clickable
                   child: Container(
                     decoration: BoxDecoration(color: white),
-                    // width: 250.w,
                     padding: EdgeInsets.all(8.r),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1191,7 +1040,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
               child: Container(
                 height: 30.h,
-                width: 105.w,
+                width: 160.w,
                 decoration: BoxDecoration(
                   color: gblue,
                   borderRadius: BorderRadius.circular(10.sp),
@@ -1219,13 +1068,14 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
+            SizedBox(width: 12.w),
             GestureDetector(
               onTap: () {
                 Get.to(() => FilterSearchScreen());
               },
               child: Container(
                 height: 30.h,
-                width: 105.w,
+                width: 160.w,
                 decoration: BoxDecoration(
                   color: gblue,
                   borderRadius: BorderRadius.circular(10.sp),
@@ -1269,42 +1119,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
     if (searchHotelController.isGroupedByHall.value ||
         searchHotelController.isFreshup.value ||
-        searchHotelController.isTourism.value) {
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-
-      DateTime initDate = calendarController.checkInDate.value ?? today;
-      if (initDate.isBefore(today)) {
-        initDate = today;
-      }
-
-      final selectedDate = await showDatePicker(
-        context: context,
-        initialDate: initDate,
-        firstDate: today,
-        lastDate: today.add(const Duration(days: 365)),
-        builder: (context, child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: blue,
-                onPrimary: white,
-                onSurface: black,
-              ),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(foregroundColor: blue),
-              ),
-            ),
-            child: child!,
-          );
-        },
-      );
-
-      if (selectedDate != null) {
-        calendarController.checkInDate.value = selectedDate;
-        calendarController.checkOutDate.value = selectedDate;
-        calendarController.totalDays.value = 1;
-      }
+        searchHotelController.isTourism.value ||
+        searchHotelController.isAdventureTourism.value) {
+      await BottomSheetUtils.showSingleDatePicker(context);
       return;
     }
 

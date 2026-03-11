@@ -25,28 +25,28 @@ class FreshupDetailController extends GetxController {
 
   var carouselIndex = 0.obs;
   var isLoading = false.obs;
+  var isSlotsLoading = false.obs;
   var availabilityModel = Rxn<FreshupAvailabilityModel>();
   var selectedSlotIds = <String>[].obs;
   var selectedFreshupRoom = Rxn<HotelRoom>();
 
   void selectRoom(HotelRoom room) {
     if (selectedFreshupRoom.value?.id == room.id) {
-      // If already selected, do nothing or just ensure it stays selected
       return;
     }
 
     selectedFreshupRoom.value = room;
-    // Refetch availability for the selected room using room ID
-    fetchFreshupDetailsForRoom(room.id!);
-
-    // Reset slots when changing room
+    // Reset slots and carousel index instantly for better UX
     selectedSlotIds.clear();
     carouselIndex.value = 0;
+
+    // Refetch availability for the selected room using room ID
+    fetchFreshupDetailsForRoom(room.id!);
   }
 
   Future<void> fetchFreshupDetailsForRoom(String roomId) async {
     if (freshup.freshupDetails?.priceMethod == null) return;
-    isLoading(true);
+    isSlotsLoading(true);
     try {
       final dateFormat = DateFormat('yyyy-MM-dd');
       final date = dateFormat
@@ -61,7 +61,7 @@ class FreshupDetailController extends GetxController {
     } catch (e) {
       debugPrint("Error fetching freshup details for room: $e");
     } finally {
-      isLoading(false);
+      isSlotsLoading(false);
     }
   }
 

@@ -26,6 +26,8 @@ class FreshupDetailModel {
   int? yearRenovated;
   String? phoneNumber;
   List<NearByAttraction>? nearbyAttractionObjects;
+  List<FreshupAmenity>? propertyAmenities;
+  num? starRating;
 
   // Structured Policy Fields
   String? acceptedTimeSlots;
@@ -67,6 +69,8 @@ class FreshupDetailModel {
     this.yearRenovated,
     this.phoneNumber,
     this.nearbyAttractionObjects,
+    this.propertyAmenities,
+    this.starRating,
   });
 
   factory FreshupDetailModel.fromJson(Map<String, dynamic> json) {
@@ -82,7 +86,8 @@ class FreshupDetailModel {
       roomSize: detailsObj["room_size"],
       freshupDescription:
           detailsObj["freshup_description"] ?? json["freshup_description"],
-      smokingAllowed: detailsObj["smoking_allowed"] ?? json["smoking_allowed"],
+      smokingAllowed:
+          detailsObj["smoking_allowed"] ?? json["smoking_allowed"],
       bathroomAttached:
           detailsObj["bathroom_attached"] ?? json["bathroom_attached"],
       priceMethod: json["price_method"] ?? detailsObj["price_method"],
@@ -134,6 +139,16 @@ class FreshupDetailModel {
         model.nearbyAttractions = formattedAttractions;
       }
 
+      // Parse property details amenities (freshup_amenities)
+      if (propDetails["freshup_amenities"] != null &&
+          propDetails["freshup_amenities"] is List) {
+        model.propertyAmenities = List<FreshupAmenity>.from(
+            propDetails["freshup_amenities"]
+                .map((x) => FreshupAmenity.fromJson(x)));
+      }
+
+      model.starRating = propDetails["star_rating"];
+
       // Merge Policies
       final policies = propDetails["freshup_policies"];
       if (policies != null) {
@@ -142,7 +157,9 @@ class FreshupDetailModel {
         model.cancellationDays =
             (policies["cancellationDays"] as num?)?.toInt();
         model.extraBedPolicy = policies["extraBedPolicy"]?.toString();
-        model.extraBedPrice = policies["extra_bed_price"]?.toString();
+        model.extraBedPrice =
+            (policies["extraBedRate"] ?? policies["extra_bed_price"])
+                ?.toString();
 
         if (policies["acceptableIdentityProof"] != null &&
             policies["acceptableIdentityProof"] is List) {

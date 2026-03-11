@@ -77,7 +77,7 @@ class HallBookNow extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    "+ Taxes & Fees",
+                    "Including Taxes",
                     style: TextStyle(
                         color: const Color.fromARGB(255, 190, 190, 190),
                         fontFamily: 'Poppins',

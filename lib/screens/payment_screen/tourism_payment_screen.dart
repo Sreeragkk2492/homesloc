@@ -14,6 +14,7 @@ class TourismPaymentScreen extends StatefulWidget {
   final String destination;
   final double price;
   final String coverImage;
+  final String duration;
   final BookingDetails? bookingDetails;
   final String? cancellationPolicy;
 
@@ -23,6 +24,7 @@ class TourismPaymentScreen extends StatefulWidget {
     required this.destination,
     required this.price,
     required this.coverImage,
+    required this.duration,
     this.bookingDetails,
     this.cancellationPolicy,
   });
@@ -309,31 +311,17 @@ class _TourismPaymentScreenState extends State<TourismPaymentScreen> {
                   ),
                 ],
               ),
-              child: Obx(() {
-                final checkIn = calendarController.checkInDate.value;
-                final checkOut = calendarController.checkOutDate.value;
-                final duration = checkIn != null && checkOut != null
-                    ? checkOut.difference(checkIn).inDays.clamp(1, 100)
-                    : 1;
-
-                return Column(
-                  children: [
-                    _buildSummaryRow(
-                        "Start Date", calendarController.formatDate(checkIn)),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12.h),
-                      child: Divider(color: border.withOpacity(0.3), height: 1),
-                    ),
-                    _buildSummaryRow(
-                        "End Date", calendarController.formatDate(checkOut)),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12.h),
-                      child: Divider(color: border.withOpacity(0.3), height: 1),
-                    ),
-                    _buildSummaryRow("Duration", "$duration days"),
-                  ],
-                );
-              }),
+              child: Column(
+                children: [
+                  _buildSummaryRow("Start Date",
+                      calendarController.formatDate(calendarController.checkInDate.value)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    child: Divider(color: border.withOpacity(0.3), height: 1),
+                  ),
+                  _buildSummaryRow("Duration", widget.duration),
+                ],
+              ),
             ),
 
             if (widget.cancellationPolicy != null &&

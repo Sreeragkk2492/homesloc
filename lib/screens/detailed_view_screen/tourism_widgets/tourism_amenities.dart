@@ -17,7 +17,7 @@ class TourismAmenitiesSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         NameView(
-          name: "Package Amenities",
+          name: "Highlights",
           color: blue,
           secondName: 'View All',
           secondColor: blue,

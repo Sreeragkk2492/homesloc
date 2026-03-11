@@ -208,7 +208,7 @@ class AgencyDetails {
   String? description;
   List<String>? videos;
   List<dynamic>? amenities;
-  List<dynamic>? packages;
+  List<TourismPackage>? packages;
   Policies? policies;
 
   AgencyDetails({
@@ -238,7 +238,10 @@ class AgencyDetails {
           ? []
           : List<String>.from(json["videos"].map((x) => x)),
       amenities: json["amenities"],
-      packages: json["packages"],
+      packages: json["packages"] == null
+          ? []
+          : List<TourismPackage>.from(
+              json["packages"].map((x) => TourismPackage.fromJson(x))),
       policies:
           json["policies"] == null ? null : Policies.fromJson(json["policies"]),
     );
@@ -254,7 +257,9 @@ class AgencyDetails {
         "description": description,
         "videos": videos,
         "amenities": amenities,
-        "packages": packages,
+        "packages": packages == null
+            ? []
+            : List<dynamic>.from(packages!.map((x) => x.toJson())),
         "policies": policies?.toJson(),
       };
 }
@@ -297,6 +302,62 @@ class Policies {
         "cancellationDays": cancellationDays,
         "paymentPolicy": paymentPolicy,
         "acceptableIdentityProof": acceptableIdentityProof,
-        "tripTermsConditions": tripTermsConditions,
+        "trip_terms_conditions": tripTermsConditions,
+      };
+}
+
+class TourismPackage {
+  String? id;
+  String? packageName;
+  String? startLocation;
+  String? destination;
+  int? totalCapacity;
+  int? children;
+  String? priceWithoutFlight;
+  dynamic priceWithFlight;
+  dynamic offerPrice;
+  List<String>? galleryImages;
+
+  TourismPackage({
+    this.id,
+    this.packageName,
+    this.startLocation,
+    this.destination,
+    this.totalCapacity,
+    this.children,
+    this.priceWithoutFlight,
+    this.priceWithFlight,
+    this.offerPrice,
+    this.galleryImages,
+  });
+
+  factory TourismPackage.fromJson(Map<String, dynamic> json) {
+    return TourismPackage(
+      id: json["id"],
+      packageName: json["package_name"],
+      startLocation: json["start_location"],
+      destination: json["destination"],
+      totalCapacity: (json["total_capacity"] as num?)?.toInt(),
+      children: (json["children"] as num?)?.toInt(),
+      priceWithoutFlight: json["price_without_flight"]?.toString(),
+      priceWithFlight: json["price_with_flight"],
+      offerPrice: json["offer_price"],
+      galleryImages: json["gallery_images"] == null
+          ? []
+          : List<String>.from(json["gallery_images"].map((x) => x)),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "package_name": packageName,
+        "start_location": startLocation,
+        "destination": destination,
+        "total_capacity": totalCapacity,
+        "children": children,
+        "price_without_flight": priceWithoutFlight,
+        "price_with_flight": priceWithFlight,
+        "offer_price": offerPrice,
+        "gallery_images": galleryImages,
       };
 }

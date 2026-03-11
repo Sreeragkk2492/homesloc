@@ -25,6 +25,8 @@ class HotelDetailModel {
   int? yearRenovated;
   List<NearByAttraction>? nearByAttractions;
   bool? isFullProperty;
+  bool? smokingAllowed;
+  List<String>? hotelAmenities;
 
   HotelDetailModel({
     this.id,
@@ -53,6 +55,8 @@ class HotelDetailModel {
     this.yearRenovated,
     this.nearByAttractions,
     this.isFullProperty,
+    this.smokingAllowed,
+    this.hotelAmenities,
   });
 
   factory HotelDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -156,6 +160,16 @@ class HotelDetailModel {
       }
     }
 
+    // Map hotel amenities from hotel_details.amenities
+    List<String> hotelAmens = [];
+    if (hotel["amenities"] != null) {
+      for (var item in hotel["amenities"]) {
+        if (item is Map && item["name"] != null) {
+          hotelAmens.add(item["name"]);
+        }
+      }
+    }
+
     String? roomId;
 
     // Check hotel_details['rooms'] as priority
@@ -199,6 +213,8 @@ class HotelDetailModel {
       latitude: hotel["latitude"] ?? json["latitude"],
       longitude: hotel["longitude"] ?? json["longitude"],
       amenities: amens,
+      hotelAmenities: hotelAmens,
+      smokingAllowed: json["smoking_allowed"],
       policies: pol,
       // Pricing requires careful mapping
       pricing: Pricing(
@@ -483,7 +499,7 @@ class Policies {
           json["cancellation_policy"] ?? json["cancellationPolicy"],
       accommodationPolicies: policiesList.isNotEmpty ? policiesList : null,
       extraBedPolicy: json["extraBedPolicy"]?.toString(),
-      extraBedPrice: json["extra_bed_price"]?.toString(),
+      extraBedPrice: (json["extraBedRate"] ?? json["extra_bed_price"])?.toString(),
     );
 
     if (json["acceptableIdentityProof"] != null &&

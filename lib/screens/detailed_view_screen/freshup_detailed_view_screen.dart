@@ -144,42 +144,46 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
 
     return Scaffold(
       backgroundColor: white,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Obx(() {
-              final selectedRoom = controller.selectedFreshupRoom.value;
-              final images = _getGalleryImages(selectedRoom: selectedRoom);
-              return Stack(
-                children: [
-                  SizedBox(
-                    height: 300.h,
-                    width: MediaQuery.of(context).size.width,
-                    child: PageView.builder(
-                      controller: _pageController,
-                      onPageChanged: (index) {
-                        controller.updateCarouselIndex(index);
-                      },
-                      itemCount: images.length,
-                      itemBuilder: (context, index) {
-                        final imageUrl = images[index];
-                        return GestureDetector(
-                          onTap: () => _openFullScreenPreview(images, index),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: imageUrl.startsWith('http')
-                                    ? NetworkImage(imageUrl)
-                                    : AssetImage(imageUrl) as ImageProvider,
-                                fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(() {
+                  final selectedRoom = controller.selectedFreshupRoom.value;
+                  final images = _getGalleryImages(selectedRoom: selectedRoom);
+                  return Stack(
+                    children: [
+                      SizedBox(
+                        height: 300.h,
+                        width: MediaQuery.of(context).size.width,
+                        child: PageView.builder(
+                          controller: _pageController,
+                          onPageChanged: (index) {
+                            controller.updateCarouselIndex(index);
+                          },
+                          itemCount: images.length,
+                          itemBuilder: (context, index) {
+                            final imageUrl = images[index];
+                            return GestureDetector(
+                              onTap: () =>
+                                  _openFullScreenPreview(images, index),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: imageUrl.startsWith('http')
+                                        ? NetworkImage(imageUrl)
+                                        : AssetImage(imageUrl) as ImageProvider,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                            );
+                          },
+                        ),
+                      ),
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -303,16 +307,6 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                       ? "${selectedRoom.roomSize} sqft"
                       : null)
                   : hotelData.freshupDetails?.roomSize;
-              final displayOriginalPrice = isRoomSelected
-                  ? (selectedRoom.price != null
-                      ? num.tryParse(selectedRoom.price!)
-                      : null)
-                  : hotelData.originalPrice;
-              final displayOfferPrice = isRoomSelected
-                  ? (selectedRoom.offerPrice != null
-                      ? num.tryParse(selectedRoom.offerPrice.toString())
-                      : null)
-                  : hotelData.offerPrice;
 
               return Padding(
                 padding: EdgeInsets.fromLTRB(15.w, 15.h, 15.w, 5.h),
@@ -342,32 +336,37 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                       ),
                     SizedBox(height: 5.h),
                     // Rating Row relocated to top
-                    if (hotelData.rating != null)
-                      Row(
-                        children: [
-                          ...List.generate(
-                            5, // Mapping rating
-                            (index) => Icon(Icons.star_rounded,
-                                color: index <
-                                        (num.tryParse(hotelData.rating
-                                                    .toString()) ??
-                                                5)
-                                            .floor()
-                                    ? yellow
-                                    : grey,
-                                size: 16.sp),
+                    Row(
+                      children: [
+                        ...List.generate(
+                          5,
+                          (index) => Icon(Icons.star_rounded,
+                              color: index <
+                                      (() {
+                                        final r = num.tryParse(
+                                            (controller.availabilityModel.value
+                                                        ?.rawDetails?.starRating ??
+                                                    hotelData.rating ??
+                                                    0)
+                                                .toString());
+                                        return r ?? 0;
+                                      }())
+                                          .floor()
+                                  ? yellow
+                                  : grey,
+                              size: 16.sp),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '(${hotelData.reviewCount ?? 0} Reviews)',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: fontColor,
+                            fontSize: 12.sp,
                           ),
-                          SizedBox(width: 8.w),
-                          Text(
-                            '(${hotelData.reviewCount ?? 0} Reviews)',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: fontColor,
-                              fontSize: 12.sp,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
                     SizedBox(height: 10.h),
                     if (displayBedType != null)
                       Text("Bed Type: $displayBedType",
@@ -382,29 +381,29 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                               fontSize: 13.sp,
                               color: Colors.grey.shade700)),
                     SizedBox(height: 10.h),
-                    Row(
-                      children: [
-                        if (displayOriginalPrice != null &&
-                            displayOriginalPrice != displayOfferPrice)
-                          Text(
-                            "₹$displayOriginalPrice",
-                            style: TextStyle(
-                                fontFamily: 'Poppins',
-                                decoration: TextDecoration.lineThrough,
-                                color: Colors.grey,
-                                fontSize: 14.sp),
-                          ),
-                        if (displayOriginalPrice != null) SizedBox(width: 8.w),
-                        Text(
-                          "₹${displayOfferPrice ?? displayOriginalPrice ?? '0'}",
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                              fontSize: 18.sp),
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     // if (displayOriginalPrice != null &&
+                    //     //     displayOriginalPrice != displayOfferPrice)
+                    //     //   Text(
+                    //     //     "₹$displayOriginalPrice",
+                    //     //     style: TextStyle(
+                    //     //         fontFamily: 'Poppins',
+                    //     //         decoration: TextDecoration.lineThrough,
+                    //     //         color: Colors.grey,
+                    //     //         fontSize: 14.sp),
+                    //     //   ),
+                    //     if (displayOriginalPrice != null) SizedBox(width: 8.w),
+                    //     Text(
+                    //       "₹${displayOfferPrice ?? displayOriginalPrice ?? '0'}",
+                    //       style: TextStyle(
+                    //           fontFamily: 'Poppins',
+                    //           fontWeight: FontWeight.bold,
+                    //           color: Colors.black,
+                    //           fontSize: 18.sp),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               );
@@ -492,11 +491,12 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
               secondColor: blue,
             ),
             Obx(
-              () => controller.isLoading.value
-                  ? const Center(
+              () => controller.isSlotsLoading.value
+                  ? Center(
                       child: Padding(
                         padding: EdgeInsets.all(20.0),
-                        child: AppLoader(size: 50),
+                        child: AppLoader(
+                            size: 30, color: blue.withOpacity(0.5)),
                       ),
                     )
                   : FreshupSlotRow(
@@ -549,7 +549,7 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                     icon: Icons.calendar_month_rounded,
                     title: "Stay Date",
                     onTap: () {
-                      BottomSheetUtils.showCalendarBottomSheet(context);
+                      BottomSheetUtils.showSingleDatePicker(context);
                       // Freshup usually cares about one date, but the calendar handles range.
                       // We can listen to changes and refresh details if needed.
                       // The controller already uses calendarController.checkInDate.
@@ -612,11 +612,12 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
             ),
             SizedBox(height: 10.h),
             Obx(
-              () => controller.isLoading.value
-                  ? const Center(
+              () => controller.isSlotsLoading.value
+                  ? Center(
                       child: Padding(
                         padding: EdgeInsets.all(20.0),
-                        child: AppLoader(size: 50),
+                        child: AppLoader(
+                            size: 30, color: blue.withOpacity(0.5)),
                       ),
                     )
                   : FreshupAmenitieRow(
@@ -811,20 +812,47 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                         if (detailData?.yearBuild != null ||
                             detailData?.yearRenovated != null) ...[
                           SizedBox(height: 12.h),
-                          Wrap(
-                            spacing: 12.w,
-                            runSpacing: 8.h,
+                          Row(
                             children: [
-                              if (detailData?.yearBuild != null)
-                                _buildMetaChip(
-                                  Icons.foundation_outlined,
-                                  'Built in ${detailData!.yearBuild}',
+                              if (detailData?.yearBuild != null) ...[
+                                Icon(Icons.build_circle_outlined,
+                                    size: 16.sp, color: blue),
+                                SizedBox(width: 4.w),
+                                Text(
+                                  "Built in ${detailData!.yearBuild}",
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: fontColor),
                                 ),
-                              if (detailData?.yearRenovated != null)
-                                _buildMetaChip(
-                                  Icons.construction_outlined,
-                                  'Renovated in ${detailData!.yearRenovated}',
+                                if (detailData.yearRenovated != null) ...[
+                                  SizedBox(width: 16.w),
+                                  Icon(Icons.auto_awesome_outlined,
+                                      size: 16.sp, color: blue),
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    "Renovated in ${detailData.yearRenovated}",
+                                    style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: fontColor),
+                                  ),
+                                ],
+                              ] else if (detailData?.yearRenovated != null) ...[
+                                Icon(Icons.auto_awesome_outlined,
+                                    size: 16.sp, color: blue),
+                                SizedBox(width: 4.w),
+                                Text(
+                                  "Renovated in ${detailData!.yearRenovated}",
+                                  style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: fontColor),
                                 ),
+                              ],
                             ],
                           ),
                         ],
@@ -863,8 +891,22 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
           ],
         ),
       ),
-    );
-  }
+      Obx(
+        () => controller.isSlotsLoading.value
+            ? Positioned.fill(
+                child: Container(
+                  color: Colors.white.withOpacity(0.5),
+                  child: const Center(
+                    child: AppLoader(size: 50),
+                  ),
+                ),
+              )
+            : const SizedBox.shrink(),
+      ),
+    ],
+  ),
+);
+}
 
   Widget _buildRoomCard(HotelRoom room) {
     return Obx(() {
@@ -1075,31 +1117,6 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
     });
   }
 
-  Widget _buildMetaChip(IconData icon, String label) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-      decoration: BoxDecoration(
-        color: blue.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: blue, size: 14.sp),
-          SizedBox(width: 6.w),
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 12.sp,
-              color: blue,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPolicyGrid(FreshupDetailModel? data) {
     if (data == null) return const SizedBox.shrink();
@@ -1245,110 +1262,71 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                 child: PolicyCard(
                   title: 'Extra Bed Policy',
                   icon: Icons.bed_outlined,
-                  headerColor: Colors.red.shade50,
-                  iconColor: Colors.red.shade700,
+                  headerColor: const Color(0xFFF3E5F5),
+                  iconColor: const Color(0xFF7B1FA2),
                   content: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            padding: EdgeInsets.all(4.r),
+                            padding: EdgeInsets.all(8.r),
                             decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              borderRadius: BorderRadius.circular(4.r),
+                              color: const Color(0xFFF3E5F5),
+                              shape: BoxShape.circle,
                             ),
                             child: Icon(Icons.king_bed_outlined,
-                                color: Colors.red.shade700, size: 14.sp),
+                                color: const Color(0xFF7B1FA2), size: 16.sp),
                           ),
-                          SizedBox(width: 8.w),
-                          Text(
-                            maxLines: 2,
-                            data.extraBedPolicy ?? 'No',
-                            style: TextStyle(
-                              //  maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13.sp,
-                              color: black,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 8.w, vertical: 6.h),
-                        decoration: BoxDecoration(
-                          color: gwhite,
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              '₹${data.extraBedPrice ?? '0'}',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10.sp,
-                                color: black,
-                              ),
-                            ),
-                            // Text(
-                            //   maxLines: 2,
-                            //   overflow: TextOverflow.ellipsis,
-                            //   '₹${data.extraBedPrice ?? '0'}',
-                            //   style: TextStyle(
-                            //     fontFamily: 'Poppins',
-                            //     fontWeight: FontWeight.bold,
-                            //     fontSize: 13.sp,
-                            //     color: black,
-                            //   ),
-                            // ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Container(
-                        padding: EdgeInsets.all(6.r),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(4.r),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                          SizedBox(width: 10.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.warning_amber_rounded,
-                                    color: Colors.orange.shade700, size: 10.sp),
-                                SizedBox(width: 4.w),
                                 Text(
-                                  'Warning:',
+                                  (data.extraBedPolicy == 'true' ||
+                                          data.extraBedPolicy == 'Available' ||
+                                          data.extraBedPolicy == 'Yes')
+                                      ? 'Extra beds available on request'
+                                      : data.extraBedPolicy ?? 'No',
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.red.shade700,
-                                    fontSize: 9.sp,
+                                    fontSize: 13.sp,
+                                    color: black,
                                   ),
                                 ),
+                                if (data.extraBedPrice != null &&
+                                    data.extraBedPrice != "null" &&
+                                    data.extraBedPrice != "0") ...[
+                                  SizedBox(height: 6.h),
+                                  Center(
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 10.w, vertical: 4.h),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF3E5F5),
+                                        borderRadius:
+                                            BorderRadius.circular(20.r),
+                                      ),
+                                      child: Text(
+                                        '₹${data.extraBedPrice} /night',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 11.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFF7B1FA2)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
-                            SizedBox(height: 2.h),
-                            Text(
-                              'Extra bed charges and custom policies are set by the hotel owner.',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 8.sp,
-                                color: Colors.red.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -1356,22 +1334,72 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
               ),
             ],
           ),
-          SizedBox(height: 10.h),
-          PolicyCard(
-            title: 'Property Rules',
-            icon: Icons.do_not_disturb_on_outlined,
-            headerColor: Colors.purple.shade50,
-            iconColor: Colors.purple.shade700,
-            content: Text(
-              data.propertyRules?.join(' ') ??
-                  'Guest must carry ID proof. No refund on cancellation. Extra payment will charge on extra hour.',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 11.sp,
-                color: grey.withOpacity(0.8),
-              ),
+          if (data.propertyRules != null || data.smokingAllowed != null) ...[
+            SizedBox(height: 10.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (data.smokingAllowed != null) ...[
+                  Expanded(
+                    child: PolicyCard(
+                      title: 'Smoking Policy',
+                      icon: Icons.smoke_free_rounded,
+                      headerColor: Colors.orange.shade50,
+                      iconColor: Colors.orange.shade700,
+                      content: Row(
+                        children: [
+                          Icon(
+                            data.smokingAllowed == true
+                                ? Icons.smoking_rooms_rounded
+                                : Icons.smoke_free_rounded,
+                            color: data.smokingAllowed == true
+                                ? Colors.green
+                                : Colors.red,
+                            size: 16.sp,
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            data.smokingAllowed == true
+                                ? 'Smoking Allowed'
+                                : 'Smoking Prohibited',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.bold,
+                              color: black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (data.propertyRules == null)
+                    const Expanded(child: SizedBox()),
+                ],
+                if (data.propertyRules != null) ...[
+                  if (data.smokingAllowed != null) SizedBox(width: 10.w),
+                  Expanded(
+                    child: PolicyCard(
+                      title: 'Property Rules',
+                      icon: Icons.do_not_disturb_on_outlined,
+                      headerColor: Colors.purple.shade50,
+                      iconColor: Colors.purple.shade700,
+                      content: Text(
+                        data.propertyRules?.join(' ') ?? '',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 11.sp,
+                          color: grey.withOpacity(0.8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (data.smokingAllowed == null)
+                    const Expanded(child: SizedBox()),
+                ],
+              ],
             ),
-          ),
+          ],
         ],
       ),
     );

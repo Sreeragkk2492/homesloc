@@ -14,6 +14,7 @@ import 'package:homesloc/screens/detailed_view_screen/tourism_widgets/tourism_it
 import 'package:homesloc/screens/detailed_view_screen/tourism_widgets/tourism_book_now.dart';
 import 'package:homesloc/core/utils/bottom_sheet_utils.dart';
 import 'package:homesloc/core/widgets/policy_card/policy_card.dart';
+import 'package:homesloc/core/widgets/name_view/name_view.dart';
 
 class TourismDetailedViewScreen extends StatefulWidget {
   final String packageId;
@@ -108,12 +109,25 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if (data.agencyDetails?.name != null)
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 4.h),
+                              child: Text(
+                                data.agencyDetails!.name!.toUpperCase(),
+                                style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: blue,
+                              fontSize: 22.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                              ),
+                            ),
                           Text(
                             data.packageName ?? '',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               color: blue,
-                              fontSize: 22.sp,
+                              fontSize: 18.sp,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -213,6 +227,7 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
                   ),
                 ),
               ],
+            
               const HomeDivider(),
               TourismAmenitiesSection(amenities: data.amenities),
               const HomeDivider(),
@@ -252,7 +267,7 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
                       icon: Icons.calendar_month_rounded,
                       title: "Travel Date",
                       onTap: () {
-                        BottomSheetUtils.showCalendarBottomSheet(context);
+                        BottomSheetUtils.showSingleDatePicker(context);
                       },
                       subtitle: Obx(() {
                         return Text(
@@ -309,7 +324,12 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
                 ),
               ),
               ItinerarySection(itinerary: data.itinerary),
-              const HomeDivider(),
+             // const HomeDivider(),
+                if (data.agencyDetails?.packages != null &&
+                  data.agencyDetails!.packages!.isNotEmpty) ...[
+                const HomeDivider(),
+                _buildAvailablePackages(data.agencyDetails!.packages!),
+              ],
               Padding(
                 padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
                 child: Text(
@@ -735,6 +755,185 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildAvailablePackages(List<TourismPackage> packages) {
+    if (packages.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        NameView(
+          name: "Available Packages",
+          color: blue,
+          secondName: '',
+          secondColor: blue,
+        ),
+        SizedBox(height: 10.h),
+        ...packages.map((package) => _buildPackageCard(package)),
+        const HomeDivider(),
+      ],
+    );
+  }
+
+  Widget _buildPackageCard(TourismPackage package) {
+    return Obx(() {
+      final isSelected = controller.currentPackageId.value == package.id;
+      return GestureDetector(
+        onTap: () => controller.selectPackage(package.id ?? ""),
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+          decoration: BoxDecoration(
+            color: white,
+            borderRadius: BorderRadius.circular(16.r),
+            border: Border.all(
+              color: isSelected ? blue : border,
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Package Image with Checkmark Overlay
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(isSelected ? 14.r : 15.r)),
+                child: SizedBox(
+                  height: 160.h,
+                  width: double.infinity,
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        package.galleryImages?.isNotEmpty == true
+                            ? package.galleryImages!.first
+                            : "https://via.placeholder.com/150",
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 160.h,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Image.asset('assets/images/sunrise.jpg',
+                                fit: BoxFit.cover),
+                      ),
+                      if (isSelected)
+                        Positioned(
+                          top: 10.h,
+                          right: 10.w,
+                          child:
+                              Icon(Icons.check_circle, color: blue, size: 24.sp),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(12.r),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            package.packageName ?? "Tour Package",
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: blue,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          "₹${package.priceWithoutFlight?.split('.').first ?? '0'}",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.bold,
+                            color: black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Icon(Icons.flight_takeoff_outlined,
+                            size: 14.sp, color: fontColor),
+                        SizedBox(width: 4.w),
+                        Text(
+                          "From: ${package.startLocation ?? "N/A"}",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 12.sp,
+                              color: fontColor),
+                        ),
+                        SizedBox(width: 12.w),
+                        Icon(Icons.flight_land_outlined,
+                            size: 14.sp, color: fontColor),
+                        SizedBox(width: 4.w),
+                        Text(
+                          "To: ${package.destination ?? "N/A"}",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 12.sp,
+                              color: fontColor),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 6.h),
+                    // Row(
+                    //   children: [
+                    //     Icon(Icons.person_outline,
+                    //         size: 14.sp, color: fontColor),
+                    //     SizedBox(width: 4.w),
+                    //     Text(
+                    //       "Capacity: ${package.totalCapacity ?? 0}",
+                    //       style: TextStyle(
+                    //           fontFamily: 'Poppins',
+                    //           fontSize: 12.sp,
+                    //           color: fontColor),
+                    //     ),
+                    //     if (package.children != null &&
+                    //         package.children! > 0) ...[
+                    //       SizedBox(width: 12.w),
+                    //       Icon(Icons.child_care_outlined,
+                    //           size: 14.sp, color: fontColor),
+                    //       SizedBox(width: 4.w),
+                    //       Text(
+                    //         "Children: ${package.children}",
+                    //         style: TextStyle(
+                    //             fontFamily: 'Poppins',
+                    //             fontSize: 12.sp,
+                    //             color: fontColor),
+                    //       ),
+                    //     ],
+                    //   ],
+                    // ),
+                    if (isSelected) ...[
+                      SizedBox(height: 10.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(Icons.check_circle, color: blue, size: 20.sp),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildBillingItem({

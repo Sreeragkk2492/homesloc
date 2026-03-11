@@ -351,20 +351,89 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 }
 
                 return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (widget.propertyType != "HALL" &&
+                        widget.bookingDetails?.adults != null) ...[
+                      _buildSummaryRow(
+                          "Guests",
+                          "${widget.bookingDetails!.adults} ${widget.bookingDetails!.adults! > 1 ? 'Adults' : 'Adult'}" +
+                              (widget.bookingDetails!.children != null &&
+                                      widget.bookingDetails!.children! > 0
+                                  ? ", ${widget.bookingDetails!.children} ${widget.bookingDetails!.children! > 1 ? 'Children' : 'Child'}"
+                                  : "")),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child:
+                            Divider(color: border.withOpacity(0.3), height: 1),
+                      ),
+                    ],
+                    if (widget.propertyType != "HALL" &&
+                        widget.bookingDetails?.roomsRequested != null) ...[
+                      _buildSummaryRow(
+                          "Rooms", "${widget.bookingDetails!.roomsRequested}"),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child:
+                            Divider(color: border.withOpacity(0.3), height: 1),
+                      ),
+                    ],
                     _buildSummaryRow(
-                        "Start Date", calendarController.formatDate(checkIn)),
+                        "Check In", calendarController.formatDate(checkIn)),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 12.h),
                       child: Divider(color: border.withOpacity(0.3), height: 1),
                     ),
                     _buildSummaryRow(
-                        "End Date", calendarController.formatDate(checkOut)),
+                        "Check Out", calendarController.formatDate(checkOut)),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 12.h),
                       child: Divider(color: border.withOpacity(0.3), height: 1),
                     ),
                     _buildSummaryRow("Duration", "$duration days"),
+                    if (widget.bookingDetails?.dateDetails != null &&
+                        widget.bookingDetails!.dateDetails!.isNotEmpty) ...[
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child:
+                            Divider(color: border.withOpacity(0.3), height: 1),
+                      ),
+                      Text(
+                        'Date Details',
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: blue,
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10.h),
+                      ...widget.bookingDetails!.dateDetails!.map((detail) {
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 8.h),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                detail.date ?? "",
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: fontColor,
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                '₹${detail.offerPrice ?? detail.basePrice ?? '0'}',
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: black,
+                                    fontSize: 13.sp,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ],
                   ],
                 );
               }),

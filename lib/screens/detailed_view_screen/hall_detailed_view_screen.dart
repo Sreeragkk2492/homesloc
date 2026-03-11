@@ -55,6 +55,7 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
   int _carouselIndex = 0;
   final PageController _pageController = PageController();
   dynamic _selectedArea;
+  bool _isAreaLoading = false; // Add loading state for area selection
 
   final bool _isFullProperty = true; // Halls are always full property/venue
 
@@ -161,7 +162,21 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
     return GestureDetector(
       onTap: () {
         setState(() {
+          _isAreaLoading = true;
           _selectedArea = area;
+          _carouselIndex = 0;
+          if (_pageController.hasClients) {
+            _pageController.jumpToPage(0);
+          }
+        });
+
+        // Small delay to show user that data is changing
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted) {
+            setState(() {
+              _isAreaLoading = false;
+            });
+          }
         });
       },
       child: Container(
@@ -278,11 +293,13 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
 
     return Scaffold(
       backgroundColor: white,
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             Stack(
               children: [
                 SizedBox(
@@ -662,13 +679,13 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
                     icon: Icons.calendar_month_rounded,
                     title: "Booking Date",
                     onTap: () =>
-                        BottomSheetUtils.showCalendarBottomSheet(context),
+                        BottomSheetUtils.showSingleDatePicker(context),
                     subtitle: Obx(() {
                       final calendarController = Get.find<CalendarController>();
                       return Text(
-                        calendarController.checkInDate.value != null &&
-                                calendarController.checkOutDate.value != null
-                            ? "${calendarController.formatDate(calendarController.checkInDate.value)} - ${calendarController.formatDate(calendarController.checkOutDate.value)}"
+                        calendarController.checkInDate.value != null
+                            ? calendarController.formatDate(
+                                calendarController.checkInDate.value)
                             : "Select Date",
                         style: TextStyle(
                             fontFamily: 'Poppins',
@@ -845,8 +862,19 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
           ],
         ),
       ),
-    );
-  }
+      if (_isAreaLoading)
+        Positioned.fill(
+          child: Container(
+            color: Colors.white.withOpacity(0.5),
+            child: const Center(
+              child: AppLoader(size: 50),
+            ),
+          ),
+        ),
+    ],
+  ),
+);
+}
 
   String _getName(dynamic hotel) {
     if (hotel is HallDetailModel) return hotel.name;
@@ -999,24 +1027,6 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
       }
     }
     return 'Standard cancellation policies apply.';
-  }
-
-  String? _getBestPrice(dynamic hotel) {
-    if (hotel is HallDetailModel) return hotel.bestPrice;
-    if (hotel is HotelDetailModel) {
-      // Prioritize pricing object
-      if (hotel.pricing?.bestPrice != null) {
-        return hotel.pricing!.bestPrice;
-      }
-      return hotel.pricing?.offerPrice?.toString();
-    }
-    try {
-      if (hotel.originalPrice != null) return hotel.originalPrice;
-      if (hotel.offerPrice != null) return hotel.offerPrice.toString();
-    } catch (e) {
-      return null;
-    }
-    return null;
   }
 
   bool? _getDecorationAllowed(dynamic hotel) {

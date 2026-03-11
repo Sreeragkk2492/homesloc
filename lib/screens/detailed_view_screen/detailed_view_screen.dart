@@ -52,6 +52,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
   int _carouselIndex = 0;
   final PageController _pageController = PageController();
   HotelRoom? _selectedRoom;
+  bool _isRoomLoading = false; // Add loading state for room selection
 
   bool _isFullProperty = false; // Add this flag
 
@@ -166,10 +167,20 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
           return;
         }
         setState(() {
+          _isRoomLoading = true;
           _selectedRoom = isSelected ? null : room;
           _carouselIndex = 0;
           if (_pageController.hasClients) {
             _pageController.jumpToPage(0);
+          }
+        });
+
+        // Small delay to show user that data is changing
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted) {
+            setState(() {
+              _isRoomLoading = false;
+            });
           }
         });
       },
@@ -398,11 +409,13 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
 
     return Scaffold(
       backgroundColor: white,
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             Stack(
               children: [
                 SizedBox(
@@ -1065,8 +1078,19 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
           ],
         ),
       ),
-    );
-  }
+      if (_isRoomLoading)
+        Positioned.fill(
+          child: Container(
+            color: Colors.white.withOpacity(0.5),
+            child: const Center(
+              child: AppLoader(size: 50),
+            ),
+          ),
+        ),
+    ],
+  ),
+);
+}
 
   String _getHotelName(dynamic hotel) {
     if (hotel is HotelDetailModel) return hotel.name ?? 'Hotel Name';
@@ -1376,77 +1400,166 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.king_bed_outlined,
-                              color: Colors.red.shade700, size: 12.sp),
-                          SizedBox(width: 6.w),
-                          Text(
-                            detailedHotel?.policies?.extraBedPolicy ?? 'No',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.sp,
-                              color: black,
+                          Container(
+                            padding: EdgeInsets.all(8.r),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3E5F5), // Light purple
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.king_bed_outlined,
+                                color: const Color(0xFF7B1FA2), size: 16.sp), // Purple icon
+                          ),
+                          SizedBox(width: 10.w),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  (detailedHotel?.policies?.extraBedPolicy == 'true' || 
+                                   detailedHotel?.policies?.extraBedPolicy == 'Available' ||
+                                   detailedHotel?.policies?.extraBedPolicy == 'Yes')
+                                      ? 'Extra beds available on request'
+                                      : detailedHotel?.policies?.extraBedPolicy ?? 'No',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13.sp,
+                                    color: black,
+                                  ),
+                                ),
+                                if (detailedHotel?.policies?.extraBedPrice != null && 
+                                    detailedHotel?.policies?.extraBedPrice != "null" &&
+                                    detailedHotel?.policies?.extraBedPrice != "0") ...[
+                                  SizedBox(height: 6.h),
+                                  Center(
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF3E5F5),
+                                        borderRadius: BorderRadius.circular(20.r),
+                                      ),
+                                      child: Text(
+                                        '₹${detailedHotel?.policies?.extraBedPrice} /night',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 11.sp,
+                                            
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFF7B1FA2)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      if (detailedHotel?.policies?.extraBedPrice != null) ...[
-                        SizedBox(height: 4.h),
-                        Text(
-                          '₹${detailedHotel?.policies?.extraBedPrice}',
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 10.sp,
-                              color: grey),
-                        ),
-                      ],
                     ],
                   ),
                 ),
               ),
             ],
           ),
-          if (_getAccommodationPolicies(hotel).isNotEmpty) ...[
+          if (_getAccommodationPolicies(hotel).isNotEmpty ||
+              (hotel is HotelDetailModel && hotel.smokingAllowed != null)) ...[
             SizedBox(height: 10.h),
-            PolicyCard(
-              title: 'Property Rules',
-              icon: Icons.do_not_disturb_on_outlined,
-              headerColor: Colors.purple.shade50,
-              iconColor: Colors.purple.shade700,
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _getAccommodationPolicies(hotel)
-                    .map((rule) => Padding(
-                          padding: EdgeInsets.only(bottom: 4.h),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(top: 4.h),
-                                child: Container(
-                                  width: 4.w,
-                                  height: 4.h,
-                                  decoration: const BoxDecoration(
-                                      color: grey, shape: BoxShape.circle),
-                                ),
-                              ),
-                              SizedBox(width: 8.w),
-                              Expanded(
-                                child: Text(
-                                  rule,
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 10.sp,
-                                    color: grey.withOpacity(0.8),
-                                  ),
-                                ),
-                              ),
-                            ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (hotel is HotelDetailModel &&
+                    hotel.smokingAllowed != null) ...[
+                  Expanded(
+                    child: PolicyCard(
+                      title: 'Smoking Policy',
+                      icon: Icons.smoke_free_rounded,
+                      headerColor: Colors.orange.shade50,
+                      iconColor: Colors.orange.shade700,
+                      content: Row(
+                        children: [
+                          Icon(
+                            hotel.smokingAllowed == true
+                                ? Icons.smoking_rooms_rounded
+                                : Icons.smoke_free_rounded,
+                            color: hotel.smokingAllowed == true
+                                ? Colors.green
+                                : Colors.red,
+                            size: 16.sp,
                           ),
-                        ))
-                    .toList(),
-              ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            hotel.smokingAllowed == true
+                                ? 'Smoking Allowed'
+                                : 'Smoking Prohibited',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.bold,
+                              color: black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (_getAccommodationPolicies(hotel).isEmpty)
+                    const Expanded(child: SizedBox()),
+                ],
+                if (_getAccommodationPolicies(hotel).isNotEmpty) ...[
+                  if (hotel is HotelDetailModel && hotel.smokingAllowed != null)
+                    SizedBox(width: 10.w),
+                  Expanded(
+                    child: PolicyCard(
+                      title: 'Property Rules',
+                      icon: Icons.do_not_disturb_on_outlined,
+                      headerColor: Colors.purple.shade50,
+                      iconColor: Colors.purple.shade700,
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _getAccommodationPolicies(hotel)
+                            .map((rule) => Padding(
+                                  padding: EdgeInsets.only(bottom: 4.h),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 4.h),
+                                        child: Container(
+                                          width: 4.w,
+                                          height: 4.h,
+                                          decoration: const BoxDecoration(
+                                              color: grey,
+                                              shape: BoxShape.circle),
+                                        ),
+                                      ),
+                                      SizedBox(width: 8.w),
+                                      Expanded(
+                                        child: Text(
+                                          rule,
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 10.sp,
+                                            color: grey.withOpacity(0.8),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                  if (!(hotel is HotelDetailModel &&
+                      hotel.smokingAllowed != null))
+                    const Expanded(child: SizedBox()),
+                ],
+              ],
             ),
           ],
         ],

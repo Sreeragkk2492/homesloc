@@ -93,14 +93,160 @@ class TripScreen extends StatelessWidget {
           itemCount: controller.bookings.length,
           itemBuilder: (context, index) {
             final booking = controller.bookings[index];
-            return _buildBookingCard(booking);
+            return _buildBookingCard(context, booking);
           },
         );
       }),
     );
   }
 
-  Widget _buildBookingCard(UserBooking booking) {
+  void _showCancelDialog(BuildContext context, String bookingId) {
+    final TextEditingController reasonController = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        decoration: BoxDecoration(
+          color: white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30.r),
+            topRight: Radius.circular(30.r),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: EdgeInsets.only(top: 12.h, bottom: 20.h),
+              width: 50.w,
+              height: 5.h,
+              decoration: BoxDecoration(
+                color: grey.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Cancel Booking',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: blue,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Please provide a reason for cancellation. This will help us improve our service.',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 13.sp,
+                      color: fontColor,
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  TextField(
+                    controller: reasonController,
+                    decoration: InputDecoration(
+                      hintText: 'Reason for cancellation...',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 13.sp,
+                        color: Colors.grey[400],
+                      ),
+                      filled: true,
+                      fillColor: scaffoldColor,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.r),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: EdgeInsets.all(16.r),
+                    ),
+                    maxLines: 4,
+                  ),
+                  SizedBox(height: 24.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Get.back(),
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                            side: BorderSide(color: border),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: Text(
+                            'Back',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 14.sp,
+                              color: fontColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (reasonController.text.trim().isEmpty) {
+                              Get.snackbar(
+                                "Reason Required",
+                                "Please provide a reason for cancellation.",
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.red.withOpacity(0.1),
+                                colorText: Colors.red,
+                              );
+                              return;
+                            }
+                            Get.back();
+                            controller.cancelBooking(
+                                bookingId, reasonController.text.trim());
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: EdgeInsets.symmetric(vertical: 14.h),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: Text(
+                            'Confirm Cancel',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 14.sp,
+                              color: white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 30.h),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBookingCard(BuildContext context, UserBooking booking) {
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       padding: EdgeInsets.all(12.w),
@@ -245,24 +391,67 @@ class TripScreen extends StatelessWidget {
               ),
               Obx(() {
                 final isExpanded = controller.expandedIds.contains(booking.id);
-                return ElevatedButton(
-                  onPressed: () => controller.toggleExpansionStatus(booking.id),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F4A63),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6.r),
+                final canCancel = booking.cancellationDays > 0 &&
+                    booking.bookingStatus.toLowerCase() == 'booked';
+                final isCancelling =
+                    controller.isCancelLoading[booking.id] ?? false;
+
+                return Row(
+                  children: [
+                    if (canCancel) ...[
+                      OutlinedButton(
+                        onPressed: isCancelling
+                            ? null
+                            : () => _showCancelDialog(context, booking.id),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                          side: BorderSide(color: Colors.red.shade200),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.w, vertical: 8.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                        ),
+                        child: isCancelling
+                            ? SizedBox(
+                                width: 16.w,
+                                height: 16.h,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.red,
+                                ),
+                              )
+                            : Text(
+                                'Cancel Booking',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                      SizedBox(width: 8.w),
+                    ],
+                    ElevatedButton(
+                      onPressed: () =>
+                          controller.toggleExpansionStatus(booking.id),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0F4A63),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16.w, vertical: 8.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                      ),
+                      child: Text(
+                        isExpanded ? 'Hide Details' : 'View Details',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    isExpanded ? 'Hide Details' : 'View Details',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  ],
                 );
               }),
             ],

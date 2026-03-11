@@ -14,7 +14,14 @@ class AmenitieRow extends StatelessWidget {
     List<String> amenities = [];
 
     if (hotel is HotelDetailModel) {
-      amenities = hotel.amenities ?? [];
+      amenities = List<String>.from(hotel.amenities ?? []);
+      if (hotel.hotelAmenities != null) {
+        for (var a in hotel.hotelAmenities!) {
+          if (!amenities.contains(a)) {
+            amenities.add(a);
+          }
+        }
+      }
     } else if (hotel is Hotel) {
       amenities = hotel.amenities ?? [];
       // Fallback to freshup details if root amenities is empty

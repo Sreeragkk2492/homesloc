@@ -256,6 +256,7 @@ class Hotel {
         freshup.yearBuild = propDetails["year_build"];
         freshup.yearRenovated = propDetails["year_renovated"];
         freshup.phoneNumber = propDetails["phone_number"]?.toString();
+        freshup.starRating = propDetails["star_rating"];
       }
     }
 
@@ -278,7 +279,11 @@ class Hotel {
       discountPercentage: json["discount_percentage"],
       taxInfo: json["tax_info"],
       amenities: amens,
-      rating: json["rating"] ?? json["hotel_star_rating"],
+      rating: json["rating"] ??
+          json["hotel_star_rating"] ??
+          (json["property_details"] != null
+              ? json["property_details"]["star_rating"]
+              : null),
       reviewCount: (json["review_count"] as num?)?.toInt(),
       accommodationType: type,
       isFavorite: json["is_favorite"],

@@ -71,18 +71,18 @@ class FreshupBookNow extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (hasDiscount) ...[
-                        Text(
-                          '\u20b9$originalPrice',
-                          style: TextStyle(
-                              color: const Color.fromARGB(255, 190, 190, 190),
-                              fontFamily: 'Poppins',
-                              decoration: TextDecoration.lineThrough,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14.sp),
-                        ),
-                        SizedBox(width: 6.w),
-                      ],
+                      // if (hasDiscount) ...[
+                      //   Text(
+                      //     '\u20b9$originalPrice',
+                      //     style: TextStyle(
+                      //         color: const Color.fromARGB(255, 190, 190, 190),
+                      //         fontFamily: 'Poppins',
+                      //         decoration: TextDecoration.lineThrough,
+                      //         fontWeight: FontWeight.bold,
+                      //         fontSize: 14.sp),
+                      //   ),
+                      //   SizedBox(width: 6.w),
+                      // ],
                       Text(
                         '\u20b9$displayPrice',
                         style: TextStyle(
@@ -94,7 +94,7 @@ class FreshupBookNow extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    '+ Taxes & Fees',
+                    'Including Taxes',
                     style: TextStyle(
                         color: const Color.fromARGB(255, 190, 190, 190),
                         fontFamily: 'Poppins',

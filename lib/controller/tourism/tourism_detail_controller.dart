@@ -32,11 +32,12 @@ class TourismDetailController extends GetxController {
   var isLoading = false.obs;
   var tourismDetails = Rxn<TourismDetailModel>();
   var errorMessage = ''.obs;
-  var userName = ''.obs;
+  var currentPackageId = "".obs;
 
   @override
   void onInit() {
     super.onInit();
+    currentPackageId.value = packageId;
     if (Get.isRegistered<CalendarController>()) {
       calendarController = Get.find<CalendarController>();
     } else {
@@ -53,6 +54,13 @@ class TourismDetailController extends GetxController {
     fetchTourismDetails();
   }
 
+  void selectPackage(String id) {
+    if (currentPackageId.value == id) return;
+    currentPackageId.value = id;
+    carouselIndex.value = 0;
+    fetchTourismDetails();
+  }
+
   Future<void> fetchTourismDetails() async {
     isLoading(true);
     errorMessage('');
@@ -65,7 +73,7 @@ class TourismDetailController extends GetxController {
           DateTime.now().add(const Duration(days: 1)));
 
       final result = await _searchService.fetchTourismDetails(
-        packageId: packageId,
+        packageId: currentPackageId.value,
         startDate: start,
         endDate: end,
       );
@@ -98,7 +106,7 @@ class TourismDetailController extends GetxController {
       final checkin = dateFormat.format(calendarController.checkInDate.value!);
 
       final result = await _searchService.checkTourismAvailability(
-        packageId: packageId,
+        packageId: currentPackageId.value,
         checkin: checkin,
       );
 
@@ -113,6 +121,8 @@ class TourismDetailController extends GetxController {
                   tourismDetails.value?.galleryImages?.isNotEmpty == true
                       ? tourismDetails.value!.galleryImages!.first
                       : "",
+              duration:
+                  "${tourismDetails.value?.durationDays ?? 0}D / ${tourismDetails.value?.durationNights ?? 0}N",
               cancellationPolicy: tourismDetails
                       .value?.agencyDetails?.policies?.cancellationPolicy ??
                   'Standard cancellation policies apply.',
@@ -206,7 +216,7 @@ class TourismDetailController extends GetxController {
 
       // Create a booking request for the tourism package
       final booking = TourismBookingRequestModel(
-        propertyId: packageId,
+        propertyId: currentPackageId.value,
         propertyType: "PACKAGE",
         userName: userName,
         primaryEmail: email,
