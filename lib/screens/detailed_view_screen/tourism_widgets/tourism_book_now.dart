@@ -66,20 +66,20 @@ class TourismBookNow extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             fontSize: 23.sp),
                       ),
-                      if (data.offerPrice != null &&
-                          data.offerPrice != data.priceWithoutFlight) ...[
-                        SizedBox(width: 8.w),
-                        Text(
-                          "₹${data.offerPrice}",
-                          style: TextStyle(
-                              color: const Color.fromARGB(255, 190, 190, 190),
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500,
-                              decoration: TextDecoration.lineThrough,
-                              decorationColor: white,
-                              fontSize: 12.sp),
-                        ),
-                      ],
+                      // if (data.offerPrice != null &&
+                      //     data.offerPrice != data.priceWithoutFlight) ...[
+                      //   SizedBox(width: 8.w),
+                      //   Text(
+                      //     "₹${data.offerPrice}",
+                      //     style: TextStyle(
+                      //         color: const Color.fromARGB(255, 190, 190, 190),
+                      //         fontFamily: 'Poppins',
+                      //         fontWeight: FontWeight.w500,
+                      //         decoration: TextDecoration.lineThrough,
+                      //         decorationColor: white,
+                      //         fontSize: 12.sp),
+                      //   ),
+                     // ],
                     ],
                   ),
                   Text(

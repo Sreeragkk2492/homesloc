@@ -19,214 +19,220 @@ class SignUp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: white,
-      appBar: AppBar(
-        toolbarHeight: 70.h,
+    return SafeArea(
+      top: false,
+      child: Scaffold(
         backgroundColor: white,
-        automaticallyImplyLeading: false,
-        title: Center(
-          child: Text(
-            'Create Account',
-            style: TextStyle(
-                color: black,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.bold,
-                fontSize: 28.sp),
+        appBar: AppBar(
+          toolbarHeight: 70.h,
+          backgroundColor: white,
+          automaticallyImplyLeading: false,
+          title: Center(
+            child: Text(
+              'Create Account',
+              style: TextStyle(
+                  color: black,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28.sp),
+            ),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Form(
-          key: controller.signupFormKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              NameForm(
-                  name: "Username",
-                  controller: controller.nameController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter username';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {}),
-              NameForm(
-                  name: "Email",
-                  controller: controller.emailController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter email';
-                    }
-                    if (!GetUtils.isEmail(value)) {
-                      return 'Please enter valid email';
-                    }
-                    return null;
-                  },
-                  suffix: Obx(() => controller.isEmailVerified.value
-                      ? Icon(Icons.check_circle, color: Colors.green)
-                      : TextButton(
-                          onPressed: () {
-                            controller.sendOtp();
-                          },
-                          child: controller.isOtpLoading.value
-                              ? SizedBox(
-                                  width: 15,
-                                  height: 15,
-                                  child: const AppLoader(size: 20))
-                              : Text(
-                                  'Verify',
-                                  style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.bold,
-                                      color: blue),
-                                ),
-                        )),
-                  onSaved: (value) {}),
-              NameForm(
-                  name: "Phone Number",
-                  controller: controller.phoneNumberController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter phone number';
-                    }
-                    if (!value.isNumericOnly) {
-                      return 'Please enter valid phone number';
-                    }
-                    return null;
-                  },
-                  prefix: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    child: Obx(
-                      () => DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: controller.countryCode.value,
-                          items: controller.countryCodes
-                              .map((code) => DropdownMenuItem(
-                                    value: code,
-                                    child: Text(
-                                      code,
-                                      style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 14.sp,
-                                          color: black),
-                                    ),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              controller.countryCode.value = value;
-                            }
-                          },
+        body: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Form(
+            key: controller.signupFormKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                NameForm(
+                    name: "Username",
+                    controller: controller.nameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter username';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {}),
+                NameForm(
+                    name: "Email",
+                    controller: controller.emailController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter email';
+                      }
+                      if (!GetUtils.isEmail(value)) {
+                        return 'Please enter valid email';
+                      }
+                      return null;
+                    },
+                    suffix: Obx(() => controller.isEmailVerified.value
+                        ? Icon(Icons.check_circle, color: Colors.green)
+                        : TextButton(
+                            onPressed: () {
+                              controller.sendOtp();
+                            },
+                            child: controller.isOtpLoading.value
+                                ? SizedBox(
+                                    width: 15,
+                                    height: 15,
+                                    child: const AppLoader(size: 20))
+                                : Text(
+                                    'Verify',
+                                    style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                        color: blue),
+                                  ),
+                          )),
+                    onSaved: (value) {}),
+                NameForm(
+                    name: "Phone Number",
+                    controller: controller.phoneNumberController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter phone number';
+                      }
+                      if (!value.isNumericOnly) {
+                        return 'Please enter valid phone number';
+                      }
+                      return null;
+                    },
+                    prefix: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                      child: Obx(
+                        () => DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: controller.countryCode.value,
+                            items: controller.countryCodes
+                                .map((code) => DropdownMenuItem(
+                                      value: code,
+                                      child: Text(
+                                        code,
+                                        style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontSize: 14.sp,
+                                            color: black),
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                controller.countryCode.value = value;
+                              }
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  onSaved: (value) {}),
-              SizedBox(
-                height: 8.h,
-              ),
-              PasswordForm(
-                name: "Password",
-                controller: controller.passwordController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
-                  }
-                  return null;
-                },
-                onSaved: (value) {},
-                hintText: '',
-              ),
-              SizedBox(
-                height: 8.h,
-              ),
-              PasswordForm(
-                name: "Confirm Password",
-                controller: controller.confirmPasswordController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please confirm password';
-                  }
-                  if (value != controller.passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-                onSaved: (value) {},
-                hintText: '',
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 10.w, top: 10.h, bottom: 30.h),
-                child: Row(
-                  children: [
-                    Obx(
-                      () => Checkbox(
-                        value: controller.isTermsAccepted.value,
-                        onChanged: (value) {
-                          controller.isTermsAccepted.value = value!;
-                        },
-                        activeColor: blue,
-                        hoverColor: black,
-                        // fillColor: WidgetStateProperty.all(blue),
-                      ),
-                    ),
-                    Text(
-                      'Agree with ',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.bold,
-                          color: black),
-                    ),
-                    Text(
-                      'Terms&Condition',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 11.sp,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                          decorationColor: blue,
-                          color: blue),
-                    ),
-                  ],
+                    onSaved: (value) {}),
+                SizedBox(
+                  height: 8.h,
                 ),
-              ),
-              Obx(
-                () => controller.isRegisterLoading.value
-                    ? const Center(child: AppLoader(size: 40))
-                    : AuthButton(
-                        name: 'Sign Up',
-                        onPressed: () async {
-                          if (controller.signupFormKey.currentState!
-                              .validate()) {
-                            if (!controller.isTermsAccepted.value) {
-                              customSnackBar(
-                                  "Error", "Please accept Terms & Conditions");
-                              return;
-                            }
-                            await controller.register();
-                            if (controller.isRegisterSuccess.value) {
-                              customSnackBar(
-                                  "Success", controller.registerMessage.value);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return SignIn();
-                              }));
-                            } else {
-                              customSnackBar(
-                                  "Error", controller.registerMessage.value);
-                            }
-                          }
-                        },
+                PasswordForm(
+                  name: "Password",
+                  controller: controller.passwordController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {},
+                  hintText: '',
+                ),
+                SizedBox(
+                  height: 8.h,
+                ),
+                PasswordForm(
+                  name: "Confirm Password",
+                  controller: controller.confirmPasswordController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm password';
+                    }
+                    if (value != controller.passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {},
+                  hintText: '',
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 10.w, top: 10.h, bottom: 30.h),
+                  child: Row(
+                    children: [
+                      Obx(
+                        () => Checkbox(
+                          value: controller.isTermsAccepted.value,
+                          onChanged: (value) {
+                            controller.isTermsAccepted.value = value!;
+                          },
+                          activeColor: blue,
+                          hoverColor: black,
+                          // fillColor: WidgetStateProperty.all(blue),
+                        ),
                       ),
-              ),
-            ],
+                      Text(
+                        'Agree with ',
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.bold,
+                            color: black),
+                      ),
+                      Text(
+                        'Terms&Condition',
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                            decorationColor: blue,
+                            color: blue),
+                      ),
+                    ],
+                  ),
+                ),
+                Obx(
+                  () => controller.isRegisterLoading.value
+                      ? const Center(child: AppLoader(size: 40))
+                      : AuthButton(
+                          name: 'Sign Up',
+                          onPressed: () async {
+                            if (controller.signupFormKey.currentState!
+                                .validate()) {
+                              if (!controller.isTermsAccepted.value) {
+                                customSnackBar(
+                                    "Error", "Please accept Terms & Conditions");
+                                return;
+                              }
+                              await controller.register();
+                              if (controller.isRegisterSuccess.value) {
+                                customSnackBar(
+                                    "Success", controller.registerMessage.value);
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return SignIn();
+                                }));
+                              } else {
+                                customSnackBar(
+                                    "Error", controller.registerMessage.value);
+                              }
+                            }
+                          },
+                        ),
+                ),
+                  SizedBox(
+                  height: 8.h,
+                ),
+              ],
+            ),
           ),
         ),
       ),

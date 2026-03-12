@@ -1360,8 +1360,9 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                           SizedBox(width: 8.w),
                           Text(
                             data.smokingAllowed == true
-                                ? 'Smoking Allowed'
-                                : 'Smoking Prohibited',
+                                ? 'Smoking\nAllowed'
+                                : 'Smoking\nProhibited',
+                              //  maxLines: 2,
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 10.sp,

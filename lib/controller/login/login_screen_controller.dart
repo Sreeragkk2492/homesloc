@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:homesloc/apis/login/login_api.dart';
 import 'package:homesloc/screens/auth/otp_varification.dart';
 import 'package:homesloc/screens/auth/reset_password.dart';
-import 'package:homesloc/screens/auth/sign_in.dart';
 import 'package:homesloc/screens/auth/sign_up.dart';
+import 'package:homesloc/core/services/firebase_service.dart';
+import 'package:homesloc/screens/bottom_bar_screen/bottom_bar_screen.dart';
+import 'package:homesloc/core/common/global_variables.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginScreenController extends GetxController {
   // Note: Import OtpVarification at top or use full path if needed,
@@ -12,6 +15,7 @@ class LoginScreenController extends GetxController {
   // For now I will assume imports are handled or I will add it.
 
   RxBool isLoading = false.obs;
+  RxBool isGoogleLoading = false.obs;
   RxBool isAuthFailed = false.obs;
 
   RxString message = "".obs;
@@ -214,6 +218,30 @@ class LoginScreenController extends GetxController {
       // Error handled in API function with snackbar
       isLoading.value = false;
       return false;
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      isGoogleLoading.value = true;
+      final result = await FirebaseService.signInWithGoogle();
+
+      if (result.user != null && result.idToken != null) {
+        await googleLoginApi(idToken: result.idToken!);
+        
+        // If backend username is empty, fallback to Firebase display name
+        if (userName.isEmpty || userName == "null") {
+          userName = result.user?.displayName ?? "";
+          const storage = FlutterSecureStorage();
+          await storage.write(key: "user_name", value: userName);
+        }
+
+        Get.offAll(() => BottomBarScreen());
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Google Sign-In failed: $e");
+    } finally {
+      isGoogleLoading.value = false;
     }
   }
 

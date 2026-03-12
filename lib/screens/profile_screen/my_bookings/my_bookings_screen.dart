@@ -14,89 +14,92 @@ class TripScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
+    return SafeArea(
+      top: false,
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your Bookings',
-              style: TextStyle(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontFamily: 'Poppins',
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Your Bookings',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontFamily: 'Poppins',
+                ),
               ),
-            ),
-            Text(
-              'View and manage the bookings in your account',
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: Colors.grey[600],
-                fontFamily: 'Poppins',
+              Text(
+                'View and manage the bookings in your account',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: Colors.grey[600],
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              child: OutlinedButton.icon(
+                onPressed: () => Get.back(),
+                icon: Icon(Icons.arrow_back, size: 16.sp, color: Colors.black),
+                label: Text(
+                  'Back',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14.sp,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: Colors.grey[300]!),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
               ),
             ),
           ],
         ),
-        actions: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-            child: OutlinedButton.icon(
-              onPressed: () => Get.back(),
-              icon: Icon(Icons.arrow_back, size: 16.sp, color: Colors.black),
-              label: Text(
-                'Back',
+        body: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: AppLoader());
+          }
+      
+          if (controller.errorMessage.value.isNotEmpty) {
+            return Center(child: Text(controller.errorMessage.value));
+          }
+      
+          if (controller.bookings.isEmpty) {
+            return Center(
+              child: Text(
+                'No bookings found.',
                 style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
+                  color: Colors.grey[600],
+                  fontSize: 16.sp,
                   fontFamily: 'Poppins',
                 ),
               ),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: Colors.grey[300]!),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: AppLoader());
-        }
-
-        if (controller.errorMessage.value.isNotEmpty) {
-          return Center(child: Text(controller.errorMessage.value));
-        }
-
-        if (controller.bookings.isEmpty) {
-          return Center(
-            child: Text(
-              'No bookings found.',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 16.sp,
-                fontFamily: 'Poppins',
-              ),
-            ),
+            );
+          }
+      
+          return ListView.builder(
+            padding: EdgeInsets.all(16.w),
+            itemCount: controller.bookings.length,
+            itemBuilder: (context, index) {
+              final booking = controller.bookings[index];
+              return _buildBookingCard(context, booking);
+            },
           );
-        }
-
-        return ListView.builder(
-          padding: EdgeInsets.all(16.w),
-          itemCount: controller.bookings.length,
-          itemBuilder: (context, index) {
-            final booking = controller.bookings[index];
-            return _buildBookingCard(context, booking);
-          },
-        );
-      }),
+        }),
+      ),
     );
   }
 
@@ -117,130 +120,132 @@ class TripScreen extends StatelessWidget {
             topRight: Radius.circular(30.r),
           ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Handle bar
-            Container(
-              margin: EdgeInsets.only(top: 12.h, bottom: 20.h),
-              width: 50.w,
-              height: 5.h,
-              decoration: BoxDecoration(
-                color: grey.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(10.r),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                margin: EdgeInsets.only(top: 12.h, bottom: 20.h),
+                width: 50.w,
+                height: 5.h,
+                decoration: BoxDecoration(
+                  color: grey.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Cancel Booking',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
-                      color: blue,
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Cancel Booking',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.bold,
+                        color: blue,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    'Please provide a reason for cancellation. This will help us improve our service.',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 13.sp,
-                      color: fontColor,
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  TextField(
-                    controller: reasonController,
-                    decoration: InputDecoration(
-                      hintText: 'Reason for cancellation...',
-                      hintStyle: TextStyle(
+                    SizedBox(height: 8.h),
+                    Text(
+                      'Please provide a reason for cancellation. This will help us improve our service.',
+                      style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 13.sp,
-                        color: Colors.grey[400],
+                        color: fontColor,
                       ),
-                      filled: true,
-                      fillColor: scaffoldColor,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.r),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: EdgeInsets.all(16.r),
                     ),
-                    maxLines: 4,
-                  ),
-                  SizedBox(height: 24.h),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Get.back(),
-                          style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 14.h),
-                            side: BorderSide(color: border),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
+                    SizedBox(height: 16.h),
+                    TextField(
+                      controller: reasonController,
+                      decoration: InputDecoration(
+                        hintText: 'Reason for cancellation...',
+                        hintStyle: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 13.sp,
+                          color: Colors.grey[400],
+                        ),
+                        filled: true,
+                        fillColor: scaffoldColor,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: EdgeInsets.all(16.r),
+                      ),
+                      maxLines: 4,
+                    ),
+                    SizedBox(height: 24.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Get.back(),
+                            style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 14.h),
+                              side: BorderSide(color: border),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            'Back',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 14.sp,
-                              color: fontColor,
-                              fontWeight: FontWeight.w600,
+                            child: Text(
+                              'Back',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 14.sp,
+                                color: fontColor,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (reasonController.text.trim().isEmpty) {
-                              Get.snackbar(
-                                "Reason Required",
-                                "Please provide a reason for cancellation.",
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.red.withOpacity(0.1),
-                                colorText: Colors.red,
-                              );
-                              return;
-                            }
-                            Get.back();
-                            controller.cancelBooking(
-                                bookingId, reasonController.text.trim());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            padding: EdgeInsets.symmetric(vertical: 14.h),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (reasonController.text.trim().isEmpty) {
+                                Get.snackbar(
+                                  "Reason Required",
+                                  "Please provide a reason for cancellation.",
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.red.withOpacity(0.1),
+                                  colorText: Colors.red,
+                                );
+                                return;
+                              }
+                              Get.back();
+                              controller.cancelBooking(
+                                  bookingId, reasonController.text.trim());
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              padding: EdgeInsets.symmetric(vertical: 14.h),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            'Confirm Cancel',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 14.sp,
-                              color: white,
-                              fontWeight: FontWeight.w600,
+                            child: Text(
+                              'Confirm Cancel',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 14.sp,
+                                color: white,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 30.h),
-                ],
+                      ],
+                    ),
+                    SizedBox(height: 30.h),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -391,46 +396,9 @@ class TripScreen extends StatelessWidget {
               ),
               Obx(() {
                 final isExpanded = controller.expandedIds.contains(booking.id);
-                final canCancel = booking.cancellationDays > 0 &&
-                    booking.bookingStatus.toLowerCase() == 'booked';
-                final isCancelling =
-                    controller.isCancelLoading[booking.id] ?? false;
 
                 return Row(
                   children: [
-                    if (canCancel) ...[
-                      OutlinedButton(
-                        onPressed: isCancelling
-                            ? null
-                            : () => _showCancelDialog(context, booking.id),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: BorderSide(color: Colors.red.shade200),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 8.h),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6.r),
-                          ),
-                        ),
-                        child: isCancelling
-                            ? SizedBox(
-                                width: 16.w,
-                                height: 16.h,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.red,
-                                ),
-                              )
-                            : Text(
-                                'Cancel Booking',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                      ),
-                      SizedBox(width: 8.w),
-                    ],
                     ElevatedButton(
                       onPressed: () =>
                           controller.toggleExpansionStatus(booking.id),
@@ -478,6 +446,10 @@ class TripScreen extends StatelessWidget {
                 const Divider(),
                 SizedBox(height: 12.h),
                 _buildDetailGrid(details),
+                SizedBox(height: 16.h),
+                if (booking.cancellationDays > 0 &&
+                    booking.bookingStatus.toLowerCase() == 'booked')
+                  _buildCancelButton(context, booking),
               ],
             );
           }),
@@ -577,6 +549,45 @@ class TripScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildCancelButton(BuildContext context, UserBooking booking) {
+    return Obx(() {
+      final isCancelling = controller.isCancelLoading[booking.id] ?? false;
+      return SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(
+          onPressed: isCancelling
+              ? null
+              : () => _showCancelDialog(context, booking.id),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.red,
+            side: BorderSide(color: Colors.red.shade200),
+            padding: EdgeInsets.symmetric(vertical: 12.h),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+          ),
+          child: isCancelling
+              ? SizedBox(
+                  width: 20.w,
+                  height: 20.h,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.red,
+                  ),
+                )
+              : Text(
+                  'Cancel Booking',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+        ),
+      );
+    });
   }
 
   String _getSubtitle(UserBooking booking) {

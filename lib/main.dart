@@ -17,10 +17,12 @@ import 'package:homesloc/screens/home/home_screen.dart';
 import 'package:homesloc/screens/splashscreen/splashscreen.dart';
 import 'package:homesloc/themes/app_theme.dart';
 
+import 'package:homesloc/core/services/firebase_service.dart';
 import 'package:flutter/services.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FirebaseService.init();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

@@ -1140,172 +1140,174 @@ class _SearchScreenState extends State<SearchScreen> {
             topRight: Radius.circular(30.r),
           ),
         ),
-        child: Column(
-          children: [
-            // Handle bar
-            Container(
-              margin: EdgeInsets.only(top: 12.h),
-              width: 50.w,
-              height: 5.h,
-              decoration: BoxDecoration(
-                color: grey.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-            ),
-
-            // Calendar title
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.h),
-              child: Text(
-                "Select Dates",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  color: blue,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Handle bar
+              Container(
+                margin: EdgeInsets.only(top: 12.h),
+                width: 50.w,
+                height: 5.h,
+                decoration: BoxDecoration(
+                  color: grey.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
               ),
-            ),
-
-            // Only the calendar is scrollable
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: ScrollableCleanCalendar(
-                  daySelectedBackgroundColor: yellow,
-                  daySelectedBackgroundColorBetween: blue.withOpacity(0.1),
-                  dayTextStyle: TextStyle(
+          
+              // Calendar title
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.h),
+                child: Text(
+                  "Select Dates",
+                  style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 14.sp,
-                    color: black,
-                  ),
-                  monthTextStyle: TextStyle(
                     color: blue,
-                    fontFamily: 'Poppins',
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
                   ),
-                  weekdayTextStyle: TextStyle(
-                    color: fontColor,
-                    fontFamily: 'Poppins',
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  scrollController: calenderScroll,
-                  calendarController: calendarController.calendarController,
-                  layout: Layout.BEAUTY,
-                  calendarCrossAxisSpacing: 0,
                 ),
               ),
-            ),
-
-            // Date display section
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
-              decoration: BoxDecoration(
-                color: white,
-                boxShadow: [
-                  BoxShadow(
-                    color: black.withOpacity(0.05),
-                    offset: const Offset(0, -5),
-                    blurRadius: 15,
+          
+              // Only the calendar is scrollable
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  child: ScrollableCleanCalendar(
+                    daySelectedBackgroundColor: yellow,
+                    daySelectedBackgroundColorBetween: blue.withOpacity(0.1),
+                    dayTextStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 14.sp,
+                      color: black,
+                    ),
+                    monthTextStyle: TextStyle(
+                      color: blue,
+                      fontFamily: 'Poppins',
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    weekdayTextStyle: TextStyle(
+                      color: fontColor,
+                      fontFamily: 'Poppins',
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    scrollController: calenderScroll,
+                    calendarController: calendarController.calendarController,
+                    layout: Layout.BEAUTY,
+                    calendarCrossAxisSpacing: 0,
                   ),
-                ],
+                ),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Check-in date card
-                      Expanded(
-                        child: Obx(() => _buildDateCard(
-                              title: "CHECK-IN",
-                              date: calendarController.checkInDate.value != null
-                                  ? calendarController.formatDate(
-                                      calendarController.checkInDate.value)
-                                  : "Select Date",
-                              isSelected:
-                                  calendarController.checkInDate.value != null,
-                            )),
-                      ),
-
-                      // Total days indicator
-                      Obx(() => Container(
-                            margin: EdgeInsets.symmetric(horizontal: 5.w),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8.w, vertical: 4.h),
-                            decoration: BoxDecoration(
-                              color: yellow.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                            child: Text(
-                              "${calendarController.totalDays.value} Days",
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: blue,
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          )),
-
-                      // Check-out date card
-                      Expanded(
-                        child: Obx(() => _buildDateCard(
-                              title: "CHECK-OUT",
-                              date:
-                                  calendarController.checkOutDate.value != null
-                                      ? calendarController.formatDate(
-                                          calendarController.checkOutDate.value)
-                                      : "Select Date",
-                              isSelected:
-                                  calendarController.checkOutDate.value != null,
-                            )),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20.h),
-                  // Apply button
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      borderRadius: BorderRadius.circular(15.sp),
-                      child: Ink(
-                        width: double.infinity,
-                        height: 50.h,
-                        decoration: BoxDecoration(
-                          color: blue,
-                          borderRadius: BorderRadius.circular(15.sp),
-                          boxShadow: [
-                            BoxShadow(
-                              color: blue.withOpacity(0.3),
-                              offset: const Offset(0, 4),
-                              blurRadius: 10,
-                            ),
-                          ],
+          
+              // Date display section
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+                decoration: BoxDecoration(
+                  color: white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: black.withOpacity(0.05),
+                      offset: const Offset(0, -5),
+                      blurRadius: 15,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Check-in date card
+                        Expanded(
+                          child: Obx(() => _buildDateCard(
+                                title: "CHECK-IN",
+                                date: calendarController.checkInDate.value != null
+                                    ? calendarController.formatDate(
+                                        calendarController.checkInDate.value)
+                                    : "Select Date",
+                                isSelected:
+                                    calendarController.checkInDate.value != null,
+                              )),
                         ),
-                        child: Center(
-                          child: Text(
-                            "Confirm & Continue",
-                            style: TextStyle(
-                              color: white,
-                              fontSize: 16.sp,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w600,
+          
+                        // Total days indicator
+                        Obx(() => Container(
+                              margin: EdgeInsets.symmetric(horizontal: 5.w),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8.w, vertical: 4.h),
+                              decoration: BoxDecoration(
+                                color: yellow.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                              child: Text(
+                                "${calendarController.totalDays.value} Days",
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: blue,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )),
+          
+                        // Check-out date card
+                        Expanded(
+                          child: Obx(() => _buildDateCard(
+                                title: "CHECK-OUT",
+                                date:
+                                    calendarController.checkOutDate.value != null
+                                        ? calendarController.formatDate(
+                                            calendarController.checkOutDate.value)
+                                        : "Select Date",
+                                isSelected:
+                                    calendarController.checkOutDate.value != null,
+                              )),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+                    // Apply button
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        borderRadius: BorderRadius.circular(15.sp),
+                        child: Ink(
+                          width: double.infinity,
+                          height: 50.h,
+                          decoration: BoxDecoration(
+                            color: blue,
+                            borderRadius: BorderRadius.circular(15.sp),
+                            boxShadow: [
+                              BoxShadow(
+                                color: blue.withOpacity(0.3),
+                                offset: const Offset(0, 4),
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Confirm & Continue",
+                              style: TextStyle(
+                                color: white,
+                                fontSize: 16.sp,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
