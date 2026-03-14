@@ -281,7 +281,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                           "Max ${room.maxPerson ?? 0} Persons",
                           style: TextStyle(
                               fontFamily: 'Poppins',
-                              fontSize: 12.sp,
+                              fontSize: 10.sp,
                               color: fontColor),
                         ),
                         SizedBox(width: 12.w),
@@ -293,27 +293,27 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                         room.bedType ?? "Bed Type",
                         style: TextStyle(
                             fontFamily: 'Poppins',
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             color: fontColor),
                       ),
                     ],
                   ),
-                  if (room.mealOption != null) ...[
-                    SizedBox(height: 4.h),
-                    Row(
-                      children: [
-                        Icon(Icons.restaurant_menu, size: 14.sp, color: green),
-                        SizedBox(width: 4.w),
-                        Text(
-                          room.mealOption!,
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 12.sp,
-                              color: green),
-                        ),
-                      ],
-                    ),
-                  ],
+                  // if (room.mealOption != null) ...[
+                  //   SizedBox(height: 4.h),
+                  //   Row(
+                  //     children: [
+                  //       Icon(Icons.restaurant_menu, size: 14.sp, color: green),
+                  //       SizedBox(width: 4.w),
+                  //       Text(
+                  //         room.mealOption!,
+                  //         style: TextStyle(
+                  //             fontFamily: 'Poppins',
+                  //             fontSize: 12.sp,
+                  //             color: green),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ],
                   if (room.amenities != null && room.amenities!.isNotEmpty) ...[
                     SizedBox(height: 8.h),
                     Wrap(
@@ -1390,79 +1390,102 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                 ),
               ),
               SizedBox(width: 10.w),
-              Expanded(
-                child: PolicyCard(
-                  title: 'Extra Bed Policy',
-                  icon: Icons.bed_outlined,
-                  headerColor: Colors.red.shade50,
-                  iconColor: Colors.red.shade700,
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(8.r),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3E5F5), // Light purple
-                              shape: BoxShape.circle,
+              if (detailedHotel?.policies?.extraBedPolicy != null &&
+                  detailedHotel?.policies?.extraBedPolicy!.toLowerCase() !=
+                      'no' &&
+                  detailedHotel?.policies?.extraBedPolicy!.toLowerCase() !=
+                      'false' &&
+                  detailedHotel?.policies?.extraBedPolicy!.toLowerCase() !=
+                      'null' &&
+                  detailedHotel?.policies?.extraBedPolicy!.trim().isNotEmpty ==
+                      true)
+                Expanded(
+                  child: PolicyCard(
+                    title: 'Extra Bed Policy',
+                    icon: Icons.bed_outlined,
+                    headerColor: Colors.red.shade50,
+                    iconColor: Colors.red.shade700,
+                    content: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(8.r),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3E5F5), // Light purple
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.king_bed_outlined,
+                                  color: const Color(0xFF7B1FA2),
+                                  size: 16.sp), // Purple icon
                             ),
-                            child: Icon(Icons.king_bed_outlined,
-                                color: const Color(0xFF7B1FA2), size: 16.sp), // Purple icon
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  (detailedHotel?.policies?.extraBedPolicy == 'true' || 
-                                   detailedHotel?.policies?.extraBedPolicy == 'Available' ||
-                                   detailedHotel?.policies?.extraBedPolicy == 'Yes')
-                                      ? 'Extra beds available on request'
-                                      : detailedHotel?.policies?.extraBedPolicy ?? 'No',
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13.sp,
-                                    color: black,
-                                  ),
-                                ),
-                                if (detailedHotel?.policies?.extraBedPrice != null && 
-                                    detailedHotel?.policies?.extraBedPrice != "null" &&
-                                    detailedHotel?.policies?.extraBedPrice != "0") ...[
-                                  SizedBox(height: 6.h),
-                                  Center(
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF3E5F5),
-                                        borderRadius: BorderRadius.circular(20.r),
-                                      ),
-                                      child: Text(
-                                        '₹${detailedHotel?.policies?.extraBedPrice} /night',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            fontFamily: 'Poppins',
-                                            fontSize: 11.sp,
-                                            
-                                            fontWeight: FontWeight.w600,
-                                            color: const Color(0xFF7B1FA2)),
-                                      ),
+                            SizedBox(width: 10.w),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    (detailedHotel?.policies?.extraBedPolicy ==
+                                                'true' ||
+                                            detailedHotel?.policies
+                                                    ?.extraBedPolicy ==
+                                                'Available' ||
+                                            detailedHotel?.policies
+                                                    ?.extraBedPolicy ==
+                                                'Yes')
+                                        ? 'Extra beds available on request'
+                                        : detailedHotel?.policies
+                                                ?.extraBedPolicy ??
+                                            'No',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13.sp,
+                                      color: black,
                                     ),
                                   ),
+                                  if (detailedHotel?.policies?.extraBedPrice !=
+                                          null &&
+                                      detailedHotel?.policies?.extraBedPrice !=
+                                          "null" &&
+                                      detailedHotel?.policies?.extraBedPrice !=
+                                          "0") ...[
+                                    SizedBox(height: 6.h),
+                                    Center(
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10.w, vertical: 4.h),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF3E5F5),
+                                          borderRadius:
+                                              BorderRadius.circular(20.r),
+                                        ),
+                                        child: Text(
+                                          '₹${detailedHotel?.policies?.extraBedPrice} /night',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontSize: 11.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: const Color(0xFF7B1FA2)),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
+                )
+              else
+                const Expanded(child: SizedBox()),
             ],
           ),
           if (_getAccommodationPolicies(hotel).isNotEmpty ||
@@ -1493,8 +1516,8 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                           SizedBox(width: 8.w),
                           Text(
                             hotel.smokingAllowed == true
-                                ? 'Smoking Allowed'
-                                : 'Smoking Prohibited',
+                                ? 'Smoking\nAllowed'
+                                : 'Smoking\nProhibited',
                             style: TextStyle(
                               fontFamily: 'Poppins',
                               fontSize: 10.sp,
