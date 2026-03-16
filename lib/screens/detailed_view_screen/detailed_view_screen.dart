@@ -407,600 +407,615 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
 
     final hotelData = _hotelDetails ?? widget.hotel;
 
-    return Scaffold(
-      backgroundColor: white,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-            Stack(
-              children: [
-                SizedBox(
-                  height: 300.h,
-                  width: MediaQuery.of(context).size.width,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _carouselIndex = index;
-                      });
-                    },
-                    itemCount: _getGalleryImages(hotelData).length,
-                    itemBuilder: (context, index) {
-                      final imageUrl = _getGalleryImages(hotelData)[index];
-                      return GestureDetector(
-                        onTap: () => _openFullScreenPreview(
-                            _getGalleryImages(hotelData), index),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: imageUrl.startsWith('http')
-                                  ? NetworkImage(imageUrl)
-                                  : AssetImage(imageUrl) as ImageProvider,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                // Bottom Gradient Scrim
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: 80.h,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.4),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                // Floating Back Button
-                Positioned(
-                  top: 40.h,
-                  left: 15.w,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: EdgeInsets.all(8.r),
-                      decoration: BoxDecoration(
-                        color: white.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: blue,
-                        size: 18.sp,
-                      ),
-                    ),
-                  ),
-                ),
-                // Floating Favorite Button
-                /* Positioned(
-                  top: 40.h,
-                  right: 15.w,
-                  child: GestureDetector(
-                    onTap: () => print('Favorite tapped'),
-                    child: Container(
-                      padding: EdgeInsets.all(8.r),
-                      decoration: BoxDecoration(
-                        color: white.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        hotelData?.isFavorite == true
-                            ? Icons.favorite_rounded
-                            : Icons.favorite_outline_rounded,
-                        color: blue,
-                        size: 20.sp,
-                      ),
-                    ),
-                  ),
-                ), */
-                // Expanding Dots Indicator
-                if (_getGalleryImages(hotelData).length > 1)
-                  Positioned(
-                    bottom: 20.h,
-                    left: 20.w,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        _getGalleryImages(hotelData).length,
-                        (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: EdgeInsets.symmetric(horizontal: 3.w),
-                          width: _carouselIndex == index ? 20.w : 6.w,
-                          height: 6.h,
-                          decoration: BoxDecoration(
-                            color: _carouselIndex == index
-                                ? yellow
-                                : white.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(3.r),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                // Glassmorphic Image Count Overlay
-                Positioned(
-                  bottom: 15.h,
-                  right: 15.w,
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(20.r),
-                      border:
-                          Border.all(color: white.withOpacity(0.2), width: 1),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.image_outlined, color: white, size: 12.sp),
-                        SizedBox(width: 5.w),
-                        Text(
-                          '${_carouselIndex + 1}/${_getGalleryImages(hotelData).length}',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: white,
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(15.w, 15.h, 15.w, 5.h),
-              child: Row(
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: white,
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _getHotelName(hotelData),
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                              fontSize: 22.sp,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        if (_getRoomName(hotelData).isNotEmpty)
-                          Text(
-                            _getRoomName(hotelData),
-                            style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: blue.withOpacity(0.7),
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        SizedBox(height: 5.h),
-                        Row(
-                          children: [
-                            ...List.generate(
-                              int.parse(_getStarRating(hotelData)),
-                              (index) => Icon(Icons.star_rounded,
-                                  color: yellow, size: 18.sp),
-                            ),
-                            SizedBox(width: 8.w),
-                            Text(
-                              '(${_getReviewCount(hotelData)} Reviews)',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: fontColor,
-                                fontSize: 12.sp,
+              Stack(
+                children: [
+                  SizedBox(
+                    height: 300.h,
+                    width: MediaQuery.of(context).size.width,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _carouselIndex = index;
+                        });
+                      },
+                      itemCount: _getGalleryImages(hotelData).length,
+                      itemBuilder: (context, index) {
+                        final imageUrl = _getGalleryImages(hotelData)[index];
+                        return GestureDetector(
+                          onTap: () => _openFullScreenPreview(
+                              _getGalleryImages(hotelData), index),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: imageUrl.startsWith('http')
+                                    ? NetworkImage(imageUrl)
+                                    : AssetImage(imageUrl) as ImageProvider,
+                                fit: BoxFit.cover,
                               ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  // Bottom Gradient Scrim
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: 80.h,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.4),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Floating Back Button
+                  Positioned(
+                    top: 40.h,
+                    left: 15.w,
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(
+                          color: white.withOpacity(0.9),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                      ],
+                        child: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: blue,
+                          size: 18.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Floating Favorite Button
+                  /* Positioned(
+                    top: 40.h,
+                    right: 15.w,
+                    child: GestureDetector(
+                      onTap: () => print('Favorite tapped'),
+                      child: Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(
+                          color: white.withOpacity(0.9),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          hotelData?.isFavorite == true
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_outline_rounded,
+                          color: blue,
+                          size: 20.sp,
+                        ),
+                      ),
+                    ),
+                  ), */
+                  // Expanding Dots Indicator
+                  if (_getGalleryImages(hotelData).length > 1)
+                    Positioned(
+                      bottom: 20.h,
+                      left: 20.w,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          _getGalleryImages(hotelData).length,
+                          (index) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: EdgeInsets.symmetric(horizontal: 3.w),
+                            width: _carouselIndex == index ? 20.w : 6.w,
+                            height: 6.h,
+                            decoration: BoxDecoration(
+                              color: _carouselIndex == index
+                                  ? yellow
+                                  : white.withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(3.r),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  // Glassmorphic Image Count Overlay
+                  Positioned(
+                    bottom: 15.h,
+                    right: 15.w,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(20.r),
+                        border:
+                            Border.all(color: white.withOpacity(0.2), width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.image_outlined, color: white, size: 12.sp),
+                          SizedBox(width: 5.w),
+                          Text(
+                            '${_carouselIndex + 1}/${_getGalleryImages(hotelData).length}',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: white,
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 98.h,
-              child: FirstDetailedViewBuilder(
-                hotel: hotelData,
+              Padding(
+                padding: EdgeInsets.fromLTRB(15.w, 15.h, 15.w, 5.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _getHotelName(hotelData),
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: blue,
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          if (_getRoomName(hotelData).isNotEmpty)
+                            Text(
+                              _getRoomName(hotelData),
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: blue.withOpacity(0.7),
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          SizedBox(height: 5.h),
+                          Row(
+                            children: [
+                              ...List.generate(
+                                int.parse(_getStarRating(hotelData)),
+                                (index) => Icon(Icons.star_rounded,
+                                    color: yellow, size: 18.sp),
+                              ),
+                              SizedBox(width: 8.w),
+                              Text(
+                                '(${_getReviewCount(hotelData)} Reviews)',
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: fontColor,
+                                  fontSize: 12.sp,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Property details',
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: blue,
-                        fontSize: 17.sp,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  GestureDetector(
-                    onTap: () => _launchMap(hotelData),
-                    child: Container(
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: 98.h,
+                child: FirstDetailedViewBuilder(
+                  hotel: hotelData,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Property details',
+                      style: TextStyle(
+                          fontFamily: 'Poppins',
+                          color: blue,
+                          fontSize: 17.sp,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    GestureDetector(
+                      onTap: () => _launchMap(hotelData),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: gwhite,
+                          borderRadius: BorderRadius.circular(4.sp),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.location_on_outlined,
+                              size: 14.sp,
+                              color: blue,
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              'Map View', // More standard label
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: blue,
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 2.h, right: 10.w),
+                      child: Icon(Icons.location_on, color: blue, size: 18.sp),
+                    ),
+                    Expanded(
+                      child: Text(
+                        _getLocation(hotelData),
+                        style: TextStyle(
+                            fontFamily: 'Poppins', color: black, fontSize: 13.sp),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 12.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 10.w),
+                      child: Icon(Icons.phone, color: blue, size: 18.sp),
+                    ),
+                    Text(
+                      _getPhoneNumber(hotelData),
+                      style: TextStyle(
+                          fontFamily: 'Poppins', color: black, fontSize: 13.sp),
+                    ),
+                  ],
+                ),
+              ),
+              const HomeDivider(),
+              NameView(
+                name: "Highlights",
+                color: blue,
+                secondName: 'View All',
+                secondColor: blue,
+              ),
+              SizedBox(height: 10.h),
+              AmenitieRow(hotel: hotelData),
+              SizedBox(height: 15.h),
+              // Billing Details Section
+              // Padding(
+              //   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+              //   child: Text(
+              //     'Billing Details',
+              //     style: TextStyle(
+              //         fontFamily: 'Poppins',
+              //         color: blue,
+              //         fontSize: 17.sp,
+              //         fontWeight: FontWeight.bold),
+              //   ),
+              // ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 10.w),
+                padding: EdgeInsets.all(16.r),
+                decoration: BoxDecoration(
+                  color: white,
+                  borderRadius: BorderRadius.circular(16.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: border, width: 1),
+                ),
+                child: Column(
+                  children: [
+                    _buildBillingItem(
+                      context: context,
+                      icon: Icons.calendar_month_rounded,
+                      title: "Stay Dates",
+                      onTap: () =>
+                          BottomSheetUtils.showCalendarBottomSheet(context),
+                      subtitle: Obx(() {
+                        final calendarController = Get.find<CalendarController>();
+                        return Text(
+                          calendarController.checkInDate.value != null &&
+                                  calendarController.checkOutDate.value != null
+                              ? "${calendarController.formatDate(calendarController.checkInDate.value)} - ${calendarController.formatDate(calendarController.checkOutDate.value)}"
+                              : "Select Dates",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: blue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13.sp),
+                        );
+                      }),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      child: Divider(color: border.withOpacity(0.5), height: 1),
+                    ),
+                    _buildBillingItem(
+                      context: context,
+                      icon: Icons.people_alt_rounded,
+                      title: "Guests & Rooms",
+                      onTap: () => BottomSheetUtils.showGuestBottomSheet(context),
+                      subtitle: Obx(() {
+                        final calendarController = Get.find<CalendarController>();
+                        return Text(
+                          "${calendarController.guestCount.value} Guests | ${calendarController.roomCount.value} Rooms",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: blue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13.sp),
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 15.h),
+              BookNow(
+                hotel: hotelData,
+                isFullProperty: _isFullProperty,
+                selectedRoom: _selectedRoom,
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 18.h, left: 10.w, bottom: 10.h),
+                child: Text(
+                  'Rating & Reviews',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: blue,
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                          EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
                       decoration: BoxDecoration(
-                        color: gwhite,
-                        borderRadius: BorderRadius.circular(4.sp),
+                        color: blue,
+                        borderRadius: BorderRadius.circular(3.sp),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 14.sp,
-                            color: blue,
-                          ),
-                          SizedBox(width: 4.w),
                           Text(
-                            'Map View', // More standard label
+                            "${_getStarRating(hotelData)}",
                             style: TextStyle(
                                 fontFamily: 'Poppins',
-                                color: blue,
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w600),
+                                color: white,
+                                fontSize: 11.sp),
+                          ),
+                          SizedBox(width: 4.w),
+                          Icon(
+                            Icons.star,
+                            color: yellow,
+                            size: 14.sp,
+                          )
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(right: 20.w),
+                      child: Text(
+                        "${_getReviewCount(hotelData)} Reviews",
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: fontColor,
+                            fontSize: 11.sp),
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: gwhite,
+                        borderRadius: BorderRadius.circular(21.sp),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.face, size: 14.sp, color: blue),
+                          SizedBox(width: 5.w),
+                          Text(
+                            'Excellent',
+                            style: TextStyle(
+                                color: black,
+                                fontFamily: 'Poppins',
+                                fontSize: 10.sp),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 2.h, right: 10.w),
-                    child: Icon(Icons.location_on, color: blue, size: 18.sp),
-                  ),
-                  Expanded(
-                    child: Text(
-                      _getLocation(hotelData),
-                      style: TextStyle(
-                          fontFamily: 'Poppins', color: black, fontSize: 13.sp),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 12.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(right: 10.w),
-                    child: Icon(Icons.phone, color: blue, size: 18.sp),
-                  ),
-                  Text(
-                    _getPhoneNumber(hotelData),
-                    style: TextStyle(
-                        fontFamily: 'Poppins', color: black, fontSize: 13.sp),
-                  ),
-                ],
-              ),
-            ),
-            const HomeDivider(),
-            NameView(
-              name: "Highlights",
-              color: blue,
-              secondName: 'View All',
-              secondColor: blue,
-            ),
-            SizedBox(height: 10.h),
-            AmenitieRow(hotel: hotelData),
-            SizedBox(height: 15.h),
-            // Billing Details Section
-            // Padding(
-            //   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-            //   child: Text(
-            //     'Billing Details',
-            //     style: TextStyle(
-            //         fontFamily: 'Poppins',
-            //         color: blue,
-            //         fontSize: 17.sp,
-            //         fontWeight: FontWeight.bold),
-            //   ),
-            // ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 10.w),
-              padding: EdgeInsets.all(16.r),
-              decoration: BoxDecoration(
-                color: white,
-                borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: Border.all(color: border, width: 1),
-              ),
-              child: Column(
-                children: [
-                  _buildBillingItem(
-                    context: context,
-                    icon: Icons.calendar_month_rounded,
-                    title: "Stay Dates",
-                    onTap: () =>
-                        BottomSheetUtils.showCalendarBottomSheet(context),
-                    subtitle: Obx(() {
-                      final calendarController = Get.find<CalendarController>();
-                      return Text(
-                        calendarController.checkInDate.value != null &&
-                                calendarController.checkOutDate.value != null
-                            ? "${calendarController.formatDate(calendarController.checkInDate.value)} - ${calendarController.formatDate(calendarController.checkOutDate.value)}"
-                            : "Select Dates",
-                        style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: blue,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13.sp),
-                      );
-                    }),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12.h),
-                    child: Divider(color: border.withOpacity(0.5), height: 1),
-                  ),
-                  _buildBillingItem(
-                    context: context,
-                    icon: Icons.people_alt_rounded,
-                    title: "Guests & Rooms",
-                    onTap: () => BottomSheetUtils.showGuestBottomSheet(context),
-                    subtitle: Obx(() {
-                      final calendarController = Get.find<CalendarController>();
-                      return Text(
-                        "${calendarController.guestCount.value} Guests | ${calendarController.roomCount.value} Rooms",
-                        style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: blue,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13.sp),
-                      );
-                    }),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 15.h),
-            BookNow(
-              hotel: hotelData,
-              isFullProperty: _isFullProperty,
-              selectedRoom: _selectedRoom,
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 18.h, left: 10.w, bottom: 10.h),
-              child: Text(
-                'Rating & Reviews',
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: blue,
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                    decoration: BoxDecoration(
-                      color: blue,
-                      borderRadius: BorderRadius.circular(3.sp),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${_getStarRating(hotelData)}",
+              SizedBox(height: 15.h),
+              // We can keep these or simplify them if review data is missing
+              if (_getReviewCount(hotelData) != "0") ...[
+                RatingFirstRow(),
+                RatingSecondRow(),
+                RatingThirdRow(),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: 120.h,
+                  child: SecondDetailedViewBuilder(),
+                ),
+              ] else
+                Padding(
+                  padding: EdgeInsets.all(20.r),
+                  child: Center(
+                      child: Text("No reviews yet",
                           style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: white,
-                              fontSize: 11.sp),
-                        ),
-                        SizedBox(width: 4.w),
-                        Icon(
-                          Icons.star,
-                          color: yellow,
-                          size: 14.sp,
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(right: 20.w),
-                    child: Text(
-                      "${_getReviewCount(hotelData)} Reviews",
+                              fontFamily: 'Poppins', color: fontColor))),
+                ),
+              const HomeDivider(),
+              Padding(
+                padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
+                child: Text(
+                  'Transportations',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: blue,
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              TransportationsFirstRow(hotel: hotelData),
+              const HomeDivider(),
+      
+              if (hotelData is HotelDetailModel &&
+                  hotelData.rooms != null &&
+                  hotelData.rooms!.isNotEmpty) ...[
+                NameView(
+                  name: (hotelData.isFullProperty == true)
+                      ? "Rooms in Full Property"
+                      : "Rooms Available",
+                  color: blue,
+                  secondName: '',
+                  secondColor: blue,
+                ),
+                SizedBox(height: 10.h),
+                ...hotelData.rooms!
+                    .map((room) => _buildRoomCard(room, hotelData)),
+                const HomeDivider(),
+              ],
+      
+              if (hotelData is HotelDetailModel)
+                _buildNearbyAttractions(hotelData),
+      
+              Padding(
+                padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
+                child: Text(
+                  'About ${_getHotelName(hotelData)}',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: blue,
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+                width: double.infinity,
+                height: 150.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  image: DecorationImage(
+                      image: _getCoverImage(hotelData).startsWith('http')
+                          ? NetworkImage(_getCoverImage(hotelData))
+                          : AssetImage(_getCoverImage(hotelData))
+                              as ImageProvider,
+                      fit: BoxFit.cover),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getDescription(hotelData),
                       style: TextStyle(
                           fontFamily: 'Poppins',
-                          color: fontColor,
-                          fontSize: 11.sp),
+                          color: black,
+                          height: 1.5,
+                          fontSize: 13.sp),
                     ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: gwhite,
-                      borderRadius: BorderRadius.circular(21.sp),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.face, size: 14.sp, color: blue),
-                        SizedBox(width: 5.w),
-                        Text(
-                          'Excellent',
-                          style: TextStyle(
-                              color: black,
-                              fontFamily: 'Poppins',
-                              fontSize: 10.sp),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 15.h),
-            // We can keep these or simplify them if review data is missing
-            if (_getReviewCount(hotelData) != "0") ...[
-              RatingFirstRow(),
-              RatingSecondRow(),
-              RatingThirdRow(),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 120.h,
-                child: SecondDetailedViewBuilder(),
-              ),
-            ] else
-              Padding(
-                padding: EdgeInsets.all(20.r),
-                child: Center(
-                    child: Text("No reviews yet",
-                        style: TextStyle(
-                            fontFamily: 'Poppins', color: fontColor))),
-              ),
-            const HomeDivider(),
-            Padding(
-              padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
-              child: Text(
-                'Transportations',
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: blue,
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            TransportationsFirstRow(hotel: hotelData),
-            const HomeDivider(),
-
-            if (hotelData is HotelDetailModel &&
-                hotelData.rooms != null &&
-                hotelData.rooms!.isNotEmpty) ...[
-              NameView(
-                name: (hotelData.isFullProperty == true)
-                    ? "Rooms in Full Property"
-                    : "Rooms Available",
-                color: blue,
-                secondName: '',
-                secondColor: blue,
-              ),
-              SizedBox(height: 10.h),
-              ...hotelData.rooms!
-                  .map((room) => _buildRoomCard(room, hotelData)),
-              const HomeDivider(),
-            ],
-
-            if (hotelData is HotelDetailModel)
-              _buildNearbyAttractions(hotelData),
-
-            Padding(
-              padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
-              child: Text(
-                'About ${_getHotelName(hotelData)}',
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: blue,
-                    fontSize: 17.sp,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
-              width: double.infinity,
-              height: 150.h,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.r),
-                image: DecorationImage(
-                    image: _getCoverImage(hotelData).startsWith('http')
-                        ? NetworkImage(_getCoverImage(hotelData))
-                        : AssetImage(_getCoverImage(hotelData))
-                            as ImageProvider,
-                    fit: BoxFit.cover),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _getDescription(hotelData),
-                    style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: black,
-                        height: 1.5,
-                        fontSize: 13.sp),
-                  ),
-                  if (hotelData is HotelDetailModel &&
-                      (hotelData.yearBuild != null ||
-                          hotelData.yearRenovated != null)) ...[
-                    SizedBox(height: 12.h),
-                    Row(
-                      children: [
-                        if (hotelData.yearBuild != null) ...[
-                          Icon(Icons.build_circle_outlined,
-                              size: 16.sp, color: blue),
-                          SizedBox(width: 4.w),
-                          Text(
-                            "Built in ${hotelData.yearBuild}",
-                            style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                                color: fontColor),
-                          ),
-                          if (hotelData.yearRenovated != null) ...[
-                            SizedBox(width: 16.w),
+                    if (hotelData is HotelDetailModel &&
+                        (hotelData.yearBuild != null ||
+                            hotelData.yearRenovated != null)) ...[
+                      SizedBox(height: 12.h),
+                      Row(
+                        children: [
+                          if (hotelData.yearBuild != null) ...[
+                            Icon(Icons.build_circle_outlined,
+                                size: 16.sp, color: blue),
+                            SizedBox(width: 4.w),
+                            Text(
+                              "Built in ${hotelData.yearBuild}",
+                              style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: fontColor),
+                            ),
+                            if (hotelData.yearRenovated != null) ...[
+                              SizedBox(width: 16.w),
+                              Icon(Icons.auto_awesome_outlined,
+                                  size: 16.sp, color: blue),
+                              SizedBox(width: 4.w),
+                              Text(
+                                "Renovated in ${hotelData.yearRenovated}",
+                                style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: fontColor),
+                              ),
+                            ],
+                          ] else if (hotelData.yearRenovated != null) ...[
                             Icon(Icons.auto_awesome_outlined,
                                 size: 16.sp, color: blue),
                             SizedBox(width: 4.w),
@@ -1013,83 +1028,71 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                                   color: fontColor),
                             ),
                           ],
-                        ] else if (hotelData.yearRenovated != null) ...[
-                          Icon(Icons.auto_awesome_outlined,
-                              size: 16.sp, color: blue),
-                          SizedBox(width: 4.w),
-                          Text(
-                            "Renovated in ${hotelData.yearRenovated}",
-                            style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w500,
-                                color: fontColor),
-                          ),
                         ],
-                      ],
-                    ),
+                      ),
+                    ],
+                    // if (hotelData is HotelDetailModel &&
+                    //     hotelData.phoneNumber != null) ...[
+                    //   SizedBox(height: 8.h),
+                    //   Row(
+                    //     children: [
+                    //       Icon(Icons.phone_outlined, size: 16.sp, color: blue),
+                    //       SizedBox(width: 4.w),
+                    //       Text(
+                    //         hotelData.phoneNumber!,
+                    //         style: TextStyle(
+                    //             fontFamily: 'Poppins',
+                    //             fontSize: 12.sp,
+                    //             fontWeight: FontWeight.w500,
+                    //             color: fontColor),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ],
+                    // if (hotelData is HotelDetailModel &&
+                    //     hotelData.location != null) ...[
+                    //   SizedBox(height: 8.h),
+                    //   Row(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       Icon(Icons.location_on_outlined,
+                    //           size: 16.sp, color: blue),
+                    //       SizedBox(width: 4.w),
+                    //       Expanded(
+                    //         child: Text(
+                    //           hotelData.location!,
+                    //           style: TextStyle(
+                    //               fontFamily: 'Poppins',
+                    //               fontSize: 12.sp,
+                    //               fontWeight: FontWeight.w500,
+                    //               color: fontColor),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ],
                   ],
-                  // if (hotelData is HotelDetailModel &&
-                  //     hotelData.phoneNumber != null) ...[
-                  //   SizedBox(height: 8.h),
-                  //   Row(
-                  //     children: [
-                  //       Icon(Icons.phone_outlined, size: 16.sp, color: blue),
-                  //       SizedBox(width: 4.w),
-                  //       Text(
-                  //         hotelData.phoneNumber!,
-                  //         style: TextStyle(
-                  //             fontFamily: 'Poppins',
-                  //             fontSize: 12.sp,
-                  //             fontWeight: FontWeight.w500,
-                  //             color: fontColor),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ],
-                  // if (hotelData is HotelDetailModel &&
-                  //     hotelData.location != null) ...[
-                  //   SizedBox(height: 8.h),
-                  //   Row(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       Icon(Icons.location_on_outlined,
-                  //           size: 16.sp, color: blue),
-                  //       SizedBox(width: 4.w),
-                  //       Expanded(
-                  //         child: Text(
-                  //           hotelData.location!,
-                  //           style: TextStyle(
-                  //               fontFamily: 'Poppins',
-                  //               fontSize: 12.sp,
-                  //               fontWeight: FontWeight.w500,
-                  //               color: fontColor),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ],
-                ],
+                ),
               ),
-            ),
-            const HomeDivider(),
-            _buildPolicyGrid(hotelData),
-            SizedBox(height: 40.h),
-          ],
-        ),
-      ),
-      if (_isRoomLoading)
-        Positioned.fill(
-          child: Container(
-            color: Colors.white.withOpacity(0.5),
-            child: const Center(
-              child: AppLoader(size: 50),
-            ),
+              const HomeDivider(),
+              _buildPolicyGrid(hotelData),
+              SizedBox(height: 40.h),
+            ],
           ),
         ),
-    ],
-  ),
-);
+        if (_isRoomLoading)
+          Positioned.fill(
+            child: Container(
+              color: Colors.white.withOpacity(0.5),
+              child: const Center(
+                child: AppLoader(size: 50),
+              ),
+            ),
+          ),
+      ],
+        ),
+      ),
+    );
 }
 
   String _getHotelName(dynamic hotel) {
@@ -1567,7 +1570,7 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
                                             fontSize: 10.sp,
-                                            color: grey.withOpacity(0.8),
+                                            color: black,
                                           ),
                                         ),
                                       ),
