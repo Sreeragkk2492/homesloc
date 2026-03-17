@@ -67,319 +67,322 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: white,
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: AppLoader(size: 50));
-        }
-
-        if (controller.errorMessage.isNotEmpty) {
-          return Center(
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: white,
+        body: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: AppLoader(size: 50));
+          }
+      
+          if (controller.errorMessage.isNotEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(controller.errorMessage.value,
+                      style: TextStyle(color: Colors.red, fontSize: 16.sp)),
+                  SizedBox(height: 10.h),
+                  ElevatedButton(
+                    onPressed: () => controller.fetchTourismDetails(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+      
+          final data = controller.tourismDetails.value;
+          if (data == null) return const SizedBox.shrink();
+      
+          return SingleChildScrollView(
+            scrollDirection: Axis.vertical,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(controller.errorMessage.value,
-                    style: TextStyle(color: Colors.red, fontSize: 16.sp)),
-                SizedBox(height: 10.h),
-                ElevatedButton(
-                  onPressed: () => controller.fetchTourismDetails(),
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        final data = controller.tourismDetails.value;
-        if (data == null) return const SizedBox.shrink();
-
-        return SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImageHeader(context, data),
-              Padding(
-                padding: EdgeInsets.fromLTRB(15.w, 15.h, 15.w, 5.h),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (data.agencyDetails?.name != null)
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 4.h),
-                              child: Text(
-                                data.agencyDetails!.name!.toUpperCase(),
-                                style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                              fontSize: 22.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
+                _buildImageHeader(context, data),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(15.w, 15.h, 15.w, 5.h),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (data.agencyDetails?.name != null)
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 4.h),
+                                child: Text(
+                                  data.agencyDetails!.name!.toUpperCase(),
+                                  style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: blue,
+                                fontSize: 22.sp,
+                                fontWeight: FontWeight.bold,
                               ),
-                            ),
-                          Text(
-                            data.packageName ?? '',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              color: blue,
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 5.h),
-                          Row(
-                            children: [
-                              ...List.generate(
-                                5,
-                                (index) => Icon(Icons.star_rounded,
-                                    color: yellow, size: 18.sp),
-                              ),
-                              SizedBox(width: 8.w),
-                              Text(
-                                '(0 Reviews)', // Tourism doesn't have reviews in model yet
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  color: fontColor,
-                                  fontSize: 12.sp,
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // We don't have FirstDetailedViewBuilder for Tourism, but we can show duration/type
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
-                child: Row(
-                  children: [
-                    _buildInfoChip(Icons.timer_outlined,
-                        "${data.durationDays}D / ${data.durationNights}N"),
-                    SizedBox(width: 10.w),
-                    _buildInfoChip(
-                        Icons.category_outlined, data.packageType ?? "Tour"),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Package details',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          color: blue,
-                          fontSize: 17.sp,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 2.h, right: 10.w),
-                      child: Icon(Icons.location_on, color: blue, size: 18.sp),
-                    ),
-                    Expanded(
-                      child: Text(
-                        data.destination ?? 'Destination',
-                        style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: black,
-                            fontSize: 13.sp),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (data.agencyDetails?.phoneNumber != null) ...[
-                SizedBox(height: 12.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(right: 10.w),
-                        child: Icon(Icons.phone, color: blue, size: 18.sp),
-                      ),
-                      Text(
-                        data.agencyDetails!.phoneNumber!,
-                        style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: black,
-                            fontSize: 13.sp),
+                            Text(
+                              data.packageName ?? '',
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: blue,
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 5.h),
+                            Row(
+                              children: [
+                                ...List.generate(
+                                  5,
+                                  (index) => Icon(Icons.star_rounded,
+                                      color: yellow, size: 18.sp),
+                                ),
+                                SizedBox(width: 8.w),
+                                Text(
+                                  '(0 Reviews)', // Tourism doesn't have reviews in model yet
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    color: fontColor,
+                                    fontSize: 12.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            
-              const HomeDivider(),
-              TourismAmenitiesSection(amenities: data.amenities),
-              const HomeDivider(),
-
-              // Billing Details Section
-              // Padding(
-              //   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
-              //   child: Text(
-              //     'Billing Details',
-              //     style: TextStyle(
-              //         fontFamily: 'Poppins',
-              //         color: blue,
-              //         fontSize: 17.sp,
-              //         fontWeight: FontWeight.bold),
-              //   ),
-              // ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 10.w),
-                padding: EdgeInsets.all(16.r),
-                decoration: BoxDecoration(
-                  color: white,
-                  borderRadius: BorderRadius.circular(16.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      spreadRadius: 2,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                  border: Border.all(color: border, width: 1),
+                // We don't have FirstDetailedViewBuilder for Tourism, but we can show duration/type
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
+                  child: Row(
+                    children: [
+                      _buildInfoChip(Icons.timer_outlined,
+                          "${data.durationDays}D / ${data.durationNights}N"),
+                      SizedBox(width: 10.w),
+                      _buildInfoChip(
+                          Icons.category_outlined, data.packageType ?? "Tour"),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    _buildBillingItem(
-                      context: context,
-                      icon: Icons.calendar_month_rounded,
-                      title: "Travel Date",
-                      onTap: () {
-                        BottomSheetUtils.showSingleDatePicker(context);
-                      },
-                      subtitle: Obx(() {
-                        return Text(
-                          controller.calendarController.checkInDate.value !=
-                                  null
-                              ? controller.calendarController.formatDate(
-                                  controller
-                                      .calendarController.checkInDate.value)
-                              : "Select Date",
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Package details',
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: blue,
+                            fontSize: 17.sp,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: 2.h, right: 10.w),
+                        child: Icon(Icons.location_on, color: blue, size: 18.sp),
+                      ),
+                      Expanded(
+                        child: Text(
+                          data.destination ?? 'Destination',
                           style: TextStyle(
                               fontFamily: 'Poppins',
-                              color: blue,
-                              fontWeight: FontWeight.w600,
+                              color: black,
                               fontSize: 13.sp),
-                        );
-                      }),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (data.agencyDetails?.phoneNumber != null) ...[
+                  SizedBox(height: 12.h),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(right: 10.w),
+                          child: Icon(Icons.phone, color: blue, size: 18.sp),
+                        ),
+                        Text(
+                          data.agencyDetails!.phoneNumber!,
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: black,
+                              fontSize: 13.sp),
+                        ),
+                      ],
                     ),
-                    // Padding(
-                    //   padding: EdgeInsets.symmetric(vertical: 12.h),
-                    //   child: Divider(color: border.withOpacity(0.5), height: 1),
-                    // ),
-                    // _buildBillingItem(
-                    //   context: context,
-                    //   icon: Icons.people_alt_rounded,
-                    //   title: "Travelers",
-                    //   onTap: () =>
-                    //       BottomSheetUtils.showGuestBottomSheet(context),
-                    //   subtitle: Obx(() {
-                    //     return Text(
-                    //       "${controller.calendarController.guestCount.value} Travelers",
-                    //       style: TextStyle(
-                    //           fontFamily: 'Poppins',
-                    //           color: blue,
-                    //           fontWeight: FontWeight.w600,
-                    //           fontSize: 13.sp),
-                    //     );
-                    //   }),
-                    // ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 15.h),
-              TourismBookNow(data: data),
-              const HomeDivider(),
-              Padding(
-                padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
-                child: Text(
-                  'Itinerary',
-                  style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: blue,
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              ItinerarySection(itinerary: data.itinerary),
-             // const HomeDivider(),
-                if (data.agencyDetails?.packages != null &&
-                  data.agencyDetails!.packages!.isNotEmpty) ...[
+                  ),
+                ],
+              
                 const HomeDivider(),
-                _buildAvailablePackages(data.agencyDetails!.packages!),
+                TourismAmenitiesSection(amenities: data.amenities),
+                const HomeDivider(),
+      
+                // Billing Details Section
+                // Padding(
+                //   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                //   child: Text(
+                //     'Billing Details',
+                //     style: TextStyle(
+                //         fontFamily: 'Poppins',
+                //         color: blue,
+                //         fontSize: 17.sp,
+                //         fontWeight: FontWeight.bold),
+                //   ),
+                // ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10.w),
+                  padding: EdgeInsets.all(16.r),
+                  decoration: BoxDecoration(
+                    color: white,
+                    borderRadius: BorderRadius.circular(16.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        spreadRadius: 2,
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                    border: Border.all(color: border, width: 1),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildBillingItem(
+                        context: context,
+                        icon: Icons.calendar_month_rounded,
+                        title: "Travel Date",
+                        onTap: () {
+                          BottomSheetUtils.showSingleDatePicker(context);
+                        },
+                        subtitle: Obx(() {
+                          return Text(
+                            controller.calendarController.checkInDate.value !=
+                                    null
+                                ? controller.calendarController.formatDate(
+                                    controller
+                                        .calendarController.checkInDate.value)
+                                : "Select Date",
+                            style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: blue,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13.sp),
+                          );
+                        }),
+                      ),
+                      // Padding(
+                      //   padding: EdgeInsets.symmetric(vertical: 12.h),
+                      //   child: Divider(color: border.withOpacity(0.5), height: 1),
+                      // ),
+                      // _buildBillingItem(
+                      //   context: context,
+                      //   icon: Icons.people_alt_rounded,
+                      //   title: "Travelers",
+                      //   onTap: () =>
+                      //       BottomSheetUtils.showGuestBottomSheet(context),
+                      //   subtitle: Obx(() {
+                      //     return Text(
+                      //       "${controller.calendarController.guestCount.value} Travelers",
+                      //       style: TextStyle(
+                      //           fontFamily: 'Poppins',
+                      //           color: blue,
+                      //           fontWeight: FontWeight.w600,
+                      //           fontSize: 13.sp),
+                      //     );
+                      //   }),
+                      // ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 15.h),
+                TourismBookNow(data: data),
+                const HomeDivider(),
+                Padding(
+                  padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
+                  child: Text(
+                    'Itinerary',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: blue,
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ItinerarySection(itinerary: data.itinerary),
+               // const HomeDivider(),
+                  if (data.agencyDetails?.packages != null &&
+                    data.agencyDetails!.packages!.isNotEmpty) ...[
+                  const HomeDivider(),
+                  _buildAvailablePackages(data.agencyDetails!.packages!),
+                ],
+                Padding(
+                  padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
+                  child: Text(
+                    'About this package',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: blue,
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
+                  width: double.infinity,
+                  height: 150.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.r),
+                    image: DecorationImage(
+                        image: NetworkImage(data.images?.first ??
+                            data.galleryImages?.first ??
+                            data.agencyDetails?.coverImageUrl ??
+                            ""),
+                        fit: BoxFit.cover),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  child: Text(
+                    data.description ?? '',
+                    style: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: black,
+                        height: 1.5,
+                        fontSize: 13.sp),
+                  ),
+                ),
+                const HomeDivider(),
+                PackageHighlightsSection(
+                  attractions: data.tripAttractions,
+                  exclusions: data.tripExclusions,
+                ),
+                const HomeDivider(),
+                _buildPolicyGrid(data),
+                const HomeDivider(),
+                AgencyDetailSection(agency: data.agencyDetails),
+                SizedBox(height: 40.h),
               ],
-              Padding(
-                padding: EdgeInsets.only(left: 10.w, bottom: 5.h),
-                child: Text(
-                  'About this package',
-                  style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: blue,
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
-                width: double.infinity,
-                height: 150.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.r),
-                  image: DecorationImage(
-                      image: NetworkImage(data.images?.first ??
-                          data.galleryImages?.first ??
-                          data.agencyDetails?.coverImageUrl ??
-                          ""),
-                      fit: BoxFit.cover),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Text(
-                  data.description ?? '',
-                  style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: black,
-                      height: 1.5,
-                      fontSize: 13.sp),
-                ),
-              ),
-              const HomeDivider(),
-              PackageHighlightsSection(
-                attractions: data.tripAttractions,
-                exclusions: data.tripExclusions,
-              ),
-              const HomeDivider(),
-              _buildPolicyGrid(data),
-              const HomeDivider(),
-              AgencyDetailSection(agency: data.agencyDetails),
-              SizedBox(height: 40.h),
-            ],
-          ),
-        );
-      }),
+            ),
+          );
+        }),
+      ),
     );
   }
 
@@ -741,7 +744,7 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontSize: 10.sp,
-                                    color: grey.withOpacity(0.8),
+                                    color: black,
                                   ),
                                 ),
                               ),
