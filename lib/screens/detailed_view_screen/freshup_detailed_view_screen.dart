@@ -658,7 +658,7 @@ class _FreshupDetailedViewScreenState extends State<FreshupDetailedViewScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     NameView(
-                      name: "Available Rooms",
+                      name: "Rooms Available",
                       color: blue,
                       secondName: '',
                       secondColor: blue,
