@@ -4,11 +4,18 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class FirebaseService {
   static Future<void> init() async {
-    // Initialize Firebase
-    await Firebase.initializeApp();
+    try {
+      // Initialize Firebase
+      await Firebase.initializeApp();
 
-    // Initialize Google Sign-In (v7.1.1 API mandatory initialization)
-    await GoogleSignIn.instance.initialize();
+      // Initialize Google Sign-In (v7.1.1 API mandatory initialization)
+      await GoogleSignIn.instance.initialize();
+    } catch (e) {
+      print("Firebase/GoogleSignIn initialization error: $e");
+      // Re-throw if critical, or handle gracefully.
+      // For now we allow main() to catch or just log.
+      rethrow;
+    }
   }
 
   static Future<({User? user, String? idToken})> signInWithGoogle() async {

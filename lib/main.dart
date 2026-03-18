@@ -22,11 +22,18 @@ import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FirebaseService.init();
+  
+  try {
+    await FirebaseService.init();
+  } catch (e) {
+    debugPrint("Firebase initialization failed: $e");
+  }
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  
   runApp(const MyApp());
 }
 
