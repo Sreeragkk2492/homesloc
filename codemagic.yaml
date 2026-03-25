@@ -1,30 +1,24 @@
 workflows:
   ios-workflow:
     name: iOS Build
-    max_build_duration: 60
 
     environment:
       flutter: 3.27.1
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.homesloc.app  # 🔴 change this
 
     scripts:
-      - name: Fix iOS deployment target
-        script: |
-          # Ensure ios folder exists
-          flutter create .
-
-          # Update Podfile to iOS 15
-          sed -i '' 's/platform :ios, .*/platform :ios, "15.0"/' ios/Podfile || true
-
-          # Force deployment target everywhere
-          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = .*/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' ios/Runner.xcodeproj/project.pbxproj || true
-
       - name: Install dependencies
-        script: |
-          flutter pub get
+        script: flutter pub get
 
-      - name: Build iOS
-        script: |
-          flutter build ios --release --no-codesign
+      - name: Build IPA
+        script: flutter build ipa --release
 
     artifacts:
-      - build/ios/iphoneos/*.app
+      - build/ios/ipa/*.ipa
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
