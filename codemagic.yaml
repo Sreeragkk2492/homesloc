@@ -9,7 +9,8 @@ workflows:
       flutter: 3.27.1
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.homesloc.app  # 🔴 change this
+        bundle_identifier: com.homesloc.app 
+        automatic_code_signing: true 
 
     scripts:
       - name: Install dependencies
