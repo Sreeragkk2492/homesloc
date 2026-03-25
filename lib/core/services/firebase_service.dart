@@ -1,20 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 
 class FirebaseService {
   static Future<void> init() async {
     try {
-      // Initialize Firebase
-      await Firebase.initializeApp();
+      debugPrint("Starting Firebase initialization...");
+      // Initialize Firebase (with timeout)
+      await Firebase.initializeApp().timeout(const Duration(seconds: 10));
+      debugPrint("Firebase initialized successfully");
 
+      debugPrint("Initializing Google Sign-In...");
       // Initialize Google Sign-In (v7.1.1 API mandatory initialization)
-      await GoogleSignIn.instance.initialize();
+      await GoogleSignIn.instance
+          .initialize()
+          .timeout(const Duration(seconds: 10));
+      debugPrint("Google Sign-In initialized successfully");
     } catch (e) {
-      print("Firebase/GoogleSignIn initialization error: $e");
-      // Re-throw if critical, or handle gracefully.
-      // For now we allow main() to catch or just log.
-      rethrow;
+      debugPrint("Firebase/GoogleSignIn initialization error: $e");
+      // We don't rethrow here to allow main() to proceed and show the UI
+      // even if these background services fail to initialize.
     }
   }
 

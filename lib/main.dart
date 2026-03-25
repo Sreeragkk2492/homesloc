@@ -50,13 +50,11 @@ class MyApp extends StatelessWidget {
         return GetMaterialApp(
           title: 'Homesloc',
           debugShowCheckedModeBanner: false,
-          // initialRoute: Routes.SignUp,
-          // getPages: GetPages.routes,
           theme: appTheme,
-          home: child,
+          home: child ?? const Splashscreen(),
         );
       },
-      child: Splashscreen(),
+      child: const Splashscreen(),
     );
   }
 }
