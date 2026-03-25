@@ -8,6 +8,7 @@ workflows:
     environment:
       flutter: 3.27.1
       ios_signing:
+        automatic_signing: true 
         distribution_type: app_store
         bundle_identifier: com.homesloc.app 
         
