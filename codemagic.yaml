@@ -2,7 +2,8 @@ workflows:
   ios-workflow:
     name: iOS Build
 
-   
+    integrations:
+      app_store_connect: New key 
 
     environment:
       flutter: 3.27.1
