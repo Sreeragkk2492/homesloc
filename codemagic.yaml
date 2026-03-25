@@ -10,11 +10,15 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.homesloc.app 
-        automatic_code_signing: true 
+        
 
     scripts:
       - name: Install dependencies
         script: flutter pub get
+
+      - name: Set up code signing   # 🔥 IMPORTANT
+        script: |
+          xcode-project use-profiles
 
       - name: Build IPA
         script: flutter build ipa --release
