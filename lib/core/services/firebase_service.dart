@@ -12,9 +12,11 @@ class FirebaseService {
       debugPrint("Firebase initialized successfully");
 
       debugPrint("Initializing Google Sign-In...");
-      // Initialize Google Sign-In (v7.1.1 API mandatory initialization)
+      // Initialize Google Sign-In (Explicitly provide clientId to ensure it's picked up)
       await GoogleSignIn.instance
-          .initialize()
+          .initialize(
+            clientId: "345101271157-vml469ahgho9tqkprl22213bebhtrm6o.apps.googleusercontent.com",
+          )
           .timeout(const Duration(seconds: 10));
       debugPrint("Google Sign-In initialized successfully");
     } catch (e) {
