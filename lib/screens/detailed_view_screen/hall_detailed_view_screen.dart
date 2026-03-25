@@ -587,10 +587,10 @@ class _HallDetailedViewScreenState extends State<HallDetailedViewScreen> {
                   ],
                 ),
               ),
-              // SizedBox(height: 12.h),
-              // Padding(
-              //   padding: EdgeInsets.symmetric(horizontal: 10.w),
-              //   child: Row(
+           //   // SizedBox(height: 12.h),
+           //   // Padding(
+           //   //   padding: EdgeInsets.symmetric(horizontal: 10.w),
+            //  //   child: Row(
               //     children: [
               //       Padding(
               //         padding: EdgeInsets.only(right: 10.w),

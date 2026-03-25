@@ -1031,8 +1031,8 @@ class _DetailedViewScreenState extends State<DetailedViewScreen> {
                         ],
                       ),
                     ],
-                    // if (hotelData is HotelDetailModel &&
-                    //     hotelData.phoneNumber != null) ...[
+                   // if (hotelData is HotelDetailModel &&
+                   //     hotelData.phoneNumber != null) ...[
                     //   SizedBox(height: 8.h),
                     //   Row(
                     //     children: [
