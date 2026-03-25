@@ -1,5 +1,8 @@
 // ignore_for_file: file_names, unused_import
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:homesloc/screens/home/hotel_search_screen.dart';
+import 'package:homesloc/controller/search/search_hotel_controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/categorie_screen/categorie_view/categorie_view.dart';
@@ -110,27 +113,102 @@ class CategorieSreen extends StatelessWidget {
                         //   width: 500.w,
                         //   height: 200.h,
                         //   child: CategoriesGridPage()),
-                        CategoriesView(
-                          image: 'assets/images/hotsls.jpg',
-                          categories: 'Hotels',
+                        GestureDetector(
+                          onTap: () {
+                            final searchHotelController =
+                                Get.put(SearchHotelController());
+                            searchHotelController.isGroupedByHotel.value = true;
+                            searchHotelController.isGroupedByHall.value = false;
+                            searchHotelController.isFreshup.value = false;
+                            searchHotelController.isTourism.value = false;
+                            searchHotelController.isAdventureTourism.value =
+                                false;
+                            searchHotelController.searchHotels();
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/hotsls.jpg',
+                            categories: 'Hotels',
+                          ),
                         ),
-                        CategoriesView(
-                          image: 'assets/images/Banquet-Hall.jpg',
-                          categories: 'Banquet Hall',
+                        GestureDetector(
+                          onTap: () {
+                            final searchHotelController =
+                                Get.put(SearchHotelController());
+                            searchHotelController.isGroupedByHall.value = true;
+                            searchHotelController.isGroupedByHotel.value =
+                                false;
+                            searchHotelController.isFreshup.value = false;
+                            searchHotelController.isTourism.value = false;
+                            searchHotelController.isAdventureTourism.value =
+                                false;
+                            searchHotelController.searchHotels();
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/Banquet-Hall.jpg',
+                            categories: 'Banquet Hall',
+                          ),
                         ),
-                        CategoriesView(
-                          image: 'assets/images/sunrise.jpg',
-                          categories: 'Tour',
+                        GestureDetector(
+                          onTap: () {
+                            final searchHotelController =
+                                Get.find<SearchHotelController>();
+                            searchHotelController.isTourism.value = true;
+                            searchHotelController.isAdventureTourism.value =
+                                false;
+                            searchHotelController.isFreshup.value = false;
+                            searchHotelController.isGroupedByHall.value = false;
+                            searchHotelController.isGroupedByHotel.value =
+                                false;
+                            searchHotelController.searchHotels();
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/sunrise.jpg',
+                            categories: 'Tour',
+                          ),
                         ),
-                        CategoriesView(
-                          image: 'assets/images/freshupss.jpg',
-                          categories: 'Fresh Up',
+                        GestureDetector(
+                          onTap: () {
+                            final searchHotelController =
+                                Get.put(SearchHotelController());
+                            searchHotelController.isFreshup.value = true;
+                            searchHotelController.isGroupedByHall.value = false;
+                            searchHotelController.isGroupedByHotel.value =
+                                false;
+                            searchHotelController.isTourism.value = false;
+                            searchHotelController.isAdventureTourism.value =
+                                false;
+                            searchHotelController.searchHotels();
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/freshupss.jpg',
+                            categories: 'Fresh Up',
+                          ),
                         ),
 
-                        // CategoriesView(
-                        //   image: 'assets/images/image (3).png',
-                        //   categories: 'Tourism Package',
-                        // ),
+                        GestureDetector(
+                          onTap: () {
+                            final searchHotelController =
+                                Get.find<SearchHotelController>();
+                            searchHotelController.isTourism.value = false;
+                            searchHotelController.isAdventureTourism.value =
+                                true;
+                            searchHotelController.isFreshup.value = false;
+                            searchHotelController.isGroupedByHall.value = false;
+                            searchHotelController.isGroupedByHotel.value =
+                                false;
+                            // Search immediately
+                            searchHotelController.searchHotels();
+                            Get.to(() => HotelSearchScreen());
+                          },
+                          child: CategoriesView(
+                            image: 'assets/images/image (25).png',
+                            categories: 'Adventure Tourism',
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(
@@ -173,26 +251,6 @@ class CategorieSreen extends StatelessWidget {
                                 color: blue,
                                 fontSize: 19.sp,
                                 fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            width: 100.w,
-                          ),
-                          Container(
-                            width: 55.w,
-                            height: 22.h,
-                            decoration: BoxDecoration(
-                                color: gwhite,
-                                borderRadius: BorderRadius.circular(4.sp)),
-                            child: Center(
-                              child: Text(
-                                "View All",
-                                style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: black,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
                           ),
                         ],
                       ),
@@ -296,26 +354,6 @@ class CategorieSreen extends StatelessWidget {
                                 fontSize: 19.sp,
                                 fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(
-                            width: 80.w,
-                          ),
-                          Container(
-                            width: 55.w,
-                            height: 22.h,
-                            decoration: BoxDecoration(
-                                color: gwhite,
-                                borderRadius: BorderRadius.circular(4.sp)),
-                            child: Center(
-                              child: Text(
-                                "View All",
-                                style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: black,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -372,26 +410,6 @@ class CategorieSreen extends StatelessWidget {
                                 fontSize: 17.sp,
                                 fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(
-                            width: 30.w,
-                          ),
-                          Container(
-                            width: 55.w,
-                            height: 22.h,
-                            decoration: BoxDecoration(
-                                color: gwhite,
-                                borderRadius: BorderRadius.circular(4.sp)),
-                            child: Center(
-                              child: Text(
-                                "View All",
-                                style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: black,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -443,21 +461,37 @@ class CategorieSreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          FifthCategorieBuilder(
-                            image: 'assets/images/image (21).png',
-                            text: 'Destination\nWeddings',
-                            subname:
-                                'Perfect for dream weddings\nin exotic locations.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: FifthCategorieBuilder(
+                              image: 'assets/images/image (21).png',
+                              text: 'Destination\nWeddings',
+                              subname:
+                                  'Perfect for dream weddings\nin exotic locations.',
+                            ),
                           ),
-                          FifthCategorieBuilder(
-                            image: 'assets/images/image (22).png',
-                            text: 'Honeymoon\nPackages',
-                            subname: 'Romantic getaways\nfor newlyweds.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: FifthCategorieBuilder(
+                              image: 'assets/images/image (22).png',
+                              text: 'Honeymoon\nPackages',
+                              subname: 'Romantic getaways\nfor newlyweds.',
+                            ),
                           ),
-                          FifthCategorieBuilder(
-                            image: 'assets/images/image (21).png',
-                            text: 'Wedding\nVenues',
-                            subname: 'Beautiful venues for\nyour special day.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: FifthCategorieBuilder(
+                              image: 'assets/images/image (21).png',
+                              text: 'Wedding\nVenues',
+                              subname:
+                                  'Beautiful venues for\nyour special day.',
+                            ),
                           ),
                         ],
                       ),
@@ -473,21 +507,36 @@ class CategorieSreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          SixthCategorieBuilder(
-                            image: 'assets/images/image (23).png',
-                            text: 'Luxury Banquet\nHalls',
-                            subName: 'Elegant venues\nfor grand events.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: SixthCategorieBuilder(
+                              image: 'assets/images/image (23).png',
+                              text: 'Luxury Banquet\nHalls',
+                              subName: 'Elegant venues\nfor grand events.',
+                            ),
                           ),
-                          SixthCategorieBuilder(
-                            image: 'assets/images/image (24).png',
-                            text: 'Affordable Banquet\nHalls',
-                            subName:
-                                'Budget-friendly venues\nfor all occasions.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: SixthCategorieBuilder(
+                              image: 'assets/images/image (24).png',
+                              text: 'Affordable Banquet\nHalls',
+                              subName:
+                                  'Budget-friendly venues\nfor all occasions.',
+                            ),
                           ),
-                          SixthCategorieBuilder(
-                            image: 'assets/images/outoor.jpg',
-                            text: 'Outdoor Banquet\nHalls',
-                            subName: 'Beautiful outdoor\nspaces for events.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: SixthCategorieBuilder(
+                              image: 'assets/images/outoor.jpg',
+                              text: 'Outdoor Banquet\nHalls',
+                              subName: 'Beautiful outdoor\nspaces for events.',
+                            ),
                           ),
                         ],
                       ),
@@ -503,20 +552,35 @@ class CategorieSreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          EighthCategorieBuilder(
-                            image: 'assets/images/image (25).png',
-                            text: 'Adventure\nPackages',
-                           // subName: 'Thrilling adventures for the daring.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: EighthCategorieBuilder(
+                              image: 'assets/images/image (25).png',
+                              text: 'Adventure\nPackages',
+                              // subName: 'Thrilling adventures for the daring.',
+                            ),
                           ),
-                          EighthCategorieBuilder(
-                            image: 'assets/images/image (26).png',
-                            text: 'Cultural\nTours',
-                           // subName: 'Immerse yourself in local culture.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: EighthCategorieBuilder(
+                              image: 'assets/images/image (26).png',
+                              text: 'Cultural\nTours',
+                              // subName: 'Immerse yourself in local culture.',
+                            ),
                           ),
-                          EighthCategorieBuilder(
-                            image: 'assets/images/image (25).png',
-                            text: 'Wellness\nRetreats',
-                          //  subName: 'Relax and rejuvenate in serene settings.',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: EighthCategorieBuilder(
+                              image: 'assets/images/image (25).png',
+                              text: 'Wellness\nRetreats',
+                              //  subName: 'Relax and rejuvenate in serene settings.',
+                            ),
                           ),
                         ],
                       ),
@@ -532,17 +596,32 @@ class CategorieSreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          NinthCategorieBuilder(
-                            image: 'assets/images/wayanad.png',
-                            location: 'Wayanad',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: NinthCategorieBuilder(
+                              image: 'assets/images/wayanad.png',
+                              location: 'Wayanad',
+                            ),
                           ),
-                          NinthCategorieBuilder(
-                            image: 'assets/images/cameltrip.png',
-                            location: 'Camel Trip',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: NinthCategorieBuilder(
+                              image: 'assets/images/cameltrip.png',
+                              location: 'Camel Trip',
+                            ),
                           ),
-                          NinthCategorieBuilder(
-                            image: 'assets/images/Rajasthyan.png',
-                            location: 'Rajastan',
+                          GestureDetector(
+                            onTap: () {
+                              Get.to(() => HotelSearchScreen());
+                            },
+                            child: NinthCategorieBuilder(
+                              image: 'assets/images/Rajasthyan.png',
+                              location: 'Rajastan',
+                            ),
                           ),
                         ],
                       ),

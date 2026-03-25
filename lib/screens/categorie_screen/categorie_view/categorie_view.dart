@@ -8,7 +8,6 @@ import 'package:homesloc/core/controller/bottom_navigation_bar/new_navigation.da
 import 'package:homesloc/core/widgets/builder/categorie_builder/categorie_view_builder/categorie_view_builder.dart';
 import 'package:homesloc/core/widgets/logo.dart/logo.dart';
 import 'package:homesloc/core/widgets/logo.dart/second_logo.dart';
-import 'package:homesloc/core/widgets/view_all_button/view_all_button.dart';
 
 class CategorieView extends StatelessWidget {
   const CategorieView({super.key});
@@ -337,14 +336,7 @@ class CategorieView extends StatelessWidget {
             CategorieViewBuilder(
               image: 'assets/images/image (31).png',
             ),
-            InkWell(
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return SearchScreen();
-                }));
-              },
-              child: ViewAllButton(),
-            ),
+            // ViewAllButton removed per user request
             Container(
               height: 30.h,
               width: 10.w,

@@ -25,51 +25,42 @@ class CalendarController extends GetxController {
   }
 
   void initCalendarController() {
+    // Set default dates: Today and Tomorrow
+    DateTime today = DateTime.now();
+    DateTime tomorrow = today.add(const Duration(days: 1));
+
+    checkInDate.value = DateTime(today.year, today.month, today.day);
+    checkOutDate.value = DateTime(tomorrow.year, tomorrow.month, tomorrow.day);
+    calculateTotalDays();
+
     calendarController = CleanCalendarController(
       minDate: DateTime.now(),
       maxDate: DateTime.now().add(const Duration(days: 365)),
       weekdayStart: DateTime.monday,
+      initialFocusDate: checkInDate.value,
+      initialDateSelected: checkInDate.value,
+      endDateSelected: checkOutDate.value,
       onRangeSelected: updateSelectedDateRange,
-      onDayTapped: handleDayTapped,
     );
   }
 
-  // Handle single day tap
-  void handleDayTapped(DateTime date) {
-    // If no date selected yet or both dates are selected, start new selection
-    if (checkInDate.value == null || checkOutDate.value != null) {
-      checkInDate.value = date;
-      checkOutDate.value = null;
-      totalDays.value = 0;
-    }
-    // If only check-in is selected and tapped date is after check-in
-    else if (date.isAfter(checkInDate.value!)) {
-      checkOutDate.value = date;
-      calculateTotalDays();
-    }
-    // If tapped date is before or same as check-in, update check-in
-    else {
-      checkInDate.value = date;
-      checkOutDate.value = null;
-      totalDays.value = 0;
-    }
-  }
-
-  // Handle range selection callback
+  // Handle range selection callback - this is the single source of truth
   void updateSelectedDateRange(DateTime? start, DateTime? end) {
-    if (start != null) {
-      checkInDate.value = start;
-    }
-    if (end != null) {
-      checkOutDate.value = end;
+    checkInDate.value = start;
+    checkOutDate.value = end;
+
+    if (start != null && end != null) {
       calculateTotalDays();
+    } else {
+      totalDays.value = 0;
     }
   }
 
   // Calculate number of days between dates
   void calculateTotalDays() {
     if (checkInDate.value != null && checkOutDate.value != null) {
-      totalDays.value = checkOutDate.value!.difference(checkInDate.value!).inDays + 1;
+      totalDays.value =
+          checkOutDate.value!.difference(checkInDate.value!).inDays + 1;
     } else {
       totalDays.value = 0;
     }
@@ -79,7 +70,20 @@ class CalendarController extends GetxController {
   String formatDate(DateTime? date) {
     if (date == null) return "Select Date";
 
-    final months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    final months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
     final days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     final day = date.day;
@@ -99,5 +103,14 @@ class CalendarController extends GetxController {
   // If you want to access the guest info easily
   String getGuestRoomInfo() {
     return "${guestCount.value} guest${guestCount.value > 1 ? 's' : ''}, ${roomCount.value} room${roomCount.value > 1 ? 's' : ''}";
+  }
+
+  void clearDates() {
+    checkInDate.value = null;
+    checkOutDate.value = null;
+    totalDays.value = 0;
+    guestCount.value = 2;
+    roomCount.value = 1;
+    initCalendarController(); // Re-initialize to clear visual selection
   }
 }

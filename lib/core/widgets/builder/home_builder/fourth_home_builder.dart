@@ -3,32 +3,39 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/home/home_screen_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
+import 'package:homesloc/core/widgets/loader/app_loader.dart';
 
 import '../../../../screens/detailed_view_screen/detailed_view_screen.dart';
 
 class FourthHomeBuilder extends StatelessWidget {
   FourthHomeBuilder({super.key});
 
-  final HomeScreenController screenController = Get.put(HomeScreenController());
+  final HomeScreenController screenController =
+      Get.find<HomeScreenController>();
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       if (screenController.isLoading.value) {
-        return SliverFillRemaining(
-            child: Center(child: CircularProgressIndicator()));
+        return const SliverFillRemaining(
+            child: Center(child: AppLoader(size: 50)));
       } else if (screenController.errorMessage.value.isNotEmpty) {
         return SliverFillRemaining(
             child: Center(child: Text(screenController.errorMessage.value)));
       } else {
-        final bestHotels = screenController.homeScreenData.value.bestHotels;
+        final bestHotels = screenController.bestHotels;
+        if (bestHotels.isEmpty) {
+          return SliverToBoxAdapter(child: SizedBox.shrink());
+        }
         return SliverList(
           delegate: SliverChildBuilderDelegate(
             (BuildContext context, int index) {
-              final hotel = bestHotels?[index];
+              final hotel = bestHotels[index];
               return GestureDetector(
-                onTap: (){
-                  Get.to(()=>DetailedViewScreen(hotel: hotel,));
+                onTap: () {
+                  Get.to(() => DetailedViewScreen(
+                        hotel: hotel,
+                      ));
                 },
                 child: Container(
                   margin: EdgeInsets.only(top: 5.h, bottom: 5.h),
@@ -45,12 +52,36 @@ class FourthHomeBuilder extends StatelessWidget {
                         margin: EdgeInsets.only(left: 5.w, top: 2.h),
                         width: 144.w,
                         height: 128.h,
-                        decoration: BoxDecoration(
+                        child: ClipRRect(
                           borderRadius: BorderRadius.circular(13.sp),
-                          image: DecorationImage(
-                            image: NetworkImage(hotel?.coverImageUrl ?? ''),
-                            fit: BoxFit.cover,
-                          ),
+                          child: (hotel.coverImageUrl != null &&
+                                  hotel.coverImageUrl!.startsWith('http'))
+                              ? Image.network(
+                                  hotel.coverImageUrl!,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: blue,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Image.asset(
+                                    'assets/logos/default.jpeg',
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Image.asset(
+                                  'assets/logos/default.jpeg',
+                                  fit: BoxFit.cover,
+                                ),
                         ),
                       ),
                       Padding(
@@ -58,30 +89,40 @@ class FourthHomeBuilder extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              hotel?.name ?? 'No Name',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.sp,
+                            SizedBox(
+                              width: 160.w,
+                              child: Text(
+                               // maxLines: 2,
+                                hotel.name ?? 'Grand Luxury Resort',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.sp,
+                                  
+                                ),
                               ),
                             ),
                             SizedBox(height: 3.h),
-                            Text(
-                              hotel?.location ?? 'No Location',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: fontColor,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 11.sp,
+                            SizedBox(
+                              width: 160.w,
+                              child: Text(
+                                hotel.location ?? 'Maldives',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  color: fontColor,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 11.sp,
+                                ),
                               ),
                             ),
                             SizedBox(height: 3.h),
                             Row(
                               children: [
                                 Text(
-                                  "₹${hotel?.pricing?.offerPrice ?? 'N/A'}",
+                                  "₹${hotel.pricing?.offerPrice ?? (hotel.pricing?.bestPrice ?? '2500')}",
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     color: black,
@@ -90,30 +131,37 @@ class FourthHomeBuilder extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(width: 5.w),
-                                Text(
-                                  "₹${hotel?.pricing?.bestPrice?? 'N/A'}",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: fontColor,
-                                    fontSize: 11.sp,
+                                if (hotel.pricing?.offerPrice != null &&
+                                    hotel.pricing?.bestPrice != null &&
+                                    hotel.pricing!.offerPrice !=
+                                        hotel.pricing!.bestPrice)
+                                  Text(
+                                    "₹${hotel.pricing?.bestPrice}",
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      color: fontColor,
+                                      fontSize: 11.sp,
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 5.w),
-                                Text(
-                                  "${(hotel?.pricing?.availableRooms ?? 0) == 0 ? 20 : hotel?.pricing?.availableRooms}% OFF",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: green,
-                                    fontSize: 11.sp,
+                                if (hotel.pricing?.availableRooms != null) ...[
+                                  SizedBox(width: 5.w),
+                                  Text(
+                                    "${hotel.pricing?.availableRooms} Rooms",
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      color: green,
+                                      fontSize: 11.sp,
+                                    ),
                                   ),
-                                ),
+                                ]
                               ],
                             ),
                             SizedBox(height: 3.h),
                             Padding(
                               padding: EdgeInsets.only(left: 7.w),
                               child: Text(
-                                "+ ₹${(hotel?.pricing?.availableRooms ?? 0) == 0 ? 2 : hotel?.pricing?.availableRooms?? 'N/A'} Taxes & Fees",
+                                "+ Taxes & Fees",
                                 style: TextStyle(
                                   fontFamily: 'Poppins',
                                   color: fontColor,
@@ -132,48 +180,36 @@ class FourthHomeBuilder extends StatelessWidget {
                                     fontSize: 11.sp,
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 5.w, top: 2.h, right: 3.w),
-                                  child: Icon(
-                                    Icons.ac_unit_rounded,
-                                    size: 11.sp,
-                                    color: fontColor,
-                                  ),
-                                ),
-                                Text(
-                                  "Ac",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: fontColor,
-                                    fontSize: 11.sp,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 5.w, top: 2.h, right: 3.w),
-                                  child: Icon(Icons.tv,
-                                      size: 11.sp, color: fontColor),
-                                ),
-                                Text(
-                                  "Tv",
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    color: fontColor,
-                                    fontSize: 11.sp,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 5.w),
-                                  child: Text(
-                                    "more...",
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      color: ogBlue,
-                                      fontSize: 11.sp,
+                                if (hotel.amenities != null &&
+                                    hotel.amenities!.isNotEmpty)
+                                  SizedBox(
+                                    width: 100.w,
+                                    height: 20.h,
+                                    child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: hotel.amenities!.length > 3
+                                          ? 3
+                                          : hotel.amenities!.length,
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                          padding: EdgeInsets.only(right: 5.w),
+                                          child: Text(
+                                            "${hotel.amenities![index]}${index < (hotel.amenities!.length > 3 ? 2 : hotel.amenities!.length - 1) ? ',' : ''}",
+                                            style: TextStyle(
+                                                fontFamily: 'Poppins',
+                                                color: fontColor,
+                                                fontSize: 11.sp,
+                                                overflow:
+                                                    TextOverflow.ellipsis),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  ),
-                                ),
+                                  )
+                                else
+                                  Text("N/A",
+                                      style: TextStyle(
+                                          fontSize: 10.sp, color: fontColor)),
                               ],
                             ),
                             SizedBox(height: 3.h),
@@ -190,7 +226,7 @@ class FourthHomeBuilder extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        "${hotel?.starRating ?? 'N/A'}",
+                                        "${hotel.starRating ?? 'N/A'}",
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
                                           color: white,
@@ -208,7 +244,7 @@ class FourthHomeBuilder extends StatelessWidget {
                                 ),
                                 SizedBox(width: 5.w),
                                 Text(
-                                  "${hotel?.reviewCount} Reviews",
+                                  "${hotel.reviewCount} Reviews",
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     color: fontColor,
@@ -225,7 +261,7 @@ class FourthHomeBuilder extends StatelessWidget {
                 ),
               );
             },
-            childCount: bestHotels?.length ?? 0,
+            childCount: bestHotels.length,
           ),
         );
       }

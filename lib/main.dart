@@ -14,11 +14,26 @@ import 'package:homesloc/screens/calendar_screen/calendar_screen.dart';
 import 'package:homesloc/screens/categorie_screen/categorie_screen.dart';
 import 'package:homesloc/screens/check_out/check_out.dart';
 import 'package:homesloc/screens/home/home_screen.dart';
+import 'package:homesloc/screens/splashscreen/splashscreen.dart';
 import 'package:homesloc/themes/app_theme.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+import 'package:homesloc/core/services/firebase_service.dart';
+import 'package:flutter/services.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await FirebaseService.init();
+  } catch (e) {
+    debugPrint("Firebase initialization failed: $e");
+  }
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  
   runApp(const MyApp());
 }
 
@@ -35,13 +50,11 @@ class MyApp extends StatelessWidget {
         return GetMaterialApp(
           title: 'Homesloc',
           debugShowCheckedModeBanner: false,
-          // initialRoute: Routes.SignUp,
-          // getPages: GetPages.routes,
           theme: appTheme,
-          home: child,
+          home: child ?? const Splashscreen(),
         );
       },
-      child: SignIn(),
+      child: const Splashscreen(),
     );
   }
 }

@@ -1,67 +1,381 @@
 import 'dart:convert';
-import 'package:http/http.dart'as http;
 import 'package:homesloc/core/constant/api_constant.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
+import 'package:homesloc/core/api/api_helper.dart';
 
+import 'package:homesloc/models/search/tourism_search_model.dart';
+import 'package:homesloc/models/tourism/tourism_detail_model.dart';
+import 'package:homesloc/models/tourism/tourism_availability_model.dart';
 
- class SearchHotelService {
-  Future<SearchHotelModel?> searchHotels({
-    String? name,
-    String? location,
-    String? checkIn,
-    String? checkOut,
-    int? guestCount,
-    int? minPrice,
-    int? maxPrice,
-    bool isActive = true,
-    int? starRating,
+class SearchHotelService {
+  Future<TourismSearchModel?> searchTourism({
     int page = 1,
     int pageSize = 10,
-    String sortBy = "created_at",
-    String sortOrder = "desc",
+    String sortBy = 'created_at',
+    String sortOrder = 'desc',
+    String? location,
+    String? packageType,
+    int? minPrice,
+    int? maxPrice,
   }) async {
     try {
-      // Build query parameters
-      Map<String, String> queryParams = {
-        if (name != null) 'name': name,
-        if (location != null) 'location': location,
-        if (checkIn != null) 'check_in': checkIn,
-        if (checkOut != null) 'check_out': checkOut,
-        if (guestCount != null) 'guest_count': guestCount.toString(),
-        if (minPrice != null) 'min_price': minPrice.toString(),
-        if (maxPrice != null) 'max_price': maxPrice.toString(),
-        if (starRating != null) 'star_rating': starRating.toString(),
-        'is_active': 'true',
+      final queryParams = <String, String>{
         'page': page.toString(),
         'page_size': pageSize.toString(),
         'sort_by': sortBy,
         'sort_order': sortOrder,
       };
 
-      // Construct URL with query parameters
-      final uri = Uri.parse("${ApiConstant.BASE_URL}${ApiConstant.HOTEL_SEARCH_URL}")
-          .replace(queryParameters: queryParams);
-      
-      // Add proper headers
-      final response = await http.get(
+      if (location != null && location.isNotEmpty) {
+        queryParams['location'] = location;
+      }
+      if (packageType != null && packageType.isNotEmpty) {
+        queryParams['package_type'] = packageType;
+      }
+      if (minPrice != null) queryParams['min_price'] = minPrice.toString();
+      if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
+
+      final uri =
+          Uri.parse(ApiConstant.BASE_URL + ApiConstant.TOURISM_SEARCH_URL)
+              .replace(queryParameters: queryParams);
+
+      print('Tourism Search URL: $uri');
+
+      final response = await ApiHelper.get(
         uri,
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          // Add authorization if needed
-          // 'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
-        },
       );
 
+      print('Tourism Search Response Code: ${response.statusCode}');
+
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        return SearchHotelModel.fromJson(jsonData);
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return TourismSearchModel.fromJson(jsonResponse);
       } else {
-        print('API Error: ${response.statusCode} - ${response.body}');
-        throw Exception('Failed to search hotels: ${response.statusCode}');
+        print('Failed to search tourism: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error searching tourism: $e');
+      return null;
+    }
+  }
+
+  Future<SearchHotelModel?> searchHotels({
+    int page = 1,
+    int pageSize = 10,
+    String? location,
+    String? checkIn,
+    String? checkOut,
+    int? guestCount,
+    int? roomCount,
+    int? minPrice,
+    int? maxPrice,
+    String? propertyType,
+    String? amenities,
+    String? accommodationType,
+    String? roomType,
+    int? starRating,
+    String? sortBy,
+    int? limit,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'page_size': pageSize.toString(),
+      };
+      if (location != null && location.isNotEmpty) {
+        queryParams['location'] = location;
+      }
+      if (checkIn != null) queryParams['check_in_date'] = checkIn;
+      if (checkOut != null) queryParams['check_out_date'] = checkOut;
+      if (guestCount != null)
+        queryParams['guest_count'] = guestCount.toString();
+      if (roomCount != null) queryParams['room_count'] = roomCount.toString();
+      if (minPrice != null) queryParams['min_price'] = minPrice.toString();
+      if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
+      if (propertyType != null && propertyType.isNotEmpty)
+        queryParams['property_type'] = propertyType;
+      if (amenities != null && amenities.isNotEmpty)
+        queryParams['amenities'] = amenities;
+      if (accommodationType != null && accommodationType.isNotEmpty)
+        queryParams['accommodation_type'] = accommodationType;
+      if (roomType != null && roomType.isNotEmpty)
+        queryParams['room_type'] = roomType;
+      if (starRating != null)
+        queryParams['star_rating'] = starRating.toString();
+      if (sortBy != null) queryParams['sort_by'] = sortBy;
+      if (limit != null) queryParams['limit'] = limit.toString();
+
+      final uri = Uri.parse(ApiConstant.BASE_URL + ApiConstant.HOTEL_SEARCH_URL)
+          .replace(queryParameters: queryParams);
+
+      print('Search URL: $uri');
+
+      final response = await ApiHelper.get(
+        uri,
+      );
+
+      print('Search Response Code: ${response.statusCode}');
+      // print('Search Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return SearchHotelModel.fromJson(jsonResponse);
+      } else {
+        print('Failed to search hotels: ${response.statusCode}');
+        return null;
       }
     } catch (e) {
       print('Error searching hotels: $e');
+      return null;
+    }
+  }
+
+  Future<SearchHotelModel?> searchAccommodationsGroupedByHotel({
+    int page = 1,
+    int pageSize = 10,
+    String sortBy = 'created_at',
+    String sortOrder = 'desc',
+    String? name,
+    String? search,
+    String? startDate, // checkin
+    String? endDate, // checkout
+    int? minPrice,
+    int? maxPrice,
+    String? propertyType,
+    String? amenities,
+    String? accommodationType,
+    String? roomType,
+    int? starRating,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'page_size': pageSize.toString(),
+        'sort_by': sortBy,
+        'sort_order': sortOrder,
+      };
+
+      if (name != null) queryParams['name'] = name;
+      if (search != null) queryParams['search'] = search;
+      if (startDate != null) queryParams['start_date'] = startDate;
+      if (endDate != null) queryParams['end_date'] = endDate;
+      if (minPrice != null) queryParams['min_price'] = minPrice.toString();
+      if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
+      if (propertyType != null && propertyType.isNotEmpty)
+        queryParams['property_type'] = propertyType;
+      if (amenities != null && amenities.isNotEmpty)
+        queryParams['amenities'] = amenities;
+      if (accommodationType != null && accommodationType.isNotEmpty)
+        queryParams['accommodation_type'] = accommodationType;
+      if (roomType != null && roomType.isNotEmpty)
+        queryParams['room_type'] = roomType;
+      if (starRating != null)
+        queryParams['star_rating'] = starRating.toString();
+
+      final uri = Uri.parse(
+              ApiConstant.BASE_URL + ApiConstant.HOTEL_FULLPROPERTY_ROOM_URL)
+          .replace(queryParameters: queryParams);
+
+      print('Grouped Search URL: $uri');
+
+      final response = await ApiHelper.get(
+        uri,
+      );
+
+      print('Grouped Search Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return SearchHotelModel.fromJson(jsonResponse);
+      } else {
+        print('Failed to search hotels grouped: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error searching hotels grouped: $e');
+      return null;
+    }
+  }
+
+  Future<SearchHotelModel?> searchAccommodationsGroupedByHall({
+    int page = 1,
+    int pageSize = 10,
+    String sortBy = 'created_at',
+    String sortOrder = 'desc',
+    bool isActive = true,
+    String? startDate,
+    String? endDate,
+    String? location,
+    String? venueType,
+    String? spaceType,
+    int? minPrice,
+    int? maxPrice,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'page_size': pageSize.toString(),
+        'sort_by': sortBy,
+        'sort_order': sortOrder,
+        'is_active': isActive.toString(),
+      };
+
+      if (startDate != null) queryParams['check_in_date'] = startDate;
+      if (endDate != null) queryParams['check_out_date'] = endDate;
+      if (location != null && location.isNotEmpty) {
+        queryParams['location'] = location;
+      }
+      if (venueType != null && venueType.isNotEmpty) {
+        queryParams['venue_type'] = venueType;
+      }
+      if (spaceType != null && spaceType.isNotEmpty) {
+        queryParams['space_type'] = spaceType;
+      }
+      if (minPrice != null) queryParams['min_price'] = minPrice.toString();
+      if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
+
+      final uri = Uri.parse(ApiConstant.BASE_URL + ApiConstant.HALL_SEARCH_URL)
+          .replace(queryParameters: queryParams);
+
+      print('Hall Search URL: $uri');
+
+      final response = await ApiHelper.get(
+        uri,
+      );
+
+      print('Hall Search Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return SearchHotelModel.fromJson(jsonResponse);
+      } else {
+        print('Failed to search halls: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error searching halls: $e');
+      return null;
+    }
+  }
+
+  Future<SearchHotelModel?> searchFreshup({
+    int page = 1,
+    int pageSize = 10,
+    String? location,
+    String? checkIn,
+    String? checkOut,
+    int? guestCount,
+    int? roomCount,
+    String? freshupType,
+    String? priceMethod,
+    int? minPrice,
+    int? maxPrice,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'page_size': pageSize.toString(),
+      };
+
+      if (location != null && location.isNotEmpty) {
+        queryParams['location'] = location;
+      }
+      if (checkIn != null) queryParams['check_in_date'] = checkIn;
+      if (checkOut != null) queryParams['check_out_date'] = checkOut;
+      if (guestCount != null)
+        queryParams['guest_count'] = guestCount.toString();
+      if (roomCount != null) queryParams['room_count'] = roomCount.toString();
+      if (freshupType != null && freshupType.isNotEmpty) {
+        queryParams['freshup_type'] = freshupType;
+      }
+      if (priceMethod != null && priceMethod.isNotEmpty) {
+        queryParams['price_method'] = priceMethod;
+      }
+      if (minPrice != null) queryParams['min_price'] = minPrice.toString();
+      if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
+
+      final uri =
+          Uri.parse(ApiConstant.BASE_URL + ApiConstant.FRESHUP_SEARCH_URL)
+              .replace(queryParameters: queryParams);
+
+      print('Freshup Search URL: $uri');
+
+      final response = await ApiHelper.get(
+        uri,
+      );
+
+      print('Freshup Search Response Code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(utf8.decode(response.bodyBytes));
+        return SearchHotelModel.fromJson(jsonResponse);
+      } else {
+        print('Failed to search freshups: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error searching freshups: $e');
+      return null;
+    }
+  }
+
+  Future<TourismDetailModel?> fetchTourismDetails({
+    required String packageId,
+    required String startDate,
+    required String endDate,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'start_date': startDate,
+        'end_date': endDate,
+      };
+
+      final uri = Uri.parse(ApiConstant.BASE_URL +
+              ApiConstant.TOURISM_DETAILS_URL +
+              packageId)
+          .replace(queryParameters: queryParams);
+
+      final response = await ApiHelper.get(uri);
+
+      if (response.statusCode == 200) {
+        return TourismDetailModel.fromJson(
+            json.decode(utf8.decode(response.bodyBytes)));
+      } else {
+        print('Failed to fetch tourism details: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching tourism details: $e');
+      return null;
+    }
+  }
+
+  Future<TourismAvailabilityModel?> checkTourismAvailability({
+    required String packageId,
+    required String checkin,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'package_id': packageId,
+        'checkin': checkin,
+      };
+
+      final uri =
+          Uri.parse(ApiConstant.BASE_URL + ApiConstant.TOURISM_AVAILABILITY_URL)
+              .replace(queryParameters: queryParams);
+
+      final response = await ApiHelper.get(uri);
+
+      if (response.statusCode == 200) {
+        return TourismAvailabilityModel.fromJson(
+            json.decode(utf8.decode(response.bodyBytes)));
+      } else {
+        print('Failed to check tourism availability: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error checking tourism availability: $e');
       return null;
     }
   }

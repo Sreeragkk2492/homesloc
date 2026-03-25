@@ -1,11 +1,13 @@
 // ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:homesloc/controller/login/login_screen_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
+import 'package:homesloc/core/widgets/loader/app_loader.dart';
+
 import 'package:homesloc/core/widgets/auth_button/auth_button.dart';
 import 'package:homesloc/screens/auth/sign_up.dart';
-import 'package:homesloc/screens/bottom_bar_screen/bottom_bar_screen.dart';
-import 'package:homesloc/screens/home/home_screen.dart';
 import 'package:pinput/pinput.dart';
 
 class OtpVarification extends StatelessWidget {
@@ -121,7 +123,7 @@ class _PinputExampleState extends State<PinputExample> {
                 Directionality(
                   textDirection: TextDirection.ltr,
                   child: Pinput(
-                    length: 5,
+                    length: 6,
                     controller: pinController,
                     focusNode: focusNode,
                     defaultPinTheme: defaultPinTheme,
@@ -194,16 +196,21 @@ class _PinputExampleState extends State<PinputExample> {
                 SizedBox(
                   height: 20.h,
                 ),
-                AuthButton(
-                  name: 'Verify',
-                  onPressed: () {
-                    focusNode.unfocus();
-                    formKey.currentState!.validate();
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return BottomBarScreen();
-                    }));
-                  },
+                Obx(
+                  () => Get.find<LoginScreenController>().isOtpLoading.value
+                      ? const Center(
+                          child: AppLoader(size: 40),
+                        )
+                      : AuthButton(
+                          name: 'Verify',
+                          onPressed: () {
+                            focusNode.unfocus();
+                            if (formKey.currentState!.validate()) {
+                              Get.find<LoginScreenController>()
+                                  .verifyOtp(pinController.text);
+                            }
+                          },
+                        ),
                 ),
               ],
             ),

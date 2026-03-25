@@ -1,552 +1,319 @@
+import 'package:homesloc/models/freshup/freshup_detail_model.dart';
+import 'package:homesloc/models/home/hotel_detail_model.dart';
+
 class SearchHotelModel {
-  String? message;
-  List<Hotel>? hotels;
-  Pagination? pagination;
+  List<Hotel>? searchResults;
+  int? totalCount;
 
   SearchHotelModel({
-    this.message,
-    this.hotels,
-    this.pagination,
+    this.searchResults,
+    this.totalCount,
   });
 
-  factory SearchHotelModel.fromJson(Map<String, dynamic> json) => SearchHotelModel(
-    message: json["message"],
-    hotels: json["hotels"] == null ? [] : List<Hotel>.from(json["hotels"]!.map((x) => Hotel.fromJson(x))),
-    pagination: json["pagination"] == null ? null : Pagination.fromJson(json["pagination"]),
-  );
+  factory SearchHotelModel.fromJson(Map<String, dynamic> json) {
+    // Check for 'search_results', 'accommodations', or 'halls'
+    final list =
+        json["search_results"] ?? json["accommodations"] ?? json["halls"];
+    return SearchHotelModel(
+      searchResults: list == null
+          ? []
+          : List<Hotel>.from(list.map((x) => Hotel.fromJson(x))),
+      totalCount: json["total_count"],
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-    "message": message,
-    "hotels": hotels == null ? [] : List<dynamic>.from(hotels!.map((x) => x.toJson())),
-    "pagination": pagination?.toJson(),
-  };
+        "search_results": searchResults == null
+            ? []
+            : List<dynamic>.from(searchResults!.map((x) => x.toJson())),
+        "total_count": totalCount,
+      };
 }
 
 class Hotel {
   String? id;
+  String? uniqueId;
   String? name;
+  String? location;
   String? coverImageUrl;
-  int? starRating;
-  bool? isActive;
-  bool? isFullProperty;
-  LocationInfo? locationInfo;
-  Policies? policies;
-  LegalPolicies? legalPolicies;
-  List<HotelRoom>? rooms;
-  FullProperty? fullProperty;
-  PriceRange? priceRange;
-  QuickInfo? quickInfo;
+  String? originalPrice;
+  dynamic offerPrice;
+  dynamic discountPercentage;
+  String? taxInfo;
+  List<String>? amenities;
+  dynamic rating;
+  int? reviewCount;
+  String? accommodationType;
+  bool? isFavorite;
+  List<String>? galleryImages;
+  FreshupDetailModel? freshupDetails;
+  String? latitude;
+  String? longitude;
 
   Hotel({
     this.id,
+    this.uniqueId,
     this.name,
+    this.location,
     this.coverImageUrl,
-    this.starRating,
-    this.isActive,
-    this.isFullProperty,
-    this.locationInfo,
-    this.policies,
-    this.legalPolicies,
-    this.rooms,
-    this.fullProperty,
-    this.priceRange,
-    this.quickInfo,
-  });
-
-  factory Hotel.fromJson(Map<String, dynamic> json) => Hotel(
-    id: json["id"],
-    name: json["name"],
-    coverImageUrl: json["cover_image_url"],
-    starRating: (json["star_rating"] as num?)?.toInt(), // Ensure star_rating is parsed as int
-    isActive: json["is_active"],
-    isFullProperty: json["is_full_property"],
-    locationInfo: json["locationInfo"] == null ? null : LocationInfo.fromJson(json["locationInfo"]),
-    policies: json["policies"] == null ? null : Policies.fromJson(json["policies"]),
-    legalPolicies: json["legal_policies"] == null ? null : LegalPolicies.fromJson(json["legal_policies"]),
-    rooms: json["rooms"] == null ? [] : List<HotelRoom>.from(json["rooms"]!.map((x) => HotelRoom.fromJson(x))),
-    fullProperty: json["full_property"] == null ? null : FullProperty.fromJson(json["full_property"]),
-    priceRange: json["price_range"] == null ? null : PriceRange.fromJson(json["price_range"]),
-    quickInfo: json["quick_info"] == null ? null : QuickInfo.fromJson(json["quick_info"]),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-    "cover_image_url": coverImageUrl,
-    "star_rating": starRating,
-    "is_active": isActive,
-    "is_full_property": isFullProperty,
-    "locationInfo": locationInfo?.toJson(),
-    "policies": policies?.toJson(),
-    "legal_policies": legalPolicies?.toJson(),
-    "rooms": rooms == null ? [] : List<dynamic>.from(rooms!.map((x) => x.toJson())),
-    "full_property": fullProperty?.toJson(),
-    "price_range": priceRange?.toJson(),
-    "quick_info": quickInfo?.toJson(),
-  };
-}
-
-class FullProperty {
-  String? id;
-  String? basePropertyPrice;
-  String? maxPropertyPrice;
-  dynamic offerPrice;
-  bool? smokingAllowed;
-  int? maxPerson;
-  String? mealOption;
-  List<FullPropertyRoom>? rooms;
-
-  FullProperty({
-    this.id,
-    this.basePropertyPrice,
-    this.maxPropertyPrice,
+    this.originalPrice,
     this.offerPrice,
-    this.smokingAllowed,
-    this.maxPerson,
-    this.mealOption,
-    this.rooms,
-  });
-
-  factory FullProperty.fromJson(Map<String, dynamic> json) => FullProperty(
-    id: json["id"],
-    basePropertyPrice: json["base_property_price"],
-    maxPropertyPrice: json["max_property_price"],
-    offerPrice: json["offer_price"],
-    smokingAllowed: json["smoking_allowed"],
-    maxPerson: (json["max_person"] as num?)?.toInt(), // Ensure max_person is parsed as int
-    mealOption: json["meal_option"],
-    rooms: json["rooms"] == null ? [] : List<FullPropertyRoom>.from(json["rooms"]!.map((x) => FullPropertyRoom.fromJson(x))),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "base_property_price": basePropertyPrice,
-    "max_property_price": maxPropertyPrice,
-    "offer_price": offerPrice,
-    "smoking_allowed": smokingAllowed,
-    "max_person": maxPerson,
-    "meal_option": mealOption,
-    "rooms": rooms == null ? [] : List<dynamic>.from(rooms!.map((x) => x.toJson())),
-  };
-}
-
-class FullPropertyRoom {
-  dynamic totalPropertyRooms;
-  String? roomName;
-  dynamic quantity;
-  String? roomType;
-  String? bedType;
-  int? roomSize;
-  String? description;
-  List<String>? roomImages;
-  List<dynamic>? roomVideos;
-
-  FullPropertyRoom({
-    this.totalPropertyRooms,
-    this.roomName,
-    this.quantity,
-    this.roomType,
-    this.bedType,
-    this.roomSize,
-    this.description,
-    this.roomImages,
-    this.roomVideos,
-  });
-
-  factory FullPropertyRoom.fromJson(Map<String, dynamic> json) => FullPropertyRoom(
-    totalPropertyRooms: json["total_property_rooms"],
-    roomName: json["room_name"],
-    quantity: json["quantity"],
-    roomType: json["room_type"],
-    bedType: json["bed_type"],
-    roomSize: (json["room_size"] as num?)?.toInt(), // Ensure room_size is parsed as int
-    description: json["description"],
-    roomImages: json["room_images"] == null ? [] : List<String>.from(json["room_images"]!.map((x) => x)),
-    roomVideos: json["room_videos"] == null ? [] : List<dynamic>.from(json["room_videos"]!.map((x) => x)),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "total_property_rooms": totalPropertyRooms,
-    "room_name": roomName,
-    "quantity": quantity,
-    "room_type": roomType,
-    "bed_type": bedType,
-    "room_size": roomSize,
-    "description": description,
-    "room_images": roomImages == null ? [] : List<dynamic>.from(roomImages!.map((x) => x)),
-    "room_videos": roomVideos == null ? [] : List<dynamic>.from(roomVideos!.map((x) => x)),
-  };
-}
-
-class LegalPolicies {
-  String? ownershipType;
-  String? panCardDetails;
-  String? gstDetails;
-  BankAccountDetails? bankAccountDetails;
-  String? propertyRestrictions;
-  List<String>? registrationDocument;
-  List<String>? documentImageUrl;
-  List<String>? videos;
-
-  LegalPolicies({
-    this.ownershipType,
-    this.panCardDetails,
-    this.gstDetails,
-    this.bankAccountDetails,
-    this.propertyRestrictions,
-    this.registrationDocument,
-    this.documentImageUrl,
-    this.videos,
-  });
-
-  factory LegalPolicies.fromJson(Map<String, dynamic> json) => LegalPolicies(
-    ownershipType: json["ownershipType"],
-    panCardDetails: json["panCardDetails"],
-    gstDetails: json["gstDetails"],
-    bankAccountDetails: json["bankAccountDetails"] == null ? null : BankAccountDetails.fromJson(json["bankAccountDetails"]),
-    propertyRestrictions: json["propertyRestrictions"],
-    registrationDocument: json["registrationDocument"] == null ? [] : List<String>.from(json["registrationDocument"]!.map((x) => x)),
-    documentImageUrl: json["document_image_url"] == null ? [] : List<String>.from(json["document_image_url"]!.map((x) => x)),
-    videos: json["videos"] == null ? [] : List<String>.from(json["videos"]!.map((x) => x)),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "ownershipType": ownershipType,
-    "panCardDetails": panCardDetails,
-    "gstDetails": gstDetails,
-    "bankAccountDetails": bankAccountDetails?.toJson(),
-    "propertyRestrictions": propertyRestrictions,
-    "registrationDocument": registrationDocument == null ? [] : List<dynamic>.from(registrationDocument!.map((x) => x)),
-    "document_image_url": documentImageUrl == null ? [] : List<dynamic>.from(documentImageUrl!.map((x) => x)),
-    "videos": videos == null ? [] : List<dynamic>.from(videos!.map((x) => x)),
-  };
-}
-
-class BankAccountDetails {
-  String? accountNumber;
-  String? ifscCode;
-  String? bankName;
-  String? accountHolderName;
-
-  BankAccountDetails({
-    this.accountNumber,
-    this.ifscCode,
-    this.bankName,
-    this.accountHolderName,
-  });
-
-  factory BankAccountDetails.fromJson(Map<String, dynamic> json) => BankAccountDetails(
-    accountNumber: json["account_number"],
-    ifscCode: json["ifsc_code"],
-    bankName: json["bank_name"],
-    accountHolderName: json["account_holder_name"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "account_number": accountNumber,
-    "ifsc_code": ifscCode,
-    "bank_name": bankName,
-    "account_holder_name": accountHolderName,
-  };
-}
-
-class LocationInfo {
-  Country? country;
-  String? latitude;
-  String? longitude;
-  State? state;
-  String? city;
-  String? postcode;
-  String? address;
-  bool? termsandcondition;
-
-  LocationInfo({
-    this.country,
+    this.discountPercentage,
+    this.taxInfo,
+    this.amenities,
+    this.rating,
+    this.reviewCount,
+    this.accommodationType,
+    this.isFavorite,
+    this.galleryImages,
+    this.freshupDetails,
     this.latitude,
     this.longitude,
-    this.state,
-    this.city,
-    this.postcode,
-    this.address,
-    this.termsandcondition,
   });
 
-  factory LocationInfo.fromJson(Map<String, dynamic> json) => LocationInfo(
-    country: countryValues.map[json["country"]]!,
-    latitude: json["latitude"],
-    longitude: json["longitude"],
-    state: stateValues.map[json["state"]]!,
-    city: json["city"],
-    postcode: json["postcode"],
-    address: json["address"],
-    termsandcondition: json["termsandcondition"],
-  );
+  factory Hotel.fromJson(Map<String, dynamic> json) {
+    // Handle location from city/state if location is missing
+    String? loc = json["location"] is String ? json["location"] : null;
 
-  Map<String, dynamic> toJson() => {
-    "country": countryValues.reverse[country],
-    "latitude": latitude,
-    "longitude": longitude,
-    "state": stateValues.reverse[state],
-    "city": city,
-    "postcode": postcode,
-    "address": address,
-    "termsandcondition": termsandcondition,
-  };
-}
+    // Handle nested location object (common in Hall response)
+    if (json["location"] is Map) {
+      final locMap = json["location"];
+      loc = "${locMap["city"] ?? ''}, ${locMap["state"] ?? ''}";
+    }
+    // Fallback to separate fields
+    else if (loc == null && json["city"] != null) {
+      loc = "${json["city"]}";
+      if (json["state"] != null) {
+        loc = "$loc, ${json["state"]}";
+      }
+    }
 
-enum Country {
-  INDIA
-}
+    // Determine type
+    String? type = json["accommodation_type"];
 
-final countryValues = EnumValues({
-  "India": Country.INDIA
-});
+    // Handle price mapping
+    String? price;
 
-enum State {
-  KARNATAKA,
-  KERALA,
-  MAHARASHTRA
-}
+    if (type == "FULL_PROPERTY") {
+      price = json["base_property_price"]?.toString();
+    }
 
-final stateValues = EnumValues({
-  "Karnataka": State.KARNATAKA,
-  "Kerala": State.KERALA,
-  "Maharashtra": State.MAHARASHTRA
-});
+    if (price == null) {
+      price = json["original_price"]?.toString();
+    }
 
-class Policies {
-  String? checkInTime;
-  String? checkOutTime;
-  List<String>? acceptableIdentityProof;
-  String? cancellationPolicy;
-  bool? outsideVisitorAllowed;
-  bool? partiesOrEventsAllowed;
-  bool? extraBedPolicy;
-  int? extraBedRate;
-  MealRates? mealRates;
+    if (price == null && json["price"] != null) {
+      price = json["price"].toString();
+    }
 
-  Policies({
-    this.checkInTime,
-    this.checkOutTime,
-    this.acceptableIdentityProof,
-    this.cancellationPolicy,
-    this.outsideVisitorAllowed,
-    this.partiesOrEventsAllowed,
-    this.extraBedPolicy,
-    this.extraBedRate,
-    this.mealRates,
-  });
+    // Handle Hall Pricing (min price from events)
+    if (price == null &&
+        json["events"] != null &&
+        (json["events"] as List).isNotEmpty) {
+      List<dynamic> events = json["events"];
+      double? minP;
+      for (var event in events) {
+        if (event["price"] != null) {
+          double? p = double.tryParse(event["price"].toString());
+          if (p != null) {
+            if (minP == null || p < minP) {
+              minP = p;
+            }
+          }
+        }
+      }
+      if (minP != null) {
+        price = minP.toString();
+      }
+    }
 
-  factory Policies.fromJson(Map<String, dynamic> json) => Policies(
-    checkInTime: json["checkInTime"],
-    checkOutTime: json["checkOutTime"],
-    acceptableIdentityProof: json["acceptableIdentityProof"] == null ? [] : List<String>.from(json["acceptableIdentityProof"]!.map((x) => x)),
-    cancellationPolicy: json["cancellationPolicy"],
-    outsideVisitorAllowed: json["outsideVisitorAllowed"],
-    partiesOrEventsAllowed: json["partiesOrEventsAllowed"],
-    extraBedPolicy: json["extraBedPolicy"],
-    extraBedRate: (json["extraBedRate"] as num?)?.toInt(), // Ensure extraBedRate is parsed as int
-    mealRates: json["mealRates"] == null ? null : MealRates.fromJson(json["mealRates"]),
-  );
+    // Handle amenities which might be List<String> or List<Map>
+    List<String> amens = [];
+    if (json["amenities"] != null) {
+      if (json["amenities"] is List) {
+        for (var item in json["amenities"]) {
+          if (item is String) {
+            amens.add(item);
+          } else if (item is Map && item["name"] != null) {
+            amens.add(item["name"]);
+          }
+        }
+      }
+    }
 
-  Map<String, dynamic> toJson() => {
-    "checkInTime": checkInTime,
-    "checkOutTime": checkOutTime,
-    "acceptableIdentityProof": acceptableIdentityProof == null ? [] : List<dynamic>.from(acceptableIdentityProof!.map((x) => x)),
-    "cancellationPolicy": cancellationPolicy,
-    "outsideVisitorAllowed": outsideVisitorAllowed,
-    "partiesOrEventsAllowed": partiesOrEventsAllowed,
-    "extraBedPolicy": extraBedPolicy,
-    "extraBedRate": extraBedRate,
-    "mealRates": mealRates?.toJson(),
-  };
-}
+    // Determine type (already determined above)
+    if (type == null && json["events"] != null) {
+      type = "HALL";
+    }
+    if (json["freshup_id"] != null) {
+      type = "FRESHUP";
+    }
 
-class MealRates {
-  String? breakfast;
-  String? lunch;
-  String? dinner;
+    // Handle gallery images
+    List<String> images = [];
+    if (json["images"] != null && json["images"] is List) {
+      images = List<String>.from(json["images"]);
+    } else if (json["gallery_images"] != null &&
+        json["gallery_images"] is List) {
+      images = List<String>.from(json["gallery_images"]);
+    }
 
-  MealRates({
-    this.breakfast,
-    this.lunch,
-    this.dinner,
-  });
+    FreshupDetailModel? freshup;
+    if (type == "FRESHUP") {
+      freshup = FreshupDetailModel.fromJson(json);
 
-  factory MealRates.fromJson(Map<String, dynamic> json) => MealRates(
-    breakfast: json["breakfast"],
-    lunch: json["lunch"],
-    dinner: json["dinner"],
-  );
+      // Handle room_images from price_per_room if exists
+      if (json["price_per_room"] != null &&
+          json["price_per_room"]["room_images"] != null) {
+        freshup.roomImages =
+            List<String>.from(json["price_per_room"]["room_images"]);
+      }
 
-  Map<String, dynamic> toJson() => {
-    "breakfast": breakfast,
-    "lunch": lunch,
-    "dinner": dinner,
-  };
-}
+      // Merge Property details
+      final propDetails = json["property_details"];
+      if (propDetails != null) {
+        if (propDetails["near_by_attraction"] != null &&
+            propDetails["near_by_attraction"] is List) {
+          final attractionsList = propDetails["near_by_attraction"] as List;
+          List<String> formattedAttractions = [];
+          for (var item in attractionsList) {
+            if (item is Map) {
+              final name = item["name"]?.toString() ?? "";
+              final desc = item["description"]?.toString() ?? "";
+              if (name.isNotEmpty) {
+                formattedAttractions
+                    .add(desc.isNotEmpty ? "$name - $desc" : name);
+              }
+            }
+          }
+          freshup.nearbyAttractions = formattedAttractions;
+        }
 
-class PriceRange {
-  String? min;
-  String? max;
+        // Merge Policies
+        final policies = propDetails["freshup_policies"];
+        if (policies != null) {
+          List<String> policyStrings = [];
 
-  PriceRange({
-    this.min,
-    this.max,
-  });
+          if (policies["propertyrules"] != null) {
+            policyStrings.addAll(policies["propertyrules"]
+                .toString()
+                .split('\n')
+                .where((s) => s.trim().isNotEmpty));
+          }
+          if (policies["cancellationPolicy"] != null) {
+            policyStrings
+                .add("Cancellation: ${policies["cancellationPolicy"]}");
+          }
+          if (policies["cancellationDays"] != null) {
+            policyStrings
+                .add("Cancellation Days: ${policies["cancellationDays"]}");
+          }
+          if (policies["acceptedtimeslots"] != null) {
+            policyStrings
+                .add("Accepted Time Slots: ${policies["acceptedtimeslots"]}");
+          }
+          if (policies["extraBedPolicy"] != null) {
+            policyStrings
+                .add("Extra Bed Policy: ${policies["extraBedPolicy"]}");
+          }
+          if (policies["extra_bed_price"] != null) {
+            policyStrings
+                .add("Extra Bed Price: \u20B9${policies["extra_bed_price"]}");
+          }
+          if (policies["acceptableIdentityProof"] != null &&
+              policies["acceptableIdentityProof"] is List) {
+            policyStrings.add(
+                "Acceptable ID: ${(policies["acceptableIdentityProof"] as List).join(', ')}");
+          }
+          freshup.accommodationPolicies = policyStrings;
+        }
 
-  factory PriceRange.fromJson(Map<String, dynamic> json) => PriceRange(
-    min: json["min"],
-    max: json["max"],
-  );
+        // Parse rooms from property_details.rooms
+        if (propDetails["rooms"] != null &&
+            propDetails["rooms"] is List &&
+            (propDetails["rooms"] as List).isNotEmpty) {
+          freshup.rooms = List<HotelRoom>.from(
+              propDetails["rooms"].map((x) => HotelRoom.fromJson(x)));
 
-  Map<String, dynamic> toJson() => {
-    "min": min,
-    "max": max,
-  };
-}
+          // Fallback: also set room images from first room if not already set
+          if (freshup.roomImages == null || freshup.roomImages!.isEmpty) {
+            final firstRoom = propDetails["rooms"][0];
+            if (firstRoom["room_images"] != null) {
+              freshup.roomImages = List<String>.from(firstRoom["room_images"]);
+            }
+          }
+        }
 
-class QuickInfo {
-  int? totalRooms;
-  List<Amenity>? amenities;
+        // Parse nearby attractions as structured objects
+        if (propDetails["near_by_attraction"] != null &&
+            propDetails["near_by_attraction"] is List) {
+          freshup.nearbyAttractionObjects = List<NearByAttraction>.from(
+              (propDetails["near_by_attraction"] as List)
+                  .map((x) => NearByAttraction.fromJson(x)));
+        }
 
-  QuickInfo({
-    this.totalRooms,
-    this.amenities,
-  });
+        // Metadata
+        freshup.yearBuild = propDetails["year_build"];
+        freshup.yearRenovated = propDetails["year_renovated"];
+        freshup.phoneNumber = propDetails["phone_number"]?.toString();
+        freshup.starRating = propDetails["star_rating"];
+      }
+    }
 
-  factory QuickInfo.fromJson(Map<String, dynamic> json) => QuickInfo(
-    totalRooms: (json["total_rooms"] as num?)?.toInt(), // Ensure total_rooms is parsed as int
-    amenities: json["amenities"] == null ? [] : List<Amenity>.from(json["amenities"]!.map((x) => Amenity.fromJson(x))),
-  );
+    String? lat = json["latitude"]?.toString();
+    String? lng = json["longitude"]?.toString();
+    if (json["location"] is Map) {
+      final locMap = json["location"];
+      if (lat == null) lat = locMap["latitude"]?.toString();
+      if (lng == null) lng = locMap["longitude"]?.toString();
+    }
 
-  Map<String, dynamic> toJson() => {
-    "total_rooms": totalRooms,
-    "amenities": amenities == null ? [] : List<dynamic>.from(amenities!.map((x) => x.toJson())),
-  };
-}
-
-class Amenity {
-  String? id;
-  String? name;
-  String? description;
-
-  Amenity({
-    this.id,
-    this.name,
-    this.description,
-  });
-
-  factory Amenity.fromJson(Map<String, dynamic> json) => Amenity(
-    id: json["id"],
-    name: json["name"],
-    description: json["description"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "name": name,
-    "description": description,
-  };
-}
-
-class HotelRoom {
-  String? id;
-  String? roomName;
-  int? quantity;
-  String? roomType;
-  String? bedType;
-  int? maxPerson;
-  String? price;
-  int? roomSize;
-  String? description;
-  List<String>? roomImages;
-  List<String>? roomVideos;
-
-  HotelRoom({
-    this.id,
-    this.roomName,
-    this.quantity,
-    this.roomType,
-    this.bedType,
-    this.maxPerson,
-    this.price,
-    this.roomSize,
-    this.description,
-    this.roomImages,
-    this.roomVideos,
-  });
-
-  factory HotelRoom.fromJson(Map<String, dynamic> json) => HotelRoom(
-    id: json["id"],
-    roomName: json["room_name"],
-    quantity: (json["quantity"] as num?)?.toInt(), // Ensure quantity is parsed as int
-    roomType: json["room_type"],
-    bedType: json["bed_type"],
-    maxPerson: (json["max_person"] as num?)?.toInt(), // Ensure max_person is parsed as int
-    price: json["price"],
-    roomSize: (json["room_size"] as num?)?.toInt(), // Ensure room_size is parsed as int
-    description: json["description"],
-    roomImages: json["room_images"] == null ? [] : List<String>.from(json["room_images"]!.map((x) => x)),
-    roomVideos: json["room_videos"] == null ? [] : List<String>.from(json["room_videos"]!.map((x) => x)),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "room_name": roomName,
-    "quantity": quantity,
-    "room_type": roomType,
-    "bed_type": bedType,
-    "max_person": maxPerson,
-    "price": price,
-    "room_size": roomSize,
-    "description": description,
-    "room_images": roomImages == null ? [] : List<dynamic>.from(roomImages!.map((x) => x)),
-    "room_videos": roomVideos == null ? [] : List<dynamic>.from(roomVideos!.map((x) => x)),
-  };
-}
-
-class Pagination {
-  int? totalCount;
-  int? currentPage;
-  int? totalPages;
-  bool? hasNext;
-  bool? hasPrevious;
-
-  Pagination({
-    this.totalCount,
-    this.currentPage,
-    this.totalPages,
-    this.hasNext,
-    this.hasPrevious,
-  });
-
-  factory Pagination.fromJson(Map<String, dynamic> json) => Pagination(
-    totalCount: (json["total_count"] as num?)?.toInt(), // Ensure total_count is parsed as int
-    currentPage: (json["current_page"] as num?)?.toInt(), // Ensure current_page is parsed as int
-    totalPages: (json["total_pages"] as num?)?.toInt(), // Ensure total_pages is parsed as int
-    hasNext: json["has_next"],
-    hasPrevious: json["has_previous"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "total_count": totalCount,
-    "current_page": currentPage,
-    "total_pages": totalPages,
-    "has_next": hasNext,
-    "has_previous": hasPrevious,
-  };
-}
-
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
+    return Hotel(
+      id: json["id"],
+      uniqueId: json["unique_id"],
+      name: json["name"],
+      location: loc,
+      coverImageUrl: json["cover_image_url"],
+      originalPrice: price,
+      offerPrice: json["offer_price"],
+      discountPercentage: json["discount_percentage"],
+      taxInfo: json["tax_info"],
+      amenities: amens,
+      rating: json["rating"] ??
+          json["hotel_star_rating"] ??
+          (json["property_details"] != null
+              ? json["property_details"]["star_rating"]
+              : null),
+      reviewCount: (json["review_count"] as num?)?.toInt(),
+      accommodationType: type,
+      isFavorite: json["is_favorite"],
+      galleryImages: images,
+      freshupDetails: freshup,
+      latitude: lat,
+      longitude: lng,
+    );
   }
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "unique_id": uniqueId,
+        "name": name,
+        "location": location,
+        "cover_image_url": coverImageUrl,
+        "original_price": originalPrice,
+        "offer_price": offerPrice,
+        "discount_percentage": discountPercentage,
+        "tax_info": taxInfo,
+        "amenities": amenities == null
+            ? []
+            : List<dynamic>.from(amenities!.map((x) => x)),
+        "rating": rating,
+        "review_count": reviewCount,
+        "accommodation_type": accommodationType,
+        "is_favorite": isFavorite,
+        "gallery_images": galleryImages,
+        "freshup_details": freshupDetails?.toJson(),
+        "latitude": latitude,
+        "longitude": longitude,
+      };
 }
- 

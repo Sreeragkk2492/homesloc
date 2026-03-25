@@ -14,7 +14,7 @@ class GetPages {
   static final routes = [
     GetPage(
       name: Routes.Home,
-      page: () =>  HomeScreen(),
+      page: () => HomeScreen(),
       transition: Transition.zoom,
     ),
     GetPage(
@@ -34,18 +34,20 @@ class GetPages {
     ),
     GetPage(
       name: Routes.Payment,
-      page: () => const PaymentSreen(),
+      page: () => PaymentScreen(),
       transition: Transition.zoom,
     ),
     GetPage(
       name: Routes.Search,
       page: () => const SearchScreen(),
       transition: Transition.zoom,
-    ),    GetPage(
+    ),
+    GetPage(
       name: Routes.Search,
-      page: () =>  SignIn(),
+      page: () => SignIn(),
       transition: Transition.zoom,
-    ),    GetPage(
+    ),
+    GetPage(
       name: Routes.Search,
       page: () => const SearchScreen(),
       transition: Transition.zoom,

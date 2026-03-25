@@ -3,19 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/screens/payment_screen/payment_screen.dart';
+import 'package:homesloc/models/home/hotel_detail_model.dart';
+import 'package:homesloc/models/search/search_hotel_model.dart';
+import 'package:homesloc/models/home/hall_detail_model.dart';
+import 'package:homesloc/models/home/homescreen_model.dart';
+import 'package:homesloc/apis/home/hotel_detail_service.dart';
+import 'package:get/get.dart';
+import 'package:homesloc/controller/calender_controller.dart';
+import 'package:intl/intl.dart';
 
 class BookNow extends StatelessWidget {
-
   final dynamic hotel;
-  const BookNow({super.key,this.hotel});
+  final bool isFullProperty;
+  final HotelRoom? selectedRoom;
+
+  const BookNow({
+    super.key,
+    this.hotel,
+    this.isFullProperty = false,
+    this.selectedRoom,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(15.r),
       margin: EdgeInsets.symmetric(horizontal: 10.w),
-      //width: 340.w,
-      // height: 180.h,
       decoration: BoxDecoration(
         color: blue,
         borderRadius: BorderRadius.circular(23.sp),
@@ -23,82 +36,183 @@ class BookNow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 20.h,
-          ),
+          SizedBox(height: 10.h),
           Text(
             'Book Your Stay Now',
             style: TextStyle(
-                color: const Color.fromARGB(255, 190, 190, 190),
+                color: const Color.fromARGB(255, 230, 230, 230),
                 fontFamily: 'Poppins',
                 fontSize: 18.sp,
                 fontWeight: FontWeight.bold),
           ),
+          SizedBox(height: 5.h),
           Text(
-            'Your dream stay is just a click away! Book\nnow for a seamless and unforgettable\nexperience.',
+            'Your dream stay is just a click away! Book now for a seamless experience.',
             style: TextStyle(
-                color: const Color.fromARGB(255, 190, 190, 190),
+                color: const Color.fromARGB(255, 200, 200, 200),
                 fontFamily: 'Poppins',
                 fontSize: 13.sp,
-                fontWeight: FontWeight.w100),
+                fontWeight: FontWeight.w300),
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8.h),
             child: Divider(
-              color: const Color.fromARGB(255, 190, 190, 190),
+              color: const Color.fromARGB(255, 150, 150, 150),
             ),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        "3565",
+                        "₹${_getPrice()}",
                         style: TextStyle(
                             color: white,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
                             fontSize: 23.sp),
                       ),
-                      SizedBox(
-                        width: 5.w,
-                      ),
-                      Text(
-                       "3600",
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 190, 190, 190),
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w500,
-                            decoration: TextDecoration.lineThrough,
-                            decorationColor: white,
-                            fontSize: 12.sp),
-                      ),
+                      if (_getOriginalPrice() != _getPrice()) ...[
+                        SizedBox(width: 8.w),
+                        Text(
+                          "₹${_getOriginalPrice()}",
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 190, 190, 190),
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                              decoration: TextDecoration.lineThrough,
+                              decorationColor: white,
+                              fontSize: 12.sp),
+                        ),
+                      ],
                     ],
                   ),
                   Text(
-                    "+ ₹15.0 taxes & fees",
+                    _getTaxInfo(),
                     style: TextStyle(
                         color: const Color.fromARGB(255, 190, 190, 190),
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w500,
-                        decorationColor: white,
                         fontSize: 12.sp),
                   ),
                 ],
               ),
-              SizedBox(width: 10.w),
               InkWell(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return PaymentSreen();
-                  }));
+                onTap: () async {
+                  final calendarController = Get.find<CalendarController>();
+                  final HotelDetailService hotelDetailService =
+                      HotelDetailService();
+
+                  if (calendarController.checkInDate.value == null ||
+                      calendarController.checkOutDate.value == null) {
+                    Get.snackbar(
+                      "Dates Required",
+                      "Please select check-in and check-out dates",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.red.withOpacity(0.8),
+                      colorText: white,
+                    );
+                    return;
+                  }
+
+                  // Get ID (Room ID or Property ID)
+                  String? id;
+                  if (selectedRoom != null) {
+                    id = selectedRoom!.id;
+                  } else if (hotel is HotelDetailModel) {
+                    id = hotel.id;
+                  } else if (hotel is HallDetailModel) {
+                    id = hotel.id;
+                  } else if (hotel is Hotel) {
+                    // From search model
+                    id = hotel.id;
+                  } else if (hotel is BestHotel) {
+                    id = hotel.id;
+                  } else if (hotel is BanquetHall) {
+                    id = hotel.id;
+                  }
+
+                  if (id != null) {
+                    final dateFormat = DateFormat('yyyy-MM-dd');
+                    final checkIn = dateFormat
+                        .format(calendarController.checkInDate.value!);
+                    final checkOut = dateFormat
+                        .format(calendarController.checkOutDate.value!);
+
+                    dynamic result;
+
+                    if (isFullProperty && selectedRoom == null) {
+                      // Perform Full Property Availability Check
+                      result = await hotelDetailService
+                          .checkFullPropertyAvailability(
+                        propertyId: id,
+                        checkIn: checkIn,
+                        checkOut: checkOut,
+                        adults: calendarController.guestCount.value,
+                        children: 0, // Default 0
+                      );
+                    } else {
+                      // Perform Room Availability Check
+                      result = await hotelDetailService.checkRoomAvailability(
+                        roomId: id,
+                        checkIn: checkIn,
+                        checkOut: checkOut,
+                        adults: calendarController.guestCount.value,
+                        children: 0, // Default 0
+                        rooms: calendarController.roomCount.value,
+                      );
+                    }
+
+                    if (result != null && result.bookingDetails != null) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return PaymentScreen(
+                          hotelName: selectedRoom != null
+                              ? "${_getName()} - ${selectedRoom!.name}"
+                              : _getName(),
+                          location: _getLocation(),
+                          price:
+                              result.bookingDetails?.price?.toDouble() ?? 0.0,
+                          coverImage: _getCoverImage(),
+                          bookingDetails: result.bookingDetails,
+                          propertyId: id,
+                          propertyType: (isFullProperty && selectedRoom == null)
+                              ? "FULL_PROPERTY"
+                              : "ROOM",
+                          cancellationPolicy: _getCancellationPolicy(),
+                        );
+                      }));
+                    } else {
+                      Get.snackbar(
+                        "Not Available",
+                        "Accommodation is not available for selected dates",
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.red.withOpacity(0.8),
+                        colorText: white,
+                      );
+                    }
+                  } else {
+                    // Fallback - no property info available
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return PaymentScreen(
+                        hotelName: _getName(),
+                        location: _getLocation(),
+                        price: double.tryParse(_getPrice()) ?? 0.0,
+                        coverImage: _getCoverImage(),
+                        cancellationPolicy: _getCancellationPolicy(),
+                        // No propertyId/propertyType - booking won't work
+                      );
+                    }));
+                  }
                 },
                 child: Container(
-                  width: 160.w,
+                  width: 140.w,
                   height: 43.h,
                   decoration: BoxDecoration(
                     color: yellow,
@@ -109,9 +223,9 @@ class BookNow extends StatelessWidget {
                       "BOOK NOW",
                       style: TextStyle(
                           color: black,
-                          fontSize: 16.sp,
+                          fontSize: 15.sp,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500),
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -122,6 +236,146 @@ class BookNow extends StatelessWidget {
       ),
     );
   }
+
+  String _getPrice() {
+    if (selectedRoom != null) {
+      return (selectedRoom!.offerPrice ?? selectedRoom!.price ?? '0')
+          .toString();
+    }
+    if (hotel is HallDetailModel) {
+      return hotel.bestPrice ?? '0';
+    }
+    if (hotel is BanquetHall) {
+      return '0'; // Pricing is fetched on details load
+    }
+    if (hotel is HotelDetailModel) {
+      final p = hotel.pricing;
+      if (p == null) return '0';
+      return (p.offerPrice ?? p.bestPrice ?? '0').toString();
+    }
+    try {
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        return (hotel.pricing?.offerPrice ?? hotel.pricing?.bestPrice ?? '0')
+            .toString();
+      } else {
+        return (hotel.priceRange?.min ?? '0').toString();
+      }
+    } catch (e) {
+      return '0';
+    }
+  }
+
+  String _getOriginalPrice() {
+    if (selectedRoom != null) {
+      return (selectedRoom!.price ?? '0').toString();
+    }
+    if (hotel is HallDetailModel) {
+      return hotel.bestPrice ??
+          '0'; // Halls might not have separate original price
+    }
+    if (hotel is BanquetHall) return '0';
+    if (hotel is HotelDetailModel) {
+      return (hotel.pricing?.bestPrice ?? '0').toString();
+    }
+    try {
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        return (hotel.pricing?.bestPrice ?? '0').toString();
+      } else {
+        return (hotel.priceRange?.max ?? '0').toString();
+      }
+    } catch (e) {
+      return '0';
+    }
+  }
+
+  String _getTaxInfo() {
+    if (hotel is HallDetailModel) {
+      return "Including Taxes";
+    }
+    if (hotel is HotelDetailModel) {
+      return hotel.pricing?.taxInfo ?? "Including Taxes";
+    }
+    return "Including Taxes";
+  }
+
+  String _getName() {
+    if (hotel is BanquetHall) return hotel.title ?? 'Hotel Name';
+    try {
+      return hotel.name ?? 'Hotel Name';
+    } catch (e) {
+      return 'Hotel Name';
+    }
+  }
+
+  String _getLocation() {
+    if (hotel is BanquetHall) return hotel.location ?? 'Location';
+    try {
+      if (hotel is HotelDetailModel) return hotel.location ?? 'Location';
+      if (hotel.runtimeType.toString() == 'BestHotel') {
+        return hotel.location ?? 'Location';
+      } else {
+        return hotel.locationInfo?.city ??
+            hotel.locationInfo?.address ??
+            'Location';
+      }
+    } catch (e) {
+      return 'Location';
+    }
+  }
+
+  String _getCoverImage() {
+    if (hotel is BanquetHall)
+      return hotel.imageUrl ?? 'https://via.placeholder.com/150';
+    try {
+      return hotel.coverImageUrl ?? 'https://via.placeholder.com/150';
+    } catch (e) {
+      return 'https://via.placeholder.com/150';
+    }
+  }
+
+  String? _getCancellationPolicy() {
+    List<String> relevantPolicies = [];
+
+    if (hotel is HotelDetailModel) {
+      final policy = hotel.policies?.cancellationPolicy;
+      if (policy != null && policy.isNotEmpty) {
+        if (policy.toLowerCase().contains('nonrefundable')) {
+          relevantPolicies.add('This booking is non-refundable.');
+        } else if (policy.startsWith('freeUpTo:')) {
+          final parts = policy.split(':');
+          if (parts.length > 1) {
+            final days = parts[1];
+            relevantPolicies
+                .add('Free cancellation up to $days days before check-in.');
+          }
+        } else {
+          relevantPolicies.add(policy);
+        }
+      }
+
+      // Filter accommodation policies for cancellation-related rules
+      if (hotel.policies?.accommodationPolicies != null) {
+        final filtered = hotel.policies!.accommodationPolicies!.where((p) {
+          final low = p.toLowerCase();
+          return low.contains('cancel') ||
+              low.contains('refund') ||
+              low.contains('non-refundable') ||
+              low.contains('nonrefundable') ||
+              low.contains('charge');
+        }).toList();
+        relevantPolicies.addAll(filtered);
+      }
+    } else if (hotel is HallDetailModel) {
+      if (hotel.banquetPolicies?.cancellationPolicy != null) {
+        relevantPolicies.add(hotel.banquetPolicies!.cancellationPolicy!);
+      }
+    }
+
+    if (relevantPolicies.isEmpty) {
+      return 'Standard cancellation policies apply.';
+    }
+
+    // Join and remove duplicates
+    return relevantPolicies.toSet().join('\n');
+  }
 }
-
-

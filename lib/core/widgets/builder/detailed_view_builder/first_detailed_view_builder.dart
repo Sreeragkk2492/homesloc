@@ -2,80 +2,101 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
-import 'package:homesloc/core/widgets/builder_users/detailed_view_user/detailed_view_user.dart';
+import 'package:homesloc/models/home/hotel_detail_model.dart';
+import 'package:homesloc/models/home/homescreen_model.dart';
+import 'package:homesloc/core/widgets/gallery/full_screen_image_viewer.dart';
 
 class FirstDetailedViewBuilder extends StatelessWidget {
-
   final dynamic hotel;
-  const FirstDetailedViewBuilder({super.key,this.hotel});
+  const FirstDetailedViewBuilder({super.key, this.hotel});
 
   @override
   Widget build(BuildContext context) {
-    // // Check if hotel is null or has no rooms
-    // if (hotel == null || hotel.rooms == null || hotel.rooms.isEmpty) {
-    //   return Center(
-    //     child: Text(
-    //       'No room images available',
-    //       style: TextStyle(
-    //         fontFamily: 'Poppins',
-    //         color: fontColor,
-    //         fontSize: 12.sp,
-    //       ),
-    //     ),
-    //   );
-    // }
-    //
-    // // Get the first room's images
-    // final roomImages = hotel.rooms[0].roomImages;
-    //
-    // // Check if room images exist
-    // if (roomImages == null || roomImages.isEmpty) {
-    //   return Center(
-    //     child: Text(
-    //       'No room images available',
-    //       style: TextStyle(
-    //         fontFamily: 'Poppins',
-    //         color: fontColor,
-    //         fontSize: 12.sp,
-    //       ),
-    //     ),
-    //   );
-    // }
+    List<String> images = [];
 
-      // Check if firstDetailedViewUser is empty
-      if (firstDetailedViewUser.isEmpty) {
-        return Center(
-          child: Text(
-            'No images available',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              color: fontColor,
-              fontSize: 12.sp,
-            ),
-          ),
-        );
+    if (hotel is HotelDetailModel) {
+      images = hotel.galleryImages ?? [];
+    } else if (hotel is BanquetHall) {
+      images = hotel.imageUrl != null ? [hotel.imageUrl!] : [];
+    } else if (hotel != null) {
+      try {
+        images = List<String>.from(hotel.galleryImages ?? []);
+      } catch (e) {
+        print('Error extracting gallery images: $e');
       }
+    }
+
+    List<String> allImages = [];
+    if (hotel is HotelDetailModel) {
+      if (hotel.coverImageUrl != null) allImages.add(hotel.coverImageUrl!);
+      if (hotel.galleryImages != null) allImages.addAll(hotel.galleryImages!);
+    } else if (hotel is BanquetHall) {
+      if (hotel.imageUrl != null) allImages.add(hotel.imageUrl!);
+    } else {
+      try {
+        if (hotel.coverImageUrl != null) allImages.add(hotel.coverImageUrl);
+        if (hotel.galleryImages != null) {
+          allImages.addAll(List<String>.from(hotel.galleryImages));
+        }
+      } catch (e) {
+        allImages.add('assets/images/l1.png');
+      }
+    }
+    if (allImages.isEmpty) allImages.add('assets/images/l1.png');
+
+    if (images.isEmpty) {
+      return Center(
+        child: Text(
+          'No images available',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            color: fontColor,
+            fontSize: 12.sp,
+          ),
+        ),
+      );
+    }
+
     return ListView.builder(
       scrollDirection: Axis.horizontal,
-      itemCount: firstDetailedViewUser.length,
+      itemCount: images.length,
       itemBuilder: (context, index) {
-        final firstDetailedViewUserItem = firstDetailedViewUser[index];
-        return Row(
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 5.w),
-              height: 70.h,
-              width: 80.w,
-              decoration: BoxDecoration(
-                // color: blue,
-                borderRadius: BorderRadius.circular(10.sp),
-                image: DecorationImage(
-                    image: AssetImage(firstDetailedViewUserItem.img),
-
-                    fit: BoxFit.cover),
+        final imageUrl = images[index];
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FullScreenImageViewer(
+                  images: allImages,
+                  initialIndex: allImages.indexOf(imageUrl),
+                ),
               ),
-            )
-          ],
+            );
+          },
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 5.h),
+            height: 75.h,
+            width: 85.w,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.r),
+              color: white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(color: border, width: 1),
+              image: DecorationImage(
+                image: imageUrl.startsWith('http')
+                    ? NetworkImage(imageUrl)
+                    : AssetImage(imageUrl) as ImageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
         );
       },
     );

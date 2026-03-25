@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "345101271157",
+    "project_id": "homesloc-cb813",
+    "storage_bucket": "homesloc-cb813.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345101271157:android:f28e91b9ec57984f3a383c",
+        "android_client_info": {
+          "package_name": "com.homesloc.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "345101271157-qgef785fi0g7tiukkql1ligfn17fjihv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5r9r5RxWvJrqaTD5C4AGY0d1wEZstvwk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "345101271157-qgef785fi0g7tiukkql1ligfn17fjihv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,75 +2,110 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
+import 'package:homesloc/models/home/hotel_detail_model.dart';
 
 class TransportationsFirstRow extends StatelessWidget {
-  const TransportationsFirstRow({super.key});
+  final dynamic hotel;
+  const TransportationsFirstRow({super.key, this.hotel});
 
   @override
   Widget build(BuildContext context) {
+    List<TransportationInfo> info = [];
+
+    if (hotel is HotelDetailModel) {
+      info = hotel.transportationInfo ?? [];
+    }
+
+    if (info.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+        child: Text(
+          'No transportation info available',
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            color: fontColor,
+            fontSize: 10.sp,
+          ),
+        ),
+      );
+    }
+
     return Padding(
-      padding: EdgeInsets.only(left: 10.w,right: 10.w,top: 10.h),
-      child: Row(
-        children: [
-          Container(
-            width: 108.w,
-            height: 20.h,
+      padding: EdgeInsets.only(left: 10.w, right: 10.w, top: 10.h),
+      child: Wrap(
+        spacing: 12.w,
+        runSpacing: 12.h,
+        children: info.map((item) {
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
             decoration: BoxDecoration(
-              color: gwhite,
-              borderRadius: BorderRadius.circular(4.sp),
+              color: white,
+              borderRadius: BorderRadius.circular(12.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(color: border, width: 1),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Image(
-                  image: AssetImage('assets/images/Frame (25).png'),
-                  width: 13.w,
-                  height: 13.h,
-                  color: blue,
+                Container(
+                  padding: EdgeInsets.all(6.r),
+                  decoration: BoxDecoration(
+                    color: blue.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _getTransportIcon(item.type ?? ''),
+                    size: 14.sp,
+                    color: blue,
+                  ),
                 ),
-                SizedBox(
-                  width: 5.w,
-                ),
-                Text(
-                  'Airport - 9.3 km',
-                  style: TextStyle(
-                      color: black, fontFamily: 'Poppins', fontSize: 10.sp),
+                SizedBox(width: 10.w),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        item.type ?? 'N/A',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: black,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11.sp,
+                        ),
+                      ),
+                      Text(
+                        '${item.distance} km away',
+                        style: TextStyle(
+                          color: fontColor,
+                          fontFamily: 'Poppins',
+                          fontSize: 9.sp,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-          SizedBox(
-            width: 10.w,
-          ),
-          Container(
-            width: 142.w,
-            height: 20.h,
-            decoration: BoxDecoration(
-              color: gwhite,
-              borderRadius: BorderRadius.circular(4.sp),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image(
-                  image: AssetImage('assets/images/Frame (26).png'),
-                  width: 13.w,
-                  height: 13.h,
-                  color: blue,
-                ),
-                SizedBox(
-                  width: 5.w,
-                ),
-                Text(
-                  'Metro Station - 3.1 km',
-                  style: TextStyle(
-                      color: black, fontFamily: 'Poppins', fontSize: 10.sp),
-                ),
-              ],
-            ),
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
+  }
+
+  IconData _getTransportIcon(String type) {
+    final t = type.toLowerCase();
+    if (t.contains('airport')) return Icons.airplanemode_active;
+    if (t.contains('metro') || t.contains('train')) return Icons.train;
+    if (t.contains('bus')) return Icons.directions_bus;
+    return Icons.location_on_outlined;
   }
 }

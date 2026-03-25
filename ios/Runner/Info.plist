@@ -45,5 +45,32 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.345101271157-vml469ahgho9tqkprl22213bebhtrm6o</string>
+			</array>
+		</dict>
+	</array>
+	<key>GIDClientID</key>
+	<string>345101271157-vml469ahgho9tqkprl22213bebhtrm6o.apps.googleusercontent.com</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>googlegmail</string>
+		<string>x-googlegmail</string>
+		<string>comgooglemaps</string>
+		<string>googlechromes</string>
+		<string>com.google.gmm</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires camera access to take profile pictures and upload supporting documents.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires photo library access to select profile pictures and upload supporting documents.</string>
 </dict>
 </plist>

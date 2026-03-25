@@ -1,7 +1,6 @@
 // ignore_for_file: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:homesloc/core/colors/colors.dart';
 
 class NameView extends StatelessWidget {
   final String name;
@@ -33,22 +32,9 @@ class NameView extends StatelessWidget {
           // SizedBox(
           //   width: 30.w,
           // ),
-          Container(
-            width: 58.w,
-            height: 22.h,
-            decoration: BoxDecoration(
-                color: gwhite, borderRadius: BorderRadius.circular(4.sp)),
-            child: Center(
-              child: Text(
-                secondName,
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: secondColor,
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
+          // The View All button container has been intentionally removed throughout the application
+          // per user request. We keep the secondName parameter to avoid breaking references.
+          SizedBox.shrink(),
         ],
       ),
     );
