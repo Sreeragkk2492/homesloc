@@ -208,27 +208,27 @@ class _TourismDetailedViewScreenState extends State<TourismDetailedViewScreen> {
                     ],
                   ),
                 ),
-                // if (data.agencyDetails?.phoneNumber != null) ...[
-                //   SizedBox(height: 12.h),
-                //   Padding(
-                //     padding: EdgeInsets.symmetric(horizontal: 10.w),
-                //     child: Row(
-                //       children: [
-                //         Padding(
-                //           padding: EdgeInsets.only(right: 10.w),
-                //           child: Icon(Icons.phone, color: blue, size: 18.sp),
-                //         ),
-                //         Text(
-                //           data.agencyDetails!.phoneNumber!,
-                //           style: TextStyle(
-                //               fontFamily: 'Poppins',
-                //               color: black,
-                //               fontSize: 13.sp),
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-               // ],
+               // // if (data.agencyDetails?.phoneNumber != null) ...[
+               // //   SizedBox(height: 12.h),
+              //     Padding(
+              //       padding: EdgeInsets.symmetric(horizontal: 10.w),
+              //       child: Row(
+              //         children: [
+              //           Padding(
+              //             padding: EdgeInsets.only(right: 10.w),
+              //             child: Icon(Icons.phone, color: blue, size: 18.sp),
+              //           ),
+              //           Text(
+              //             data.agencyDetails!.phoneNumber!,
+              //             style: TextStyle(
+              //                 fontFamily: 'Poppins',
+              //                 color: black,
+              //                 fontSize: 13.sp),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //  ],
               
                 const HomeDivider(),
                 TourismAmenitiesSection(amenities: data.amenities),
