@@ -2,8 +2,7 @@ workflows:
   ios-workflow:
     name: iOS Build
 
-    integrations:
-      app_store_connect: Codemagic 
+   
 
     environment:
       flutter: 3.27.1
