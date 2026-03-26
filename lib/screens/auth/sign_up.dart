@@ -24,27 +24,33 @@ class SignUp extends StatelessWidget {
       child: Scaffold(
         backgroundColor: white,
         appBar: AppBar(
-          toolbarHeight: 70.h,
-          backgroundColor: white,
           automaticallyImplyLeading: false,
-          title: Center(
-            child: Text(
-              'Create Account',
-              style: TextStyle(
-                  color: black,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28.sp),
-            ),
-          ),
+          backgroundColor: white,
+          elevation: 0,
+          toolbarHeight: 0, // Minimize AppBar height
         ),
         body: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          child: Form(
-            key: controller.signupFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 40.h),
+              Center(
+                child: Text(
+                  'Create Account',
+                  style: TextStyle(
+                      color: black,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 28.sp),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Form(
+                key: controller.signupFormKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                 NameForm(
                     name: "Username",
                     controller: controller.nameController,
@@ -91,11 +97,10 @@ class SignUp extends StatelessWidget {
                     name: "Phone Number",
                     controller: controller.phoneNumberController,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter phone number';
-                      }
-                      if (!value.isNumericOnly) {
-                        return 'Please enter valid phone number';
+                      if (value != null && value.isNotEmpty) {
+                        if (!value.isNumericOnly) {
+                          return 'Please enter valid phone number';
+                        }
                       }
                       return null;
                     },
@@ -229,13 +234,15 @@ class SignUp extends StatelessWidget {
                         ),
                 ),
                   SizedBox(
-                  height: 8.h,
-                ),
-              ],
+                    height: 20.h,
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

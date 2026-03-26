@@ -8,21 +8,30 @@ workflows:
     environment:
       flutter: 3.27.1
       ios_signing:
-        automatic_signing: true 
         distribution_type: app_store
         bundle_identifier: com.homesloc.app 
-        
 
     scripts:
       - name: Install dependencies
         script: flutter pub get
 
-      - name: Set up code signing   # 🔥 IMPORTANT
+      - name: Set up code signing
         script: |
           xcode-project use-profiles
 
+      - name: Set minimum iOS platform in Podfile
+        script: |
+          cd ios
+          sed -i "s/# platform :ios, '12.0'/platform :ios, '15.0'/" Podfile
+          sed -i "s/platform :ios, '12.0'/platform :ios, '15.0'/" Podfile
+
+      - name: Install pods
+        script: |
+          cd ios
+          pod install
+
       - name: Build IPA
-        script: flutter build ipa --release
+        script: flutter build ipa --release --build-number=13
 
     artifacts:
       - build/ios/ipa/*.ipa

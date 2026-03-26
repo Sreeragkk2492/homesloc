@@ -4,6 +4,8 @@ import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/models/tourism/tourism_detail_model.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/tourism/tourism_detail_controller.dart';
+import 'package:homesloc/core/common/global_variables.dart';
+import 'package:homesloc/screens/auth/sign_in.dart';
 
 class TourismBookNow extends StatelessWidget {
   final TourismDetailModel data;
@@ -94,6 +96,19 @@ class TourismBookNow extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
+                  if (accessToken.isEmpty) {
+                    Get.snackbar(
+                      "Login Required",
+                      "Please login to continue",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: blue.withOpacity(0.8),
+                      colorText: white,
+                    );
+                    Future.delayed(const Duration(seconds: 2), () {
+                      Get.offAll(() => const SignIn());
+                    });
+                    return;
+                  }
                   final TourismDetailController controller =
                       Get.find<TourismDetailController>();
                   controller.checkAvailabilityAndBook();

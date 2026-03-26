@@ -16,6 +16,7 @@ class LoginScreenController extends GetxController {
 
   RxBool isLoading = false.obs;
   RxBool isGoogleLoading = false.obs;
+  RxBool isAppleLoading = false.obs;
   RxBool isAuthFailed = false.obs;
 
   RxString message = "".obs;
@@ -242,6 +243,32 @@ class LoginScreenController extends GetxController {
       Get.snackbar("Error", "Google Sign-In failed: $e");
     } finally {
       isGoogleLoading.value = false;
+    }
+  }
+
+  Future<void> signInWithApple() async {
+    try {
+      isAppleLoading.value = true;
+      final result = await FirebaseService.signInWithApple();
+
+      if (result.user != null && result.idToken != null) {
+        await appleLoginApi(idToken: result.idToken!);
+
+        // If backend username is empty, fallback to Firebase display name or email
+        if (userName.isEmpty || userName == "null") {
+          userName = result.user?.displayName ??
+              result.user?.email?.split('@').first ??
+              "Apple User";
+          const storage = FlutterSecureStorage();
+          await storage.write(key: "user_name", value: userName);
+        }
+
+        Get.offAll(() => BottomBarScreen());
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Apple Sign-In failed: $e");
+    } finally {
+      isAppleLoading.value = false;
     }
   }
 

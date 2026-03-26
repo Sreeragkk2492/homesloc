@@ -42,6 +42,9 @@ class ApiHelper {
 
     // If unauthorized, try refreshing the token
     if (response.statusCode == 401) {
+      if (token == null || token.isEmpty) {
+        return response;
+      }
       bool refreshed = await _refreshToken();
       if (refreshed) {
         // Retry the request with the new token
@@ -86,6 +89,9 @@ class ApiHelper {
 
     // If unauthorized, try refreshing the token
     if (response.statusCode == 401) {
+      if (token == null || token.isEmpty) {
+        return response;
+      }
       bool refreshed = await _refreshToken();
       if (refreshed) {
         // Retry the request with the new token
@@ -135,6 +141,9 @@ class ApiHelper {
 
     // If unauthorized, try refreshing the token
     if (response.statusCode == 401) {
+      if (token == null || token.isEmpty) {
+        return response;
+      }
       bool refreshed = await _refreshToken();
       if (refreshed) {
         // Retry the request with the new token

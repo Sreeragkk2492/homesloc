@@ -28,25 +28,31 @@ class SignIn extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: white,
-          toolbarHeight: 150.h,
-          title: Center(
-            child: Text(
-              'Sign In',
-              style: TextStyle(
-                  color: black,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 35.sp),
-            ),
-          ),
+          elevation: 0,
+          toolbarHeight: 0, // Minimize AppBar height
         ),
         body: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          child: Form(
-            key: controller.loginFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 60.h),
+              Center(
+                child: Text(
+                  'Sign In',
+                  style: TextStyle(
+                      color: black,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 35.sp),
+                ),
+              ),
+              SizedBox(height: 40.h),
+              Form(
+                key: controller.loginFormKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                 NameForm(
                     name: "Username",
                     controller:
@@ -177,10 +183,83 @@ class SignIn extends StatelessWidget {
                               ),
                             ),
                     ),
+                ),
+                ),
+                if (GetPlatform.isIOS) ...[
+                  SizedBox(height: 15.h),
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 23.w),
+                      child: Obx(
+                        () => controller.isAppleLoading.value
+                            ? const Center(child: AppLoader(size: 40))
+                            : OutlinedButton(
+                                onPressed: () => controller.signInWithApple(),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: white,
+                                  side:
+                                      BorderSide(color: black.withOpacity(0.1)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.sp),
+                                  ),
+                                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                                  minimumSize: Size(double.infinity, 48.h),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/logos/apple_logo.png',
+                                      height: 20.h,
+                                    ),
+                                    SizedBox(width: 12.w),
+                                    Text(
+                                      'Continue With Apple',
+                                      style: TextStyle(
+                                        fontFamily: 'Poppins',
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+                SizedBox(height: 15.h),
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 23.w),
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Get.offAll(() => BottomBarScreen());
+                      },
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: white,
+                        side: BorderSide(color: black.withOpacity(0.1)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.sp),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        minimumSize: Size(double.infinity, 48.h),
+                      ),
+                      child: Text(
+                        'Continue as Guest',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.bold,
+                          color: blue,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
-                  height: 50.h,
+                  height: 35.h,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -212,12 +291,15 @@ class SignIn extends StatelessWidget {
                       ),
                     ),
                   ],
-                )
+                ),
+                 SizedBox(height: 20.h),
               ],
             ),
           ),
-        ),
+        ],
       ),
-    );
+    ),
+  ),
+);
   }
 }
