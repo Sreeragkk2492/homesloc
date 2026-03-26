@@ -2,6 +2,7 @@ workflows:
   ios-workflow:
     name: iOS Build
 
+   
     integrations:
       app_store_connect: New key 
 
@@ -11,16 +12,17 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.homesloc.app 
 
+
     scripts:
       - name: Install dependencies
         script: flutter pub get
 
-      - name: Set up code signing
+      - name: Set up code signing   # 🔥 IMPORTANT
         script: |
           xcode-project use-profiles
 
       - name: Build IPA
-        script: flutter build ipa --release --build-number=13
+        script: flutter build ipa --release
 
     artifacts:
       - build/ios/ipa/*.ipa
@@ -28,4 +30,3 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
