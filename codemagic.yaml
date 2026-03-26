@@ -17,10 +17,7 @@ workflows:
 
       - name: Set up code signing
         script: |
-          xcode-project use-profiles --custom-export-options="{
-            \"signingStyle\": \"automatic\",
-            \"teamID\": \"Y3B2929F8A\"
-          }"
+          xcode-project use-profiles
 
       - name: Build IPA
         script: flutter build ipa --release --build-number=13
