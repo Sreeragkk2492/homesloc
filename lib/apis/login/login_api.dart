@@ -112,6 +112,50 @@ Future<LoginModel> googleLoginApi({required String idToken}) async {
   }
 }
 
+Future<LoginModel> appleLoginApi({required String idToken}) async {
+  const storage = FlutterSecureStorage();
+  try {
+    final url =
+        Uri.parse("${ApiConstant.BASE_URL}${ApiConstant.APPLE_AUTH_URL}");
+
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+      },
+      body: jsonEncode({
+        "id_token": idToken,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final loginresponse =
+          LoginModel.fromJson(jsonDecode(utf8.decode(response.bodyBytes)));
+
+      accessToken = loginresponse.accessToken.toString();
+      refreshToken = loginresponse.refreshToken.toString();
+      userId = loginresponse.userId.toString();
+      userName = loginresponse.username.toString();
+      userEmail = loginresponse.email.toString();
+
+      ///write to storage
+      await storage.write(key: "access_token", value: accessToken);
+      await storage.write(key: "refresh_token", value: refreshToken);
+      await storage.write(key: "user_id", value: userId);
+      await storage.write(key: "user_name", value: userName);
+      await storage.write(key: "user_email", value: userEmail);
+
+      return loginresponse;
+    } else {
+      throw Exception('Apple login failed: ${response.body}');
+    }
+  } catch (e) {
+    customSnackBar('Error', 'Apple login failed: $e');
+    throw Exception('Apple login error: $e');
+  }
+}
+
 Future<void> registerUser({
   required String username,
   required String password,

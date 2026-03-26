@@ -25,7 +25,7 @@ class ProfileScreen extends StatelessWidget {
         //    ),
         //  ),
         title: Text(
-          'Hi, $userName',
+          'Hi, ${userName.isEmpty || userName == "null" ? "Guest" : userName}',
           style: TextStyle(fontSize: 18.sp, color: white),
         ),
         actions: [
@@ -123,6 +123,44 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 20.h),
+              if (accessToken.isNotEmpty)
+                Center(
+                  child: TextButton(
+                    onPressed: () {
+                      Get.defaultDialog(
+                        title: "Delete Account",
+                        middleText:
+                            "Are you sure you want to permanently delete your account? This action cannot be undone.",
+                        textConfirm: "Delete",
+                        textCancel: "Cancel",
+                        confirmTextColor: Colors.white,
+                        buttonColor: Colors.red.shade600,
+                        onConfirm: () async {
+                          const storage = FlutterSecureStorage();
+                          await storage.deleteAll();
+
+                          // Clear globals
+                          accessToken = "";
+                          refreshToken = "";
+                          userId = "";
+                          userName = "";
+
+                          Get.offAll(() => const SignIn());
+                        },
+                      );
+                    },
+                    child: Text(
+                      'Delete Account',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 14.sp,
+                        color: Colors.grey.shade600,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
               SizedBox(height: 20.h),
             ],
           ),

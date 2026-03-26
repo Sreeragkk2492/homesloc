@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:homesloc/controller/freshup/freshup_detail_controller.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/models/search/search_hotel_model.dart';
+import 'package:homesloc/core/common/global_variables.dart';
+import 'package:homesloc/screens/auth/sign_in.dart';
 
 class FreshupBookNow extends StatelessWidget {
   final Hotel freshup;
@@ -105,6 +107,19 @@ class FreshupBookNow extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
+                  if (accessToken.isEmpty) {
+                    Get.snackbar(
+                      "Login Required",
+                      "Please login to continue",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: blue.withOpacity(0.8),
+                      colorText: white,
+                    );
+                    Future.delayed(const Duration(seconds: 2), () {
+                      Get.offAll(() => const SignIn());
+                    });
+                    return;
+                  }
                   final controller =
                       Get.find<FreshupDetailController>(tag: freshup.id);
                   controller.bookNow();

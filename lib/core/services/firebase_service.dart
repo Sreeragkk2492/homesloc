@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class FirebaseService {
   static Future<void> init() async {
@@ -53,6 +54,33 @@ class FirebaseService {
           await FirebaseAuth.instance.signInWithCredential(credential);
       
       // Get the Firebase ID Token (JWT) instead of the Google ID Token
+      final String? firebaseIdToken = await userCredential.user?.getIdToken();
+
+      return (user: userCredential.user, idToken: firebaseIdToken);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<({User? user, String? idToken})> signInWithApple() async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final OAuthProvider oAuthProvider = OAuthProvider('apple.com');
+      final AuthCredential authCredential = oAuthProvider.credential(
+        idToken: credential.identityToken,
+        accessToken: credential.authorizationCode,
+      );
+
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(authCredential);
+
+      // Get the Firebase ID Token (JWT)
       final String? firebaseIdToken = await userCredential.user?.getIdToken();
 
       return (user: userCredential.user, idToken: firebaseIdToken);

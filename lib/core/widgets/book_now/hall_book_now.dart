@@ -8,6 +8,8 @@ import 'package:homesloc/apis/home/hotel_detail_service.dart';
 import 'package:get/get.dart';
 import 'package:homesloc/controller/calender_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:homesloc/core/common/global_variables.dart';
+import 'package:homesloc/screens/auth/sign_in.dart';
 import 'package:homesloc/models/booking/room_availability_model.dart'
     as room_model;
 
@@ -88,6 +90,19 @@ class HallBookNow extends StatelessWidget {
               ),
               InkWell(
                 onTap: () async {
+                  if (accessToken.isEmpty) {
+                    Get.snackbar(
+                      "Login Required",
+                      "Please login to continue",
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: blue.withOpacity(0.8),
+                      colorText: white,
+                    );
+                    Future.delayed(const Duration(seconds: 2), () {
+                      Get.offAll(() => const SignIn());
+                    });
+                    return;
+                  }
                   final calendarController = Get.find<CalendarController>();
                   final HotelDetailService hotelDetailService =
                       HotelDetailService();

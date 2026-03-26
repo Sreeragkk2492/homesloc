@@ -13,6 +13,7 @@ class ApiConstant {
   static String RESET_PASSWORD_WITH_TOKEN_URL =
       "/api/v1/auth/reset-password-with-token";
   static String GOOGLE_AUTH_URL = "/api/v1/auth/google";
+  static String APPLE_AUTH_URL = "/api/v1/auth/google";
 
   //homescreen
   static String HOME_SCREEN_URL = "/api/v1/mobile/homepage";
