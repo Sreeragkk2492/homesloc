@@ -3,26 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:homesloc/core/colors/colors.dart';
 
-class PasswordForm extends StatelessWidget {
+class PasswordForm extends StatefulWidget {
   final String? Function(String?)? validator;
   final String name;
   final String hintText;
-  // final IconData? icon;
-  // bool obscureText = false;
-  // final VoidCallback onPressed;
   final TextEditingController? controller;
+
   const PasswordForm({
-    // required this.obscureText,
-    // this.icon,
     required this.name,
     super.key,
     required this.controller,
     this.validator,
     required Null Function(dynamic value) onSaved,
     required this.hintText,
-    // required this.onPressed,
-    // required this.obscureText
   });
+
+  @override
+  State<PasswordForm> createState() => _PasswordFormState();
+}
+
+class _PasswordFormState extends State<PasswordForm> {
+  bool _isObscured = true;
 
   @override
   Widget build(BuildContext context) {
@@ -33,28 +34,37 @@ class PasswordForm extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(
               bottom: 8.h,
-              // top: 30.h,
               left: 2.w,
             ),
             child: Text(
-              name,
+              widget.name,
               style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 11.sp,
-                  // fontSize: 12,
                   fontWeight: FontWeight.bold,
                   color: black),
             ),
           ),
           SizedBox(
             width: 320.w,
-            // height: 40.h,
             child: TextFormField(
-              validator: validator,
-              // obscureText: obscureText,
-              controller: controller,
+              validator: widget.validator,
+              obscureText: _isObscured,
+              controller: widget.controller,
               decoration: InputDecoration(
-                hintText: hintText,
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _isObscured = !_isObscured;
+                    });
+                  },
+                  icon: Icon(
+                    _isObscured ? Icons.visibility_off : Icons.visibility,
+                    color: grey,
+                    size: 20.sp,
+                  ),
+                ),
+                hintText: widget.hintText,
                 hintStyle: TextStyle(color: grey, fontSize: 13.sp),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
