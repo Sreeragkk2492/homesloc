@@ -26,24 +26,7 @@ class BottomBarScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-
-        if (controller.selectedPageIndex.value != 0) {
-          // If not on Home tab, switch to Home tab
-          controller.updateSelectedPageIndex(0);
-        } else {
-          // If on Home tab, allow the app to be closed
-          // Use Navigator.of(context).pop() or similar if this is a nested navigator
-          // But since this is likely the root, we might need a different approach to actually "exit"
-          // However, setting canPop based on index or using SystemNavigator.pop() is common.
-          // For now, let's try to allow the pop by checking the index.
-          // Note: In modern Flutter, you might need to manage canPop dynamically.
-        }
-      },
-      child: Obx(() => PopScope(
+    return Obx(() => PopScope(
             canPop: controller.selectedPageIndex.value == 0,
             onPopInvokedWithResult: (didPop, result) {
               if (didPop) return;
@@ -99,41 +82,6 @@ class BottomBarScreen extends StatelessWidget {
                             );
                           }),
                         ),
-                        // InkWell(
-                        //   onTap: () {
-                        //     controller.updateSelectedPageIndex(1);
-                        //   },
-                        //   child: Obx(() {
-                        //     return NewNavigation(
-                        //       name: 'Category',
-                        //       icon: 'assets/images/Frame (4).png',
-                        //       iconColor: controller.selectedPageIndex.value == 1
-                        //           ? blue
-                        //           : Color(0xff999999),
-                        //       nameColor: controller.selectedPageIndex.value == 1
-                        //           ? blue
-                        //           : Color(0xff999999),
-                        //     );
-                        //   }),
-                        // ),
-              
-                        // InkWell(
-                        //   onTap: () {
-                        //     controller.updateSelectedPageIndex(3);
-                        //   },
-                        //   child: Obx(() {
-                        //     return NewNavigation(
-                        //       name: 'Favourite',
-                        //       icon: 'assets/images/Frame (6).png',
-                        //       iconColor: controller.selectedPageIndex.value == 3
-                        //           ? blue
-                        //           : Color(0xff999999),
-                        //       nameColor: controller.selectedPageIndex.value == 3
-                        //           ? blue
-                        //           : Color(0xff999999),
-                        //     );
-                        //   }),
-                        // ),
                         InkWell(
                           onTap: () {
                             controller.updateSelectedPageIndex(2);
@@ -157,7 +105,6 @@ class BottomBarScreen extends StatelessWidget {
                 ),
               ),
             ),
-          )),
-    );
+          ));
   }
 }

@@ -23,7 +23,8 @@ class LoginScreenController extends GetxController {
 
   // Registration Controllers
   final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  final loginPasswordController = TextEditingController();
+  final signupPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -70,12 +71,12 @@ class LoginScreenController extends GetxController {
 
     // print("Login Button Pressed");
     // print("Username from Controller: '${usernameController.text}'");
-    // print("Password from Controller: '${passwordController.text}'");
+    // print("Password from Controller: '${loginPasswordController.text}'");
 
     try {
       await loginApi(
         username: usernameController.text,
-        password: passwordController.text,
+        password: loginPasswordController.text,
       );
     } catch (e) {
       isAuthFailed.value = true;
@@ -134,7 +135,7 @@ class LoginScreenController extends GetxController {
     try {
       await registerUser(
         username: nameController.text, // Using name as username
-        password: passwordController.text,
+        password: signupPasswordController.text,
         name: nameController.text,
         email: emailController.text,
         phoneNumber: phoneNumberController.text,
@@ -161,7 +162,8 @@ class LoginScreenController extends GetxController {
 
   void clearRegistrationControllers() {
     usernameController.clear();
-    passwordController.clear();
+    loginPasswordController.clear();
+    signupPasswordController.clear();
     confirmPasswordController.clear();
     nameController.clear();
     emailController.clear();
@@ -275,7 +277,8 @@ class LoginScreenController extends GetxController {
   @override
   void onClose() {
     usernameController.dispose();
-    passwordController.dispose();
+    loginPasswordController.dispose();
+    signupPasswordController.dispose();
     confirmPasswordController.dispose();
     nameController.dispose();
     emailController.dispose();

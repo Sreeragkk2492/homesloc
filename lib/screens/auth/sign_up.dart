@@ -137,7 +137,7 @@ class SignUp extends StatelessWidget {
                 ),
                 PasswordForm(
                   name: "Password",
-                  controller: controller.passwordController,
+                  controller: controller.signupPasswordController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter password';
@@ -160,7 +160,7 @@ class SignUp extends StatelessWidget {
                     if (value == null || value.isEmpty) {
                       return 'Please confirm password';
                     }
-                    if (value != controller.passwordController.text) {
+                    if (value != controller.signupPasswordController.text) {
                       return 'Passwords do not match';
                     }
                     return null;

@@ -66,7 +66,7 @@ class SignIn extends StatelessWidget {
                     onSaved: (value) {}),
                 PasswordForm(
                   name: "Password",
-                  controller: controller.passwordController, // Bind to controller
+                  controller: controller.loginPasswordController, // Bind to controller
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter password';
