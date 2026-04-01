@@ -1,6 +1,6 @@
 class ApiConstant {
   //this is the base url
-  static String BASE_URL = "https://homesloc.qhance.com";
+  static String BASE_URL = "https://api.homesloc.com";
 
   //auth
   static String LOGIN_URL = "/api/v1/auth/login";

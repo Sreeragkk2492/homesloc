@@ -47,8 +47,12 @@ class RazorpayService {
       final url = Uri.parse(
           '${ApiConstant.BASE_URL}${ApiConstant.RAZORPAY_CREATE_ORDER_URL}');
 
+      // The backend strictly requires an integer (Rupees).
+      // We use .ceil() to send a whole number to satisfy the backend,
+      // while the frontend will still charge the exact decimals.
+      final int integerRupees = amount.ceil();
       final body = jsonEncode({
-        'amount': amount, // Send amount in Rupees as requested
+        'amount': integerRupees,
       });
 
       print('Starting Razorpay Create Order Request:');
