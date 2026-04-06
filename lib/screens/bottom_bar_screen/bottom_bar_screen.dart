@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:homesloc/core/colors/colors.dart';
 import 'package:homesloc/core/controller/bottom_navigation_bar/bottom_bar_controller.dart';
 import 'package:homesloc/core/controller/bottom_navigation_bar/new_navigation.dart';
+import 'package:flutter/services.dart';
+import 'package:homesloc/widgets/custom_snackbar.dart';
 import 'package:homesloc/screens/categorie_screen/categorie_screen.dart';
 import 'package:homesloc/screens/home/home_screen.dart';
 import 'package:homesloc/screens/profile_screen/profile_screen.dart';
@@ -26,12 +28,22 @@ class BottomBarScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => PopScope(
-            canPop: controller.selectedPageIndex.value == 0,
+    return PopScope(
+            canPop: false,
             onPopInvokedWithResult: (didPop, result) {
               if (didPop) return;
               if (controller.selectedPageIndex.value != 0) {
                 controller.updateSelectedPageIndex(0);
+              } else {
+                final now = DateTime.now();
+                if (controller.lastBackPressed == null ||
+                    now.difference(controller.lastBackPressed!) >
+                        const Duration(seconds: 2)) {
+                  controller.lastBackPressed = now;
+                  customSnackBar('Exit App', 'Press back again to exit');
+                } else {
+                  SystemNavigator.pop();
+                }
               }
             },
             child: SafeArea(
@@ -105,6 +117,6 @@ class BottomBarScreen extends StatelessWidget {
                 ),
               ),
             ),
-          ));
+          );
   }
 }
