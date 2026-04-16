@@ -51,6 +51,22 @@ class MyApp extends StatelessWidget {
           title: 'Homesloc',
           debugShowCheckedModeBanner: false,
           theme: appTheme,
+          builder: (context, widget) {
+            // Only constrain on tablets (width > 600), mobile stays untouched
+            final screenWidth = MediaQuery.of(context).size.width;
+            if (screenWidth > 600) {
+              return Container(
+                color: Colors.white,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: widget,
+                  ),
+                ),
+              );
+            }
+            return widget ?? const SizedBox.shrink();
+          },
           home: child ?? const Splashscreen(),
         );
       },
