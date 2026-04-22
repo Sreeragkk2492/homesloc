@@ -19,9 +19,11 @@ import 'package:homesloc/themes/app_theme.dart';
 
 import 'package:homesloc/core/services/firebase_service.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   
   try {
     await FirebaseService.init();

@@ -53,8 +53,4 @@ class ApiConstant {
   static const String HOTEL_BOOKING_HISTORY_URL = '/hotel/bookings/history';
   static const String PROFILE_URL = '/api/v1/users/profile';
 
-  // Razorpay
-  static const String RAZORPAY_TEST_KEY = "rzp_live_a4Z4SMNTQ4azeb";
-  static const String RAZORPAY_CREATE_ORDER_URL =
-      "/api/v1/bookings/razorpay/create-order";
 }

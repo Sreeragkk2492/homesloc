@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:homesloc/core/api/api_helper.dart';
 import 'package:homesloc/core/constant/api_constant.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RazorpayService {
   static final RazorpayService _instance = RazorpayService._internal();
@@ -45,7 +46,7 @@ class RazorpayService {
   Future<String?> generateOrderId(double amount) async {
     try {
       final url = Uri.parse(
-          '${ApiConstant.BASE_URL}${ApiConstant.RAZORPAY_CREATE_ORDER_URL}');
+          '${ApiConstant.BASE_URL}${dotenv.env['RAZORPAY_CREATE_ORDER_URL']}');
 
       // The backend strictly requires an integer (Rupees).
       // We use .ceil() to send a whole number to satisfy the backend,
@@ -115,7 +116,7 @@ class RazorpayService {
       final int amountInPaise = (amount * 100).toInt();
 
       var options = {
-        'key': ApiConstant.RAZORPAY_TEST_KEY,
+        'key': dotenv.env['RAZORPAY_TEST_KEY'],
         'order_id': orderId,
         'amount': amountInPaise,
         'currency': 'INR',
